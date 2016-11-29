@@ -8,3 +8,6 @@
 
 
 + [MDwiki 使い方](howto.md)
+
+
++ [src on github](https://github.com/ShigekiKarita/shigekikarita.github.io)
