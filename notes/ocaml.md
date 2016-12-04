@@ -25,9 +25,9 @@ BatteriesはC++でいうBoostのようなライブラリ集で、標準ライブ
 open Batteries
 
 let zip_string a b =
-  let of_enum =  Text.enum % Text.of_string in
-  let ea = of_enum a in
-  let eb = of_enum b in
+  let to_enum =  Text.enum % Text.of_string in
+  let ea = to_enum a in
+  let eb = to_enum b in
   let append2 x y = Text.append_char x %> Text.append_char y in
   let zip_text = Enum.fold2 append2 Text.empty in
   zip_text ea eb |> Text.to_string
