@@ -35,9 +35,9 @@ let zip_string a b =
 let () = zip_string "パトカー" "タクシー" |> print_endline
 ```
 
-ここで、ギョッとするけど`%`とか`%>` は関数合成です(適用順が逆同士)。デフォルトで有効になっている中置き演算子は[BatPervasives](https://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatPervasives.html)に説明してあります。
+ここで、ギョッとするけど`%`とか`%>` は関数合成です(適用順が逆同士)。デフォルトで有効になっている中置き演算子は[BatPervasives](https://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatPervasives.html)に説明してあります。あと[(Bat)Enum](https://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatEnum.html)は, [githubのwiki](https://github.com/ocaml-batteries-team/batteries-included/wiki/Introduction-to-batEnum)によるとデータ構造の変換ブリッジや、線形アルゴリズムの実装に使うものらしいけど、`List`とどう違うのかはよくわからない、ただ関係する関数を見てると使い捨て(処理の中間で使う)データ構造らしく[D言語のRange](https://www.tutorialspoint.com/d_programming/d_programming_ranges.htm)っぽい感じがします(適当)。
 
-以下のようにしてコンパイル＆実行できます。
+細かいことはともかく、以下のようにコンパイル＆実行できます。
 
 ```
 $ ocamlbuild -use-ocamlfind ./q01.native
@@ -45,4 +45,4 @@ $ ./q01.native
 パタトクカシーー
 ```
 
-また、自然言語処理100本ノックやって知見がたまったら何か書きます。
+また何か、自然言語処理100本ノックやって知見がたまったら続き書きます。
