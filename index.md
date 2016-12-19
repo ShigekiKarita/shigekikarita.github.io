@@ -42,3 +42,4 @@ summary of blog notes
 + D-lang
 + [OCaml](notes/ocaml.md)
 + Haskell
++ [MxNet](notes/mxnet.md)
