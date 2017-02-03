@@ -6,6 +6,8 @@
 
 個人の wiki みたいな
 
++ GitHub - [https://github.com/ShigekiKarita](https://github.com/ShigekiKarita)
+
 + 雑記(こちらに移行中) - [https://shigekikarita.github.io/blog](https://shigekikarita.github.io/)
 
 
@@ -15,6 +17,13 @@
 + [src on github](https://github.com/ShigekiKarita/shigekikarita.github.io)
 
 ## tools
+
+
+D-language library
+
++ [d-nvrtc: CUDA runtime compiler for D-language](https://github.com/ShigekiKarita/d-nvrtc)
++ [d-svm: Support Vector Machines for D-language](https://github.com/ShigekiKarita/d-svm)
+
 
 <!-- ![svm](https://raw.githubusercontent.com/ShigekiKarita/cy-svm/master/res/svms.png) -->
 pattern recognition
