@@ -1,7 +1,5 @@
 [gimmick:themechooser](choose-theme)
 [gimmick:theme](cosmo)
 [top](index.html)
-[blog](https://shigekikarita.github.io/blog)
-[how2write](howto.md)
 [github](https://github.com/ShigekiKarita/shigekikarita.github.io)
 [gimmick: math]()
