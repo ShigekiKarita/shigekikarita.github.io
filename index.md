@@ -8,13 +8,6 @@
 
 + GitHub - [https://github.com/ShigekiKarita](https://github.com/ShigekiKarita)
 
-+ 雑記(こちらに移行中) - [https://shigekikarita.github.io/blog](https://shigekikarita.github.io/)
-
-
-+ [MDwiki 使い方](howto.md)
-
-
-+ [src on github](https://github.com/ShigekiKarita/shigekikarita.github.io)
 
 ## tools
 
@@ -43,12 +36,4 @@ ats2
 
 ## notes
 
-summary of blog notes
-
-+ ATS2
-+ C++
-+ [Fortran](notes/fortran.md)
-+ D-lang
 + [OCaml](notes/ocaml.md)
-+ Haskell
-+ [MxNet](notes/mxnet.md)
