@@ -4,7 +4,8 @@
 
 ## index
 
-個人の wiki みたいな
+
+Emacsのorg-modeが便利なので、markdownとMDwikiやめてすべてorg-modeに移行したい
 
 + GitHub - [https://github.com/ShigekiKarita](https://github.com/ShigekiKarita)
 
