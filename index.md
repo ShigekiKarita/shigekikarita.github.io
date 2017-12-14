@@ -15,6 +15,7 @@ Emacsのorg-modeが便利なので、markdownとMDwikiやめてすべてorg-mode
 
 D-language library
 
++ [numir: numpy-like numeric lib for D-language](https://github.com/libmir/numir)
 + [d-nvrtc: CUDA runtime compiler for D-language](https://github.com/ShigekiKarita/d-nvrtc)
 + [d-svm: Support Vector Machines for D-language](https://github.com/ShigekiKarita/d-svm)
 
