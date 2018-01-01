@@ -16,7 +16,7 @@ OCaml関係の小ネタ
 
 OCaml 4.04, Batteries 2.5.3 の情報です
 
-** Unicode 文字列の操作
+* Unicode 文字列の操作
 
 OCamlで日本語(とunicode全般)を処理するには、どうすればいいのか...。[[https://www.reddit.com/r/ocaml/comments/39t31h/libraries_and_tools_for_unicodeutf8_strings_in/][Reddit - Libraries and Tools for Unicode/UTF-8 strings in OCaml?]]によると[Camomile](https://github.com/yoriyuki/Camomile)と、現在Camomileは開発終了され、その作者はBatteriesの[BatText](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatText.html)に貢献しているのでとりあえずBatteriesを使おうと思います。
 
