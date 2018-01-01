@@ -1,0 +1,89 @@
+#+TITLE: KARITECH
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+# THEMES (uncomment one block) #
+
+# org.css
+#+OPTIONS: toc:nil num:nil H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+
+#+BEGIN_abstract
+#+BEGIN_center
+ライフログ的な...
+#+END_center
+#+END_abstract
+
+[[file:index.html][index]]
+
+
+* 2018年01月02日 おけましておめでとうございます.
+
+どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
+
+1. 就職して時間がない...
+2. Markdownがしんどい (細かい方言、MDWiki,Jekyllのこととか)
+3. C++/CUDA(のような膨大な知識を要求する言語)をあまり書かなくなってネタが少ない
+
+ということが挙げられるのですが、1は仕方ないとしても、2と3はどうにかしようと思いました。
+MDWikiやJekyllを使ってブログを書くのは表現力としても、保守の面からもしんどい(時間が経つと忘れてしまう)という結論になりました。何気なくEmacsに標準で付属しているorg-modeに移行しました。日常的に仕事のメモで使っているのですが、不満は全く無く、Markdownに対する利点としても
+
+- Emacsさえあれば環境構築は完了
+- なんとなくMarkdownに文法が似てplain-textでも読み書きしやすい
+- Emacsで文法ハイライトできる言語は全て対応されるので最強(Pygmentsなどがいらない)
+- 表計算や表の整形もお手軽
+- HTML出力(C-c C-h で一発変換)ではMathjaxの数式組版もサポート
+- TeX->PDF出力もお手軽
+
+という唯一無二なツールでした。標準以外の機能としてはこんなものを使っています
+
+- 雑記用にorg-journalという自動で日時付きの見出しをorgファイルに挿入するパッケージ
+- Mathjaxが古いので、最新版落として使っています。(数式番号が振られます)
+- HTML出力が味気ないので(素の感じが大学のページっぽくて好きだが)、有志のCSSを使っています。 https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a
+- HTML出力をリアルタイム更新でモニタするためにbrowser-syncを使っています。(例: ~browser-sync start --server --files **/*.html~ )
+
+その他の細かい設定としてはこんな事をしてます。
+#+begin_src elisp
+  ;; org-journal をブログ用のリポジトリに1ファイルでまとめる
+  (setq org-journal-date-format "%x")
+  (setq org-journal-time-format "<%Y-%m-%d %R> ")
+  (setq org-journal-file-format "journal.org")
+  (setq org-journal-dir "~/Documents/repos/shigekikarita.github.io/")
+
+  ;; org-mode からバッファ移動のコマンドを取り戻す
+  (add-hook 'org-shiftup-final-hook 'windmove-up)
+  (add-hook 'org-shiftleft-final-hook 'windmove-left)
+  (add-hook 'org-shiftdown-final-hook 'windmove-down)
+  (add-hook 'org-shiftright-final-hook 'windmove-right)
+
+  ;; org-mode は行の折り返しなしモードになるので、無効にする
+  (setq org-startup-truncated nil)
+
+  ;; 日本語PDFのためにlualatex他、便利TeXパッケージを使う
+  (setq org-latex-classes '(("ltjsarticle"
+"\\documentclass{ltjsarticle}
+\\usepackage{url}
+\\usepackage{amsmath}
+\\usepackage{newtxtext,newtxmath}
+\\usepackage{graphicx}
+\\usepackage{luatexja}
+\\usepackage{hyperref}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]"
+            ("\\section{%s}" . "\\section*{%s}")
+            ("\\subsection{%s}" . "\\subsection*{%s}")
+            ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+            ("\\paragraph{%s}" . "\\paragraph*{%s}")
+            ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+               ))
+  (setq org-latex-pdf-process '("latexmk -gg -lualatex %f"))
+  (setq org-latex-default-class "ltjsarticle")
+#+end_src
+
+あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、リハビリがてらC++17対応のC++ Template Complete Guideを読み進めているので、面白いネタがあれば紹介しようと思います。
+
+それでは、今年も宜しくお願いします。
+
+
+

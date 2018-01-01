@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-01-02 火 01:21 -->
+<!-- 2018-01-02 火 01:22 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KARITECH - カリテク</title>
+<title>KARITECH</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Shigeki Karita" />
 <style type="text/css">
@@ -229,87 +229,114 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
-<h1 class="title">KARITECH - カリテク</h1>
+<h1 class="title">KARITECH</h1>
 <div class="abstract">
 <div class="org-center">
 <p>
-プログラミングが好きです。
+ライフログ的な&#x2026;
 </p>
 </div>
 
 </div>
 
-<div id="outline-container-org468ffb2" class="outline-2">
-<h2 id="org468ffb2">リンク</h2>
-<div class="outline-text-2" id="text-org468ffb2">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita">GitHub</a></li>
-<li><a href="https://twitter.com/kari_tech">Twitter</a></li>
-<li><a href="journal.html">雑記</a></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org9aa99f8" class="outline-2">
-<h2 id="org9aa99f8">趣味のOSS活動など</h2>
-<div class="outline-text-2" id="text-org9aa99f8">
 <p>
-基本的にはBSL-1.0ライセンスです。
+<a href="index.html">index</a>
 </p>
+
+
+<div id="outline-container-orgf182c97" class="outline-2">
+<h2 id="orgf182c97">2018年01月02日 おけましておめでとうございます.</h2>
+<div class="outline-text-2" id="text-orgf182c97">
+<p>
+どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
+</p>
+
+<ol class="org-ol">
+<li>就職して時間がない&#x2026;</li>
+<li>Markdownがしんどい (細かい方言、MDWiki,Jekyllのこととか)</li>
+<li>C++/CUDA(のような膨大な知識を要求する言語)をあまり書かなくなってネタが少ない</li>
+</ol>
+
+<p>
+ということが挙げられるのですが、1は仕方ないとしても、2と3はどうにかしようと思いました。
+MDWikiやJekyllを使ってブログを書くのは表現力としても、保守の面からもしんどい(時間が経つと忘れてしまう)という結論になりました。何気なくEmacsに標準で付属しているorg-modeに移行しました。日常的に仕事のメモで使っているのですが、不満は全く無く、Markdownに対する利点としても
+</p>
+
+<ul class="org-ul">
+<li>Emacsさえあれば環境構築は完了</li>
+<li>なんとなくMarkdownに文法が似てplain-textでも読み書きしやすい</li>
+<li>Emacsで文法ハイライトできる言語は全て対応されるので最強(Pygmentsなどがいらない)</li>
+<li>表計算や表の整形もお手軽</li>
+<li>HTML出力(C-c C-h で一発変換)ではMathjaxの数式組版もサポート</li>
+<li>TeX-&gt;PDF出力もお手軽</li>
+</ul>
+
+<p>
+という唯一無二なツールでした。標準以外の機能としてはこんなものを使っています
+</p>
+
+<ul class="org-ul">
+<li>雑記用にorg-journalという自動で日時付きの見出しをorgファイルに挿入するパッケージ</li>
+<li>Mathjaxが古いので、最新版落として使っています。(数式番号が振られます)</li>
+<li>HTML出力が味気ないので(素の感じが大学のページっぽくて好きだが)、有志のCSSを使っています。 <a href="https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a">https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a</a></li>
+<li>HTML出力をリアルタイム更新でモニタするためにbrowser-syncを使っています。(例: <code>browser-sync start --server --files **/*.html</code> )</li>
+</ul>
+
+<p>
+その他の細かい設定としてはこんな事をしてます。
+</p>
+<div class="org-src-container">
+<pre class="src src-elisp">  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-journal &#12434;&#12502;&#12525;&#12464;&#29992;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12395;1&#12501;&#12449;&#12452;&#12523;&#12391;&#12414;&#12392;&#12417;&#12427;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-date-format <span style="color: #2d9574;">"%x"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-time-format <span style="color: #2d9574;">"&lt;%Y-%m-%d %R&gt; "</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-file-format <span style="color: #2d9574;">"journal.org"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-dir <span style="color: #2d9574;">"~/Documents/repos/shigekikarita.github.io/"</span><span style="color: #3a81c3;">)</span>
+
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12363;&#12425;&#12496;&#12483;&#12501;&#12449;&#31227;&#21205;&#12398;&#12467;&#12510;&#12531;&#12489;&#12434;&#21462;&#12426;&#25147;&#12377;</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftup-final-hook 'windmove-up<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftleft-final-hook 'windmove-left<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftdown-final-hook 'windmove-down<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftright-final-hook 'windmove-right<span style="color: #3a81c3;">)</span>
+
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12399;&#34892;&#12398;&#25240;&#12426;&#36820;&#12375;&#12394;&#12375;&#12514;&#12540;&#12489;&#12395;&#12394;&#12427;&#12398;&#12391;&#12289;&#28961;&#21177;&#12395;&#12377;&#12427;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-startup-truncated nil<span style="color: #3a81c3;">)</span>
+
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#26085;&#26412;&#35486;PDF&#12398;&#12383;&#12417;&#12395;lualatex&#20182;&#12289;&#20415;&#21033;TeX&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#20351;&#12358;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-classes '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"ltjsarticle"</span>
+<span style="color: #2d9574;">"\\documentclass{ltjsarticle}</span>
+<span style="color: #2d9574;">\\usepackage{url}</span>
+<span style="color: #2d9574;">\\usepackage{amsmath}</span>
+<span style="color: #2d9574;">\\usepackage{newtxtext,newtxmath}</span>
+<span style="color: #2d9574;">\\usepackage{graphicx}</span>
+<span style="color: #2d9574;">\\usepackage{luatexja}</span>
+<span style="color: #2d9574;">\\usepackage{hyperref}</span>
+<span style="color: #2d9574;"> [NO-DEFAULT-PACKAGES]</span>
+<span style="color: #2d9574;"> [PACKAGES]</span>
+<span style="color: #2d9574;"> [EXTRA]"</span>
+            <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\section{%s}"</span> . <span style="color: #2d9574;">"\\section*{%s}"</span><span style="color: #67b11d;">)</span>
+            <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subsection{%s}"</span> . <span style="color: #2d9574;">"\\subsection*{%s}"</span><span style="color: #67b11d;">)</span>
+            <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subsubsection{%s}"</span> . <span style="color: #2d9574;">"\\subsubsection*{%s}"</span><span style="color: #67b11d;">)</span>
+            <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\paragraph{%s}"</span> . <span style="color: #2d9574;">"\\paragraph*{%s}"</span><span style="color: #67b11d;">)</span>
+            <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subparagraph{%s}"</span> . <span style="color: #2d9574;">"\\subparagraph*{%s}"</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>
+               <span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-pdf-process '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">"latexmk -gg -lualatex %f"</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-default-class <span style="color: #2d9574;">"ltjsarticle"</span><span style="color: #3a81c3;">)</span>
+</pre>
 </div>
 
-<div id="outline-container-org52a3ba7" class="outline-3">
-<h3 id="org52a3ba7">D言語</h3>
-<div class="outline-text-3" id="text-org52a3ba7">
-<ul class="org-ul">
-<li><a href="https://github.com/libmir/numir">libmir/numir</a> D言語でnumpyライクな数値計算を行うライブラリ。numpyフォーマットなバイナリへの出力も可能</li>
-<li><a href="https://github.com/ShigekiKarita/d-nv">d-nv</a> D言語でDriver APIやNVRTCなどのCUDAを手軽に使うライブラリ。CTFEを使った静的なカーネルの引数型チェックなども実装</li>
-<li><a href="https://github.com/ShigekiKarita/d-svm">d-svm</a> 幾つかの非線形カーネルとSMOによるSupport Vector Machine (SVM)のＤ言語実装、LIBSVMよりは遅いです。</li>
-<li><a href="https://github.com/ShigekiKarita/d-ssvm">d-ssvm</a> D言語による構造化SVMの実装、PyStructより早ければ良いという気持ちで作っています</li>
-</ul>
-</div>
-</div>
+<p>
+あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、リハビリがてらC++17対応のC++ Template Complete Guideを読み進めているので、面白いネタがあれば紹介しようと思います。
+</p>
 
-<div id="outline-container-orgd2bed4f" class="outline-3">
-<h3 id="orgd2bed4f">OCaml</h3>
-<div class="outline-text-3" id="text-orgd2bed4f">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/ocaml-kaleido-llvm5">ocaml-kaleido-llvm5</a> LLVMのOCamlチュートリアルが古くなり動かないので、勉強がてらLLVM5.0とMenhirで書きなおした</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-orgd46ddbe" class="outline-3">
-<h3 id="orgd46ddbe">C++</h3>
-<div class="outline-text-3" id="text-orgd46ddbe">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/cxx14_thread_pool">cxx14_thread_pool</a> C++14用の簡単な優先度付きキューによるスレッドプール実装</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org8527cc3" class="outline-3">
-<h3 id="org8527cc3">Python</h3>
-<div class="outline-text-3" id="text-org8527cc3">
-<ul class="org-ul">
-<li><a href="https://github.com/espnet/espnet">espnet</a> seq2seqモデルによる音声認識ツールキット(Apache2.0ライセンス)。主にpytorchバックエンド(かなり高速です)を貢献</li>
-</ul>
-</div>
-</div>
-</div>
-
-<div id="outline-container-org20d3b1b" class="outline-2">
-<h2 id="org20d3b1b">技術系ノート</h2>
-<div class="outline-text-2" id="text-org20d3b1b">
-<ul class="org-ul">
-<li><a href="notes/ocaml.html">OCamlネタ</a></li>
-</ul>
+<p>
+それでは、今年も宜しくお願いします。
+</p>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-01-02 火 01:21</p>
+<p class="date">Created: 2018-01-02 火 01:22</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
