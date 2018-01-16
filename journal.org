@@ -16,15 +16,69 @@
 
 [[file:index.html][index]]
 
+* 2018年01月16日 C++でネストした要素型の取得                            :cpp:
 
-* 2018年01月02日 おけましておめでとうございます.
+ごくまれにC++で 
+#+begin_src c++
+std::vector<std::vector<float>>
+#+end_src
+のようなネストした型の最後の要素 (ここでは float) を取得したいことがある．
+D言語のように後方参照可能な型システムでは， [[https://github.com/libmir/numir/blob/83dbfe883b5421ba5dcf782cef272f8d205907a6/source/numir/core.d#L195-L205][再帰的に型を辿れば簡単]] だが，
+#+begin_src d
+template NestedElementType(T) {
+    static if (isArray!T) {
+        alias NestedElementType = NestedElementType!(ElementType!T);
+    } else {
+        alias NestedElementType = T;
+    }
+}
+#+end_src
+C++ではそうはいかない．しかし， ~constexpr~ を使えば間接的に型の再帰的な操作が可能になる．
+#+begin_src C++
+#include <type_traits>
+
+// 対象のContainer型は .begin() メソッドで最初の要素を返すとする
+
+/* 通常，型は再帰できない
+ template <typename E>
+ using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
+   E, DeepElementTypeof<decltype(*std::declval<E>().begin())>>;
+*/
+
+// SFINAEとcostexprならできる
+template <typename E>
+constexpr std::enable_if_t<std::is_fundamental<E>::value, E> deep_elem(E) {
+    return E{};
+}
+
+template <typename E, template <typename A> typename Container>
+constexpr auto deep_elem(Container<E> il) {
+    return deep_elem(*il.begin());
+}
+
+template <typename E>
+using DeepElementTypeof = decltype(deep_elem(std::declval<E>()));
+
+// 使い方
+std::initializer_list<std::initializer_list<float>> il = {{1.0f, 2.0f},
+                                                          {3.0f, 4.0f},
+                                                          {5.0f, 6.0f}};
+                                                         
+static_assert(std::is_same<float, DeepElementTypeof<decltype(il)>>::value);
+
+
+#+end_src
+多次元配列を一次元配列に変換する関数なんかに便利だ
+
+* 2018年01月02日 おけましておめでとうございます.                      :emacs:
 
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 
-1. Markdownがしんどい (細かい方言、MDWiki,Jekyllのこととか)
+1. Markdownがしんどい (細かい方言、Github,MDWiki,Jekyllで微妙に仕様が違う)
 2. C++/CUDA(のような膨大な知識を要求する言語)をあまり書かなくなってネタが少ない
 
-ということが挙げられます。私にとってMDWikiやJekyllを使ってブログを書くのは表現力としても、保守の面からもしんどい(時間が経つと忘れてしまう)。
+ということが挙げられます。私にとってMarkdownを使ってブログを書くのは表現力の低さ(文法ハイライトや数式表示に外部ツールが必要)、
+とくにJekyll保守の面がしんどかったのです...。
 そこで、何気なくEmacsに標準で付属しているorg-modeを試したところ、良さげだったので移行しました。
 日常的にも仕事のメモで使っているのですが、不満は全く無く、Markdownに対する利点としては
 
@@ -32,15 +86,16 @@
 - なんとなくMarkdownに文法が似てplain-textでも読み書きしやすい
 - Emacsで文法ハイライトできる言語は全て対応されるので最強(Pygmentsなどがいらない)
 - 表計算や表の整形もお手軽
-- HTML出力(C-c C-h で一発変換)ではMathjaxの数式組版もサポート
-- TeX->PDF出力もお手軽
+- HTML出力(~C-c C-e h h~ で一発変換)ではMathjaxの数式組版も標準でサポート
+- ~org-md-export-to-markdown~ でMarkdownへ出力できる(!)
+- ODT//TeX/PDF出力もお手軽。Pandocは要りません。
 
 という唯一無二なツールでした。標準以外の機能としてはこんなものを使っています
 
-- 雑記用にorg-journalという自動で日時付きの見出しをorgファイルに挿入するパッケージ
-- Mathjaxが古いので、最新版落として使っています。(数式番号が振られます)
-- HTML出力が味気ないので(素の感じが大学のページっぽくて好きだが)、有志のCSSを使っています。 https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a
-- HTML出力をリアルタイム更新でモニタするためにbrowser-syncを使っています。(例: ~browser-sync start --server --files **/*.html~ )
+- 雑記用に [[https://github.com/bastibe/org-journal][org-journal]] という自動で日時付きの見出しをorgファイルに挿入するパッケージ
+- Mathjaxが古いので、[[http://docs.mathjax.org/en/latest/installation.html][最新版]] DLして使っています。(数式番号が振られます)
+- HTML出力が味気ないので、[[file:css/org.css][公式ページのCSSを改造]] して使っています。
+- HTML出力をリアルタイム更新でモニタするために [[https://www.browsersync.io/][browser-sync]] を使っています。(例: ~browser-sync start --server --files **/*.html~ )
 
 その他の細かい設定としてはこんな事をしてます。
 #+begin_src elisp
@@ -81,9 +136,14 @@
   (setq org-latex-default-class "ltjsarticle")
 #+end_src
 
-あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、リハビリがてらC++17対応のC++ Template Complete Guideを読み進めているので、面白いネタがあれば紹介しようと思います。
+あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、
+リハビリがてらC++17対応の [[http://www.tmplbook.com/][C++ Template Complete Guide]] を読み進めているので、
+面白いネタがあれば紹介しようと思います。
 
 それでは、今年も宜しくお願いします。
+
+
+
 
 
 

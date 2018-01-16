@@ -18,13 +18,13 @@ OCaml 4.04, Batteries 2.5.3 の情報です
 
 * Unicode 文字列の操作
 
-OCamlで日本語(とunicode全般)を処理するには、どうすればいいのか...。[[https://www.reddit.com/r/ocaml/comments/39t31h/libraries_and_tools_for_unicodeutf8_strings_in/][Reddit - Libraries and Tools for Unicode/UTF-8 strings in OCaml?]]によると[Camomile](https://github.com/yoriyuki/Camomile)と、現在Camomileは開発終了され、その作者はBatteriesの[BatText](http://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatText.html)に貢献しているのでとりあえずBatteriesを使おうと思います。
+OCamlで日本語(とunicode全般)を処理するには、どうすればいいのか...。[[https://www.reddit.com/r/ocaml/comments/39t31h/libraries_and_tools_for_unicodeutf8_strings_in/][Reddit - Libraries and Tools for Unicode/UTF-8 strings in OCaml?]]によると [[https://github.com/yoriyuki/Camomile][Camomile]] を使えということですが、現在は開発終了され、その作者はBatteriesの[[http://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatText.html][ BatText]] に貢献しているのでとりあえずBatteriesを使おうと思います。
 
 [[https://github.com/ocaml-batteries-team/batteries-included/wiki/Interfacechanges12#non-backwards-compatible-changes][BatteriesのWiki]] によると、Unicode関係のライブラリは以前はRopeという名前でしたが今はBatTextらしいです。BatTextライブラリでは文字列の実装はRopeという永続的データ構造でありながら、操作後も可能な限りデータを共有するため、長さ $n$ の文字列に $m$ (ただし $n >> m$ )回の操作で $O(m)$ サイズの空間しか使わないとか。ただUnicode文字列を逆順にしたりするくらいなら、標準の ~Str~ モジュールやBatteriesの ~String~ モジュールでもそんなに困らないような気もしています。
 
 *** 一通りの簡単な使い方
 
-簡単な例として(日本語の)文字列を交互に結合する[自然言語処理100本ノック](http://www.cl.ecei.tohoku.ac.jp/nlp100/)の1本目で説明します。
+簡単な例として(日本語の)文字列を交互に結合する [[http://www.cl.ecei.tohoku.ac.jp/nlp100/][自然言語処理100本ノック]] の1本目で説明します。
 まずライブラリの batteries と自動ビルドするコマンドをインストールします。
 
 ~$ opam install batteries ocamlbuild~
@@ -78,15 +78,15 @@ toplevel (ocaml とか utopコマンド) の設定ファイル ~.ocamlinit~ を�
 
 よく使う演算子
 
-+ 関数合成・適用系 f (g x) = f ~%~ g x = (g ~%>~ f) x = g x ~|>~ f = f ~@@~ g x
++ 関数合成・適用 f (g x) = f ~%~ g x = (g ~%>~ f) x = g x ~|>~ f = f ~@@~ g x
   + ただし % は関数合成(~('a -> 'b) -> ('b -> 'c) -> 'a -> 'c~)、
     @@は関数適用(~('a -> 'b) -> 'a -> 'b~)
-+ Java の ~getOrElse~: ~None |? 10 = 10~
++ Java の ~getOrElse~みたいなやつ: ~None |? 10 = 10~
 + BatEnum の操作
   + filter 操作: ~enum // p~ 真偽値を返す p で filter
   + map操作: ~enum /@ f = f @/ enum~ enum の各要素に f を適用
   + filter_map: ~//@~, ~@//~ 上記の f が option を返す特殊化、適用後 None な要素をfilterして返す
-  + Python の ~range~: ~(1--10)~ 1 から 10 未満の int の Enum, ~(--.)~ は float版, ~(--~)~ は char 版
+  + Python の ~range~ みたいなやつ: ~(1--10)~ 1 から 10 以下の int の Enum (未満は ~(1--^10)~ ), ~((1.0,1.0)--.10.0)~ は float版, ('a'--~'z') は char 版
 
 ** print 関数
 
@@ -101,9 +101,7 @@ Enum.print Int.print stdout (1--10) ~first:"[" ~sep:"; " ~last:"]\n"
 
 ** BatEnum
 
-[[https://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatEnum.html][(Bat)Enum]] は, [[https://github.com/ocaml-batteries-team/batteries-included/wiki/Introduction-to-batEnum][Wiki]] によるとデータ構造の変換ブリッジや、線形アルゴリズムの実装に使うものらしいけど、 ~List~ とどう違うのかはよくわからない ( ~LazyList~ にできないことはできないとも書いてある)、ただ関係する関数を見てると使い捨て(処理の中間で使う)可変データ構造らしく[[https://www.tutorialspoint.com/d_programming/d_programming_ranges.htm][D言語のRange]] っぽい感じがします(適当)。
-
-Pervasives (標準で open されてるライブラリ) には BatEnum モジュール内の関数が殆ど定義されているので無修飾で使えます。
+[[https://ocaml-batteries-team.github.io/batteries-included/hdoc2/BatEnum.html][(Bat)Enum]] は, [[https://github.com/ocaml-batteries-team/batteries-included/wiki/Introduction-to-batEnum][Wiki]] によるとデータ構造の変換ブリッジや、線形アルゴリズムの実装に使うものらしいけど、 ~List~ とどう違うのかはよくわからない ( ~LazyList~ にできないことはできないとも書いてある)、ただ関係する関数を見てると使い捨て(処理の中間で使う)可変データ構造らしく[[https://www.tutorialspoint.com/d_programming/d_programming_ranges.htm][D言語のRange]] っぽい感じがします。
 
 ** BatEnum内包表記
 

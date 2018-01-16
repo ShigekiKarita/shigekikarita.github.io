@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-01-02 火 01:29 -->
+<!-- 2018-01-16 火 23:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -234,7 +234,8 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org2a78757">2018年01月02日 おけましておめでとうございます.</a></li>
+<li><a href="#orgd235c8e">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></a></li>
+<li><a href="#org76c59b0">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -251,21 +252,87 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
+<div id="outline-container-orgd235c8e" class="outline-2">
+<h2 id="orgd235c8e">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></h2>
+<div class="outline-text-2" id="text-orgd235c8e">
+<p>
+ごくまれにC++で 
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span>
+</pre>
+</div>
+<p>
+のようなネストした型の最後の要素 (ここでは float) を取得したいことがある．
+D言語のように後方参照可能な型システムでは， <a href="https://github.com/libmir/numir/blob/83dbfe883b5421ba5dcf782cef272f8d205907a6/source/numir/core.d#L195-L205">再帰的に型を辿れば簡単</a> だが，
+</p>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">static</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #6c3163;">(</span>isArray<span style="color: #4e3163;">!</span>T<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = NestedElementType<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span>ElementType<span style="color: #4e3163;">!</span>T<span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span> <span style="color: #3a81c3; font-weight: bold;">else</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = T;
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+<p>
+C++ではそうはいかない．しかし， <code>constexpr</code> を使えば間接的に型の再帰的な操作が可能になる．
+</p>
+<div class="org-src-container">
+<pre class="src src-C++"><span style="color: #6c3163;">#include</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #2d9574;">type_traits</span><span style="color: #3a81c3;">&gt;</span>
 
-<div id="outline-container-org2a78757" class="outline-2">
-<h2 id="org2a78757">2018年01月02日 おけましておめでとうございます.</h2>
-<div class="outline-text-2" id="text-org2a78757">
+<span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">/* </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> template &lt;typename E&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">   E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_fundamental</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span>::value, <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> E<span style="color: #6c3163;">{}</span>;
+<span style="color: #3a81c3;">}</span>
+
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span>, <span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #6c3163;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">A</span><span style="color: #6c3163;">&gt;</span> <span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span> <span style="color: #715ab1;">il</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> deep_elem<span style="color: #6c3163;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span>
+
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">using</span> <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #3a81c3;">(</span>deep_elem<span style="color: #6c3163;">(</span><span style="color: #4e3163;">std</span>::declval<span style="color: #2d9574;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #2d9574;">&gt;()</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>;
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#20351;&#12356;&#26041;</span>
+<span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">initializer_list</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">initializer_list</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #715ab1;">il</span> = <span style="color: #3a81c3;">{</span><span style="color: #6c3163;">{</span><span style="color: #4e3163;">1.0f</span>, <span style="color: #4e3163;">2.0f</span><span style="color: #6c3163;">}</span>,
+                                                          <span style="color: #6c3163;">{</span><span style="color: #4e3163;">3.0f</span>, <span style="color: #4e3163;">4.0f</span><span style="color: #6c3163;">}</span>,
+                                                          <span style="color: #6c3163;">{</span><span style="color: #4e3163;">5.0f</span>, <span style="color: #4e3163;">6.0f</span><span style="color: #6c3163;">}</span><span style="color: #3a81c3;">}</span>;
+
+static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_same</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span>, <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #67b11d;">(</span>il<span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span><span style="color: #6c3163;">&gt;</span>::value<span style="color: #3a81c3;">)</span>;
+</pre>
+</div>
+<p>
+多次元配列を一次元配列に変換する関数なんかに便利だ
+</p>
+</div>
+</div>
+
+<div id="outline-container-org76c59b0" class="outline-2">
+<h2 id="org76c59b0">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-org76c59b0">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
 
 <ol class="org-ol">
-<li>Markdownがしんどい (細かい方言、MDWiki,Jekyllのこととか)</li>
+<li>Markdownがしんどい (細かい方言、Github,MDWiki,Jekyllで微妙に仕様が違う)</li>
 <li>C++/CUDA(のような膨大な知識を要求する言語)をあまり書かなくなってネタが少ない</li>
 </ol>
 
 <p>
-ということが挙げられます。私にとってMDWikiやJekyllを使ってブログを書くのは表現力としても、保守の面からもしんどい(時間が経つと忘れてしまう)。
+ということが挙げられます。私にとってMarkdownを使ってブログを書くのは表現力の低さ(文法ハイライトや数式表示に外部ツールが必要)、
+とくにJekyll保守の面がしんどかったのです&#x2026;。
 そこで、何気なくEmacsに標準で付属しているorg-modeを試したところ、良さげだったので移行しました。
 日常的にも仕事のメモで使っているのですが、不満は全く無く、Markdownに対する利点としては
 </p>
@@ -275,8 +342,9 @@ for the JavaScript code in this tag.
 <li>なんとなくMarkdownに文法が似てplain-textでも読み書きしやすい</li>
 <li>Emacsで文法ハイライトできる言語は全て対応されるので最強(Pygmentsなどがいらない)</li>
 <li>表計算や表の整形もお手軽</li>
-<li>HTML出力(C-c C-h で一発変換)ではMathjaxの数式組版もサポート</li>
-<li>TeX-&gt;PDF出力もお手軽</li>
+<li>HTML出力(<code>C-c C-e h h</code> で一発変換)ではMathjaxの数式組版も標準でサポート</li>
+<li><code>org-md-export-to-markdown</code> でMarkdownへ出力できる(!)</li>
+<li>ODT//TeX/PDF出力もお手軽。Pandocは要りません。</li>
 </ul>
 
 <p>
@@ -284,10 +352,10 @@ for the JavaScript code in this tag.
 </p>
 
 <ul class="org-ul">
-<li>雑記用にorg-journalという自動で日時付きの見出しをorgファイルに挿入するパッケージ</li>
-<li>Mathjaxが古いので、最新版落として使っています。(数式番号が振られます)</li>
-<li>HTML出力が味気ないので(素の感じが大学のページっぽくて好きだが)、有志のCSSを使っています。 <a href="https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a">https://qiita.com/sambatriste/items/2dc9f81cbf1e82d7429a</a></li>
-<li>HTML出力をリアルタイム更新でモニタするためにbrowser-syncを使っています。(例: <code>browser-sync start --server --files **/*.html</code> )</li>
+<li>雑記用に <a href="https://github.com/bastibe/org-journal">org-journal</a> という自動で日時付きの見出しをorgファイルに挿入するパッケージ</li>
+<li>Mathjaxが古いので、<a href="http://docs.mathjax.org/en/latest/installation.html">最新版</a> DLして使っています。(数式番号が振られます)</li>
+<li>HTML出力が味気ないので、<a href="css/org.css">公式ページのCSSを改造</a> して使っています。</li>
+<li>HTML出力をリアルタイム更新でモニタするために <a href="https://www.browsersync.io/">browser-sync</a> を使っています。(例: <code>browser-sync start --server --files **/*.html</code> )</li>
 </ul>
 
 <p>
@@ -333,7 +401,9 @@ for the JavaScript code in this tag.
 </div>
 
 <p>
-あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、リハビリがてらC++17対応のC++ Template Complete Guideを読み進めているので、面白いネタがあれば紹介しようと思います。
+あとC++/CUDAも1,2年離れていたのですが、仕事でまた使うようになり、
+リハビリがてらC++17対応の <a href="http://www.tmplbook.com/">C++ Template Complete Guide</a> を読み進めているので、
+面白いネタがあれば紹介しようと思います。
 </p>
 
 <p>
@@ -344,7 +414,7 @@ for the JavaScript code in this tag.
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-01-02 火 01:29</p>
+<p class="date">Created: 2018-01-16 火 23:01</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
