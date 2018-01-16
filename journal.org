@@ -45,12 +45,11 @@ using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
 */
 
 // SFINAEとcostexprならできる
-#include <complex>
 #include <type_traits>
 #include <vector>
 
 template <typename E>
-constexpr E deep_elem(E) {
+constexpr std::remove_cv_t<E> deep_elem(E) {
     return E{};
 }
 
@@ -68,9 +67,6 @@ static_assert(std::is_same<DeepElementTypeof<decltype(c)>, float>::value);
 int main() {}
 #+end_src
 多次元配列を一次元配列に変換する関数なんかに便利だ．
-注意点として上記コードはGCC7以上でしか動かない．Clangも無理だ．
-
-https://wandbox.org/permlink/DsOXDJhzdSHMzAO4
 
 * 2018年01月02日 おけましておめでとうございます.                      :emacs:
 
