@@ -53,7 +53,7 @@ constexpr std::remove_cv_t<E> deep_elem(E) {
     return E{};
 }
 
-template <typename E, template <typename A> typename Container>
+template <typename E, template <typename> typename Container>
 constexpr auto deep_elem(Container<E> il) {
     return deep_elem(*il.begin());
 }
