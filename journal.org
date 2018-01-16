@@ -39,9 +39,9 @@ C++ではそうはいかない．しかし， ~constexpr~ を使えば間接的�
 /* 対象のContainer型は .begin() メソッドで最初の要素を返すとする
 
    通常，型は再帰できない
-template <typename E>
-using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
-    E, DeepElementTypeof<decltype(*std::declval<E>().begin())>>;
+ template <typename E>
+ using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
+     E, DeepElementTypeof<decltype(*std::declval<E>().begin())>>;
 */
 
 // SFINAEとcostexprならできる
@@ -49,17 +49,20 @@ using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
 #include <vector>
 
 template <typename E>
-constexpr std::remove_cv_t<E> deep_elem(E) {
+constexpr bool is_element = std::is_fundamental<E>::value;
+
+template <typename E>
+constexpr std::enable_if_t<is_element<E>, E> deep_elem(E) {
     return E{};
 }
 
-template <typename E, template <typename> typename Container>
-constexpr auto deep_elem(Container<E> il) {
+template <typename Container, typename _ = std::enable_if_t<!is_element<Container>>>
+constexpr auto deep_elem(Container il) {
     return deep_elem(*il.begin());
 }
 
 template <typename E>
-using DeepElementTypeof = decltype(deep_elem(std::declval<E>()));
+using DeepElementTypeof = std::remove_cv_t<decltype(deep_elem(std::declval<E>()))>;
 
 std::vector<std::vector<float>> c;
 static_assert(std::is_same<DeepElementTypeof<decltype(c)>, float>::value);
@@ -67,6 +70,7 @@ static_assert(std::is_same<DeepElementTypeof<decltype(c)>, float>::value);
 int main() {}
 #+end_src
 多次元配列を一次元配列に変換する関数なんかに便利だ．
+注意したいのは，このコードではfundamental型しか最終要素として見なさない．例えば ~std::complex<float>~ などはコンパイルエラーになるだろうが， ~constexpr bool is_element = ...~ を適切に定義すれば良いはずだ．
 
 * 2018年01月02日 おけましておめでとうございます.                      :emacs:
 

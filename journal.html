@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-01-16 火 23:25 -->
+<!-- 2018-01-16 火 23:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -234,8 +234,8 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org104d647">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></a></li>
-<li><a href="#org1220cab">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#orgba3a798">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></a></li>
+<li><a href="#orgcb8c5c1">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -252,9 +252,9 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-org104d647" class="outline-2">
-<h2 id="org104d647">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></h2>
-<div class="outline-text-2" id="text-org104d647">
+<div id="outline-container-orgba3a798" class="outline-2">
+<h2 id="orgba3a798">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></h2>
+<div class="outline-text-2" id="text-orgba3a798">
 <p>
 ごくまれにC++で 
 </p>
@@ -283,9 +283,9 @@ C++ではそうはいかない．しかし， <code>constexpr</code> を使え�
 <pre class="src src-C++"><span style="color: #2aa1ae; background-color: #ecf3ec;">/* </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
 
 <span style="color: #2aa1ae; background-color: #ecf3ec;">   &#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
-<span style="color: #2aa1ae; background-color: #ecf3ec;">template &lt;typename E&gt;</span>
-<span style="color: #2aa1ae; background-color: #ecf3ec;">using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
-<span style="color: #2aa1ae; background-color: #ecf3ec;">    E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> template &lt;typename E&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">     E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
 <span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
 
 <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
@@ -293,17 +293,20 @@ C++ではそうはいかない．しかし， <code>constexpr</code> を使え�
 <span style="color: #6c3163;">#include</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #2d9574;">vector</span><span style="color: #3a81c3;">&gt;</span>
 
 <span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
-<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">remove_cv_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #715ab1;">is_element</span> = <span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_fundamental</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>::value;
+
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
     <span style="color: #3a81c3; font-weight: bold;">return</span> E<span style="color: #6c3163;">{}</span>;
 <span style="color: #3a81c3;">}</span>
 
-<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span>, <span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #6c3163;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span><span style="color: #6c3163;">&gt;</span> <span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #3a81c3;">&gt;</span>
-<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span> <span style="color: #715ab1;">il</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">Container</span>, <span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">_</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #6c3163;">&lt;</span><span style="color: #4e3163;">!</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #2d9574;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #2d9574;">&gt;</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Container</span> <span style="color: #715ab1;">il</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
     <span style="color: #3a81c3; font-weight: bold;">return</span> deep_elem<span style="color: #6c3163;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #6c3163;">)</span>;
 <span style="color: #3a81c3;">}</span>
 
 <span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
-<span style="color: #3a81c3; font-weight: bold;">using</span> <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #3a81c3;">(</span>deep_elem<span style="color: #6c3163;">(</span><span style="color: #4e3163;">std</span>::declval<span style="color: #2d9574;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #2d9574;">&gt;()</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>;
+<span style="color: #3a81c3; font-weight: bold;">using</span> <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">remove_cv_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #6c3163;">(</span>deep_elem<span style="color: #2d9574;">(</span><span style="color: #4e3163;">std</span>::declval<span style="color: #67b11d;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #67b11d;">&gt;()</span><span style="color: #2d9574;">)</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">&gt;</span>;
 
 <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #715ab1;">c</span>;
 static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_same</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #67b11d;">(</span>c<span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span>::value<span style="color: #3a81c3;">)</span>;
@@ -313,13 +316,14 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 <p>
 多次元配列を一次元配列に変換する関数なんかに便利だ．
+注意したいのは，このコードではfundamental型しか最終要素として見なさない．例えば <code>std::complex&lt;float&gt;</code> などはコンパイルエラーになるだろうが， <code>constexpr bool is_element = ...</code> を適切に定義すれば良いはずだ．
 </p>
 </div>
 </div>
 
-<div id="outline-container-org1220cab" class="outline-2">
-<h2 id="org1220cab">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org1220cab">
+<div id="outline-container-orgcb8c5c1" class="outline-2">
+<h2 id="orgcb8c5c1">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-orgcb8c5c1">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -413,7 +417,7 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-01-16 火 23:25</p>
+<p class="date">Created: 2018-01-16 火 23:42</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
