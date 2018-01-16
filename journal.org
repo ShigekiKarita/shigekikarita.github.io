@@ -35,19 +35,22 @@ template NestedElementType(T) {
 #+end_src
 C++ではそうはいかない．しかし， ~constexpr~ を使えば間接的に型の再帰的な操作が可能になる．
 #+begin_src C++
-#include <type_traits>
 
-// 対象のContainer型は .begin() メソッドで最初の要素を返すとする
+/* 対象のContainer型は .begin() メソッドで最初の要素を返すとする
 
-/* 通常，型は再帰できない
- template <typename E>
- using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
-   E, DeepElementTypeof<decltype(*std::declval<E>().begin())>>;
+   通常，型は再帰できない
+template <typename E>
+using DeepElementTypeof = std::conditional_t<std::is_fundamental<E>::value,
+    E, DeepElementTypeof<decltype(*std::declval<E>().begin())>>;
 */
 
 // SFINAEとcostexprならできる
+#include <complex>
+#include <type_traits>
+#include <vector>
+
 template <typename E>
-constexpr std::enable_if_t<std::is_fundamental<E>::value, E> deep_elem(E) {
+constexpr E deep_elem(E) {
     return E{};
 }
 
@@ -59,17 +62,15 @@ constexpr auto deep_elem(Container<E> il) {
 template <typename E>
 using DeepElementTypeof = decltype(deep_elem(std::declval<E>()));
 
-// 使い方
-std::initializer_list<std::initializer_list<float>> il = {{1.0f, 2.0f},
-                                                          {3.0f, 4.0f},
-                                                          {5.0f, 6.0f}};
-                                                         
-static_assert(std::is_same<float, DeepElementTypeof<decltype(il)>>::value);
+std::vector<std::vector<float>> c;
+static_assert(std::is_same<DeepElementTypeof<decltype(c)>, float>::value);
 
-
+int main() {}
 #+end_src
 多次元配列を一次元配列に変換する関数なんかに便利だ．
-注意したいのは，このコードではfundamental型しか最終要素として見なさない(ソレ以外の例えば ~std::complex<float>~ などはコンパイルエラーになるだろう)．
+注意点として上記コードはGCC7以上でしか動かない．Clangも無理だ．
+
+https://wandbox.org/permlink/DsOXDJhzdSHMzAO4
 
 * 2018年01月02日 おけましておめでとうございます.                      :emacs:
 
