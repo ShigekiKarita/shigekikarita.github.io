@@ -69,7 +69,7 @@ static_assert(std::is_same<float, DeepElementTypeof<decltype(il)>>::value);
 
 #+end_src
 多次元配列を一次元配列に変換する関数なんかに便利だ．
-注意したいのは，このコードではfundamental型しか最終要素として見なさない(ソレ以外はコンパイルエラーになるだろう)．
+注意したいのは，このコードではfundamental型しか最終要素として見なさない(ソレ以外の例えば ~std::complex<float>~ などはコンパイルエラーになるだろう)．
 
 * 2018年01月02日 おけましておめでとうございます.                      :emacs:
 
