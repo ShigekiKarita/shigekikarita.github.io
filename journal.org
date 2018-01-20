@@ -16,6 +16,54 @@
 
 [[file:index.html][index]]
 
+
+* 2018年01月20日 Cooperative groupsを触る                              :cuda:
+
+  動的にthreadを構成するアルゴリズム(データの共有，集約操作など)にはthreadの同期が必須である．
+  CUDA8までは， ~__syncthreads()~ 関数を用いていた: [[https://goo.gl/3SKFJu][行列乗算の例]]
+  ただし，threadをblockサイズより小さくする必要が有りました．
+  CUDA9では， ~cooperative_groups~ という新たなAPIが追加され
+
+
+** 付録1. CUDA における thread と block の関係
+
+   CUDAではthread < block < grid階層構造になっており，以下のようなハードウェアに起因する特徴があります．
+   
+   - gridが1つはkernel関数が扱える全thread集合のこと，グローバルなメモリを共有する
+   - kernel関数は ~func<<< grid_size, block_size >>>(data)~ のような感じで実行する
+   - サイズはそれぞれ1-3次元で指定できる
+   - よくある1次元サイズの決め方は並行処理したい ~data~ 配列の要素数 ~data_size~ と性能の良い ~block_size~ に対して以下
+#+begin_src cuda
+#include <iostream>
+#include <thrust/device_vector.h>
+
+__global__ void iota(float* data) {
+    auto i = threadIdx.x + blockIdx.x * blockDim.x;
+    data[i] = i;
+}
+
+int main() {
+    thrust::device_vector<float> data(100);
+    dim3 block_size(32, 1, 1);
+    dim3 grid_size((data.size() + block_size.x - 1) / block_size.x, 1, 1);
+    iota<<<block_size, grid_size>>>(thrust::raw_pointer_cast(data.data()));
+    for (auto d : data) {
+        std::cout << d << std::endl;
+    }
+}
+#+end_src
+   - blockは1つのSM((Streaming Multiprocessor)が実行する単位
+   - 異なるblockに属する(=異なるSMで実行される)threadは協調できない
+   - 1 block に入る thread 数 (~block_size~) はハードウェア毎に上限がある
+#+begin_src c
+cudaDeviceProp prop;
+cudaGetDeviceProperties(&prop, 0); // 0番目デバイスの情報取得
+int max_block_size = prop.maxThreadsPerBlock; // 1024とか
+#+end_src
+
+   よくある性能を引き出すガイドラインとして，SMは「32スレッド」単位で実行するため，
+   うまく32に収まるようblockサイズを設定することが推奨されています．
+
 * 2018年01月16日 C++でネストした要素型の取得                            :cpp:
 
 ごくまれにC++で 
@@ -149,3 +197,5 @@ int main() {}
 
 
 
+
+** <2018-01-20 10:56> 
