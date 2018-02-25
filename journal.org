@@ -16,59 +16,69 @@
 
 [[file:index.html][index]]
 
+* 2018年02月24日 D言語でnumpyっぽいコードを書く :D:
 
-* 2018年01月20日 Cooperative groupsを触る                              :cuda:
+今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 
-  動的にthreadを構成するアルゴリズム(データの共有，集約操作など)にはthreadの同期が必須である．
-  CUDA8までは， ~__syncthreads()~ 関数を用いていた: [[https://goo.gl/3SKFJu][行列乗算の例]]
-  ただし，threadをblockサイズより小さくする必要が有りました．
-  CUDA9では， ~cooperative_groups~ という新たなAPIが追加され
+** いままで記事
+
+- [[https://shigekikarita.github.io/blog/2017/09/22/026.html][D言語で数値計算 mir-algorithm]]
+- [[https://shigekikarita.github.io/blog/2017/09/30/027.html][numir が libmir 入りしました]]
+- [[https://shigekikarita.github.io/blog/2017/10/27/001.html][MirのndsliceでMKLを使う]]
+
+私が作っている numpy のような関数をサポートしている [[https://github.com/libmir/numir][numir]] には最近大規模な機能追加がありました．
+
+1. format / stats / signal といった ndslice を駆使した応用的なモジュールの追加
+2. ドキュメントの充実 ([[https://libmir.github.io/numir/index.html][メインのドキュメント]], [[https://libmir.github.io/numir/ddox/index.html][検索機能つきのドキュメント]])
+3. example の充実 ([[https://github.com/libmir/numir/tree/master/example/char_rnn][文字レベルRNN]], [[https://github.com/libmir/numir/tree/master/example/audio_separation][音源分離NMF]])
+
+1-2 は [[https://github.com/jmh530][jmh530]] さんや，mir本家の作者による実装も多く取り込まれており，私個人のプロジェクトからlibmirに移行して本当によかったなと思っています．mirにおけるndsliceの汎用性は本当に大きく，例えばD言語のプロット用ライブラリ [[https://github.com/BlackEdder/ggplotd][ggplod]] とも簡単にインテグレートできます．
+
+#+CAPTION: 例：[[https://github.com/libmir/numir/tree/master/example/audio_separation][numirでSTFTしたスペクトログラムのプロット]]
+#+NAME: fig:stft
+[[https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png]]
 
 
-** 付録1. CUDA における thread と block の関係
-
-   CUDAではthread < block < grid階層構造になっており，以下のようなハードウェアに起因する特徴があります．
-   
-   - gridが1つはkernel関数が扱える全thread集合のこと，グローバルなメモリを共有する
-   - kernel関数は ~func<<< grid_size, block_size >>>(data)~ のような感じで実行する
-   - サイズはそれぞれ1-3次元で指定できる
-   - よくある1次元サイズの決め方は並行処理したい ~data~ 配列の要素数 ~data_size~ と性能の良い ~block_size~ に対して以下
-#+begin_src cuda
-#include <iostream>
-#include <thrust/device_vector.h>
-
-__global__ void iota(float* data) {
-    auto i = threadIdx.x + blockIdx.x * blockDim.x;
-    data[i] = i;
-}
-
-int main() {
-    thrust::device_vector<float> data(100);
-    dim3 block_size(32, 1, 1);
-    dim3 grid_size((data.size() + block_size.x - 1) / block_size.x, 1, 1);
-    iota<<<block_size, grid_size>>>(thrust::raw_pointer_cast(data.data()));
-    for (auto d : data) {
-        std::cout << d << std::endl;
-    }
+3に関しては，numpy や julia と同様な簡潔で小さいコードでも3-4倍は高速になるような例を書いています．上記の文字RNNの例ですと，
+#+begin_src python
+# numpy で RNN の順伝搬
+for t in range(len(inputs)):
+    xs[t] = np.zeros((vocab_size,1)) # encode in 1-of-k representation
+    xs[t][inputs[t]] = 1
+    hs[t] = np.tanh(np.dot(Wxh, xs[t]) + np.dot(Whh, hs[t-1]) + bh) # hidden state
+    ys[t] = np.dot(Why, hs[t]) + by # unnormalized log probabilities for next chars
+    ps[t] = np.exp(ys[t]) / np.sum(np.exp(ys[t])) # probabilities for next chars
+    loss += -np.log(ps[t][targets[t],0]) # softmax (cross-entropy loss)
+#+end_src
+#+begin_src d
+// numir で RNN の順伝搬
+foreach (t, i; inputs) {
+    xs[t][i, 0] = 1; // encode in 1-of-k reps
+    auto hp = t == 0 ? hprev : hs[t-1];
+    hs[t][] = map!tanh(mtimes(Wxh, xs[t]) + mtimes(Whh, hp) + bh); // hidden state
+    ys[t][] = mtimes(Why, hs[t]) + by; // unnormalized log probabilities for next chars
+    ps[t][] = map!exp(ys[t]);
+    ps[t][] /= ps[t].sum!"fast"; // probabilities for next chars
+    loss += -log(ps[t][targets[t], 0]); // softmax (cross-entropy loss)
 }
 #+end_src
-   - blockは1つのSM((Streaming Multiprocessor)が実行する単位
-   - 異なるblockに属する(=異なるSMで実行される)threadは協調できない
-   - 1 block に入る thread 数 (~block_size~) はハードウェア毎に上限がある
-#+begin_src c
-cudaDeviceProp prop;
-cudaGetDeviceProperties(&prop, 0); // 0番目デバイスの情報取得
-int max_block_size = prop.maxThreadsPerBlock; // 1024とか
+どうでしょうか，ほとんど同じように直感的にかけていると思います．型のdeductionが強力なD言語ではnumpy/julia同様に型を書く必要をありません．というより，式テンプレートとして型を保持するため手作業で型を書くことはほぼ不可能です．例えばnumir.signalにある blackman 窓を作る関数の返り値なんかは，こんな感じの長い型になってしまいます．
+#+begin_src d
+mir.ndslice.slice.Slice!(2,[1],mir.ndslice.iterator.MapIterator!(mir.ndslice.iterator.ZipIterator!(mir.ndslice.iterator.VmapIterator!(mir.ndslice.iterator.VmapIterator!(mir.ndslice.iterator.MapIterator!(mir.ndslice.iterator.VmapIterator!(mir.ndslice.iterator.IotaIterator!(long).IotaIterator,mir.ndslice.internal.RightOp!("*",real).RightOp).VmapIterator,mir.math.common.cos).MapIterator,mir.ndslice.internal.RightOp!("*",double).RightOp).VmapIterator,mir.ndslice.internal.RightOp!("-",double).RightOp).VmapIterator,mir.ndslice.iterator.VmapIterator!(mir.ndslice.iterator.MapIterator!(mir.ndslice.iterator.VmapIterator!(mir.ndslice.iterator.IotaIterator!(long).IotaIterator,mir.ndslice.internal.RightOp!("*",real).RightOp).VmapIterator,mir.math.common.cos).MapIterator,mir.ndslice.internal.RightOp!("*",double).RightOp).VmapIterator).ZipIterator,mir.functional.naryFun!("a + b").naryFun).MapIterator) blackman
 #+end_src
+一部の言語では型はドキュメントなので書くようにという話があると思いますが，mirでは多くの場合，諦めたほうが良いでしょう．¯\_(ツ)_/¯
 
-   よくある性能を引き出すガイドラインとして，SMは「32スレッド」単位で実行するため，
-   うまく32に収まるようblockサイズを設定することが推奨されています．
+あと，最後にもう一つ，なんと numir がウェブ上のコンパイラ run.dlang.io で動くようになりました．mir関係のライブラリはほとんどがサポートされているので，使い方がわからないとか，コード辺を共有するときに便利だと思います．
 
-* 2018年01月16日 C++でネストした要素型の取得                            :cpp:
+https://run.dlang.io/gist/671587b1452b916dc68dddd1cf507efb?compiler=ldc&args=-release
+
+
+* 2018年01月16日 C++でネストした要素型の取得                            :cpp: :D:
 
 ごくまれにC++で 
+
 #+begin_src c++
-std::vector<std::vector<float>>
+std::vector<std::vector<float>> vv;
 #+end_src
 のようなネストした型の最後の要素 (ここでは float) を取得したいことがある．
 D言語のように後方参照可能な型システムでは， [[https://github.com/libmir/numir/blob/83dbfe883b5421ba5dcf782cef272f8d205907a6/source/numir/core.d#L195-L205][再帰的に型を辿れば簡単]] だが，
@@ -193,9 +203,3 @@ int main() {}
 それでは、今年も宜しくお願いします。
 
 
-
-
-
-
-
-** <2018-01-20 10:56> 

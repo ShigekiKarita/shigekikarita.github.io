@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-01-20 土 12:24 -->
+<!-- 2018-02-25 Sun 21:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -234,17 +234,13 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orge379b03">2018年01月20日 Cooperative groupsを触る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cuda">cuda</span></span></a>
+<li><a href="#org7acba76">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#orgda86394">付録1. CUDA における thread と block の関係</a></li>
+<li><a href="#orgdd8d802">いままで記事</a></li>
 </ul>
 </li>
-<li><a href="#org3ff11e8">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></a></li>
-<li><a href="#org2b44fd1">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a>
-<ul>
-<li><a href="#org8f49871"><span class="timestamp-wrapper"><span class="timestamp">&lt;2018-01-20 土 10:56&gt;</span></span></a></li>
-</ul>
-</li>
+<li><a href="#org415ccbc">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org223e276">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -261,80 +257,104 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
-
-<div id="outline-container-orge379b03" class="outline-2">
-<h2 id="orge379b03">2018年01月20日 Cooperative groupsを触る&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cuda">cuda</span></span></h2>
-<div class="outline-text-2" id="text-orge379b03">
+<div id="outline-container-org7acba76" class="outline-2">
+<h2 id="org7acba76">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org7acba76">
 <p>
-動的にthreadを構成するアルゴリズム(データの共有，集約操作など)にはthreadの同期が必須である．
-CUDA8までは， <code>__syncthreads()</code> 関数を用いていた: <a href="https://goo.gl/3SKFJu">行列乗算の例</a>
-ただし，threadをblockサイズより小さくする必要が有りました．
-CUDA9では， <code>cooperative_groups</code> という新たなAPIが追加され
+今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
+<div id="outline-container-orgdd8d802" class="outline-3">
+<h3 id="orgdd8d802">いままで記事</h3>
+<div class="outline-text-3" id="text-orgdd8d802">
+<ul class="org-ul">
+<li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
+<li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
+<li><a href="https://shigekikarita.github.io/blog/2017/10/27/001.html">MirのndsliceでMKLを使う</a></li>
+</ul>
 
-<div id="outline-container-orgda86394" class="outline-3">
-<h3 id="orgda86394">付録1. CUDA における thread と block の関係</h3>
-<div class="outline-text-3" id="text-orgda86394">
 <p>
-CUDAではthread &lt; block &lt; grid階層構造になっており，以下のようなハードウェアに起因する特徴があります．
+私が作っている numpy のような関数をサポートしている <a href="https://github.com/libmir/numir">numir</a> には最近大規模な機能追加がありました．
 </p>
 
-<ul class="org-ul">
-<li>gridが1つはkernel関数が扱える全thread集合のこと，グローバルなメモリを共有する</li>
-<li>kernel関数は <code>func&lt;&lt;&lt; grid_size, block_size &gt;&gt;&gt;(data)</code> のような感じで実行する</li>
-<li>サイズはそれぞれ1-3次元で指定できる</li>
-<li>よくある1次元サイズの決め方は並行処理したい <code>data</code> 配列の要素数 <code>data_size</code> と性能の良い <code>block_size</code> に対して以下</li>
-</ul>
+<ol class="org-ol">
+<li>format / stats / signal といった ndslice を駆使した応用的なモジュールの追加</li>
+<li>ドキュメントの充実 (<a href="https://libmir.github.io/numir/index.html">メインのドキュメント</a>, <a href="https://libmir.github.io/numir/ddox/index.html">検索機能つきのドキュメント</a>)</li>
+<li>example の充実 (<a href="https://github.com/libmir/numir/tree/master/example/char_rnn">文字レベルRNN</a>, <a href="https://github.com/libmir/numir/tree/master/example/audio_separation">音源分離NMF</a>)</li>
+</ol>
+
+<p>
+1-2 は <a href="https://github.com/jmh530">jmh530</a> さんや，mir本家の作者による実装も多く取り込まれており，私個人のプロジェクトからlibmirに移行して本当によかったなと思っています．mirにおけるndsliceの汎用性は本当に大きく，例えばD言語のプロット用ライブラリ <a href="https://github.com/BlackEdder/ggplotd">ggplod</a> とも簡単にインテグレートできます．
+</p>
+
+
+<div id="org6ac6bcd" class="figure">
+<p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
+</p>
+<p><span class="figure-number">&#22259;1:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
+</div>
+
+
+<p>
+3に関しては，numpy や julia と同様な簡潔で小さいコードでも3-4倍は高速になるような例を書いています．上記の文字RNNの例ですと，
+</p>
 <div class="org-src-container">
-<pre class="src src-cuda"><span style="color: #bc6ec5;">#include</span> <span style="color: #2d9574;">&lt;iostream&gt;</span>
-<span style="color: #bc6ec5;">#include</span> <span style="color: #2d9574;">&lt;thrust/device_vector.h&gt;</span>
-
-<span style="color: #4f97d7; font-weight: bold;">__global__</span> <span style="color: #ce537a; font-weight: bold;">void</span> iota(<span style="color: #ce537a; font-weight: bold;">float</span>* data) {
-    <span style="color: #4f97d7; font-weight: bold;">auto</span> i = <span style="color: #4f97d7; font-weight: bold;">threadIdx</span>.x + <span style="color: #4f97d7; font-weight: bold;">blockIdx</span>.x * <span style="color: #4f97d7; font-weight: bold;">blockDim</span>.x;
-    data[i] = i;
-}
-
-<span style="color: #ce537a; font-weight: bold;">int</span> main() {
-    <span style="color: #a45bad;">thrust</span>::<span style="color: #ce537a; font-weight: bold;">device_vector</span>&lt;<span style="color: #ce537a; font-weight: bold;">float</span>&gt; data(100);
-    <span style="color: #ce537a; font-weight: bold;">dim3</span> block_size(32, 1, 1);
-    <span style="color: #ce537a; font-weight: bold;">dim3</span> grid_size((data.size() + block_size.x - 1) / block_size.x, 1, 1);
-    iota&lt;&lt;&lt;block_size, grid_size&gt;&gt;&gt;(<span style="color: #a45bad;">thrust</span>::raw_pointer_cast(data.data()));
-    <span style="color: #4f97d7; font-weight: bold;">for</span> (<span style="color: #4f97d7; font-weight: bold;">auto</span> d : data) {
-        <span style="color: #a45bad;">std</span>::cout &lt;&lt; d &lt;&lt; <span style="color: #a45bad;">std</span>::endl;
-    }
-}
+<pre class="src src-python"><span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">numpy &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
+<span style="color: #3a81c3; font-weight: bold;">for</span> t <span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">range</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3;">len</span><span style="color: #6c3163;">(</span>inputs<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>:
+    <span style="color: #715ab1;">xs</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.zeros<span style="color: #3a81c3;">(</span><span style="color: #6c3163;">(</span>vocab_size,<span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">encode in 1-of-k representation</span>
+    xs<span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">][</span>inputs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">]</span> = <span style="color: #4e3163;">1</span>
+    <span style="color: #715ab1;">hs</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.tanh<span style="color: #3a81c3;">(</span>np.dot<span style="color: #6c3163;">(</span>Wxh, xs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + np.dot<span style="color: #6c3163;">(</span>Whh, hs<span style="color: #2d9574;">[</span>t-<span style="color: #4e3163;">1</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + bh<span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">hidden state</span>
+    <span style="color: #715ab1;">ys</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.dot<span style="color: #3a81c3;">(</span>Why, hs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> + by <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">unnormalized log probabilities for next chars</span>
+    <span style="color: #715ab1;">ps</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.exp<span style="color: #3a81c3;">(</span>ys<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> / np.<span style="color: #3a81c3;">sum</span><span style="color: #3a81c3;">(</span>np.exp<span style="color: #6c3163;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">probabilities for next chars</span>
+    <span style="color: #715ab1;">loss</span> += -np.log<span style="color: #3a81c3;">(</span>ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][</span>targets<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span>,<span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">softmax (cross-entropy loss)</span>
 </pre>
 </div>
-<ul class="org-ul">
-<li>blockは1つのSM((Streaming Multiprocessor)が実行する単位</li>
-<li>異なるblockに属する(=異なるSMで実行される)threadは協調できない</li>
-<li>1 block に入る thread 数 (<code>block_size</code>) はハードウェア毎に上限がある</li>
-</ul>
 <div class="org-src-container">
-<pre class="src src-c"><span style="color: #ce537a; font-weight: bold;">cudaDeviceProp</span> <span style="color: #7590db;">prop</span>;
-cudaGetDeviceProperties<span style="color: #4f97d7;">(</span>&amp;prop, <span style="color: #a45bad;">0</span><span style="color: #4f97d7;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">0&#30058;&#30446;&#12487;&#12496;&#12452;&#12473;&#12398;&#24773;&#22577;&#21462;&#24471;</span>
-<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #7590db;">max_block_size</span> = prop.maxThreadsPerBlock; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">1024&#12392;&#12363;</span>
+<pre class="src src-d"><span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">numir &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
+<span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #3a81c3;">(</span>t, i; inputs<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    xs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][</span>i, <span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span> = <span style="color: #4e3163;">1</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">encode in 1-of-k reps</span>
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">hp</span> = t == <span style="color: #4e3163;">0</span> ? hprev : hs<span style="color: #6c3163;">[</span>t-<span style="color: #4e3163;">1</span><span style="color: #6c3163;">]</span>;
+    hs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = map<span style="color: #4e3163;">!</span>tanh<span style="color: #6c3163;">(</span>mtimes<span style="color: #2d9574;">(</span>Wxh, xs<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span><span style="color: #2d9574;">)</span> + mtimes<span style="color: #2d9574;">(</span>Whh, hp<span style="color: #2d9574;">)</span> + bh<span style="color: #6c3163;">)</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">hidden state</span>
+    ys<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = mtimes<span style="color: #6c3163;">(</span>Why, hs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + by; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">unnormalized log probabilities for next chars</span>
+    ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = map<span style="color: #4e3163;">!</span>exp<span style="color: #6c3163;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span>;
+    ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> /= ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span>.sum<span style="color: #4e3163;">!</span><span style="color: #2d9574;">"fast"</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">probabilities for next chars</span>
+    loss += -log<span style="color: #6c3163;">(</span>ps<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">][</span>targets<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span>, <span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">softmax (cross-entropy loss)</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
+<p>
+どうでしょうか，ほとんど同じように直感的にかけていると思います．型のdeductionが強力なD言語ではnumpy/julia同様に型を書く必要をありません．というより，式テンプレートとして型を保持するため手作業で型を書くことはほぼ不可能です．例えばnumir.signalにある blackman 窓を作る関数の返り値なんかは，こんな感じの長い型になってしまいます．
+</p>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">slice</span>.Slice<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">2</span>,<span style="color: #6c3163;">[</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">]</span>,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.ZipIterator<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.IotaIterator<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #ba2f59; font-weight: bold;">long</span><span style="color: #2d9574;">)</span>.IotaIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">real</span><span style="color: #2d9574;">)</span>.RightOp<span style="color: #6c3163;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #3a81c3;">)</span>.MapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #3a81c3;">)</span>.RightOp<span style="color: #b1951d;">)</span>.VmapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"-"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.IotaIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">long</span><span style="color: #6c3163;">)</span>.IotaIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">real</span><span style="color: #6c3163;">)</span>.RightOp<span style="color: #3a81c3;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #b1951d;">)</span>.MapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator<span style="color: #2d9574;">)</span>.ZipIterator,mir.functional.naryFun<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"a + b"</span><span style="color: #2d9574;">)</span>.naryFun<span style="color: #6c3163;">)</span>.MapIterator<span style="color: #3a81c3;">)</span> blackman
+</pre>
+</div>
+<p>
+一部の言語では型はドキュメントなので書くようにという話があると思いますが，mirでは多くの場合，諦めたほうが良いでしょう．¯\_(ツ)_/¯
+</p>
 
 <p>
-よくある性能を引き出すガイドラインとして，SMは「32スレッド」単位で実行するため，
-うまく32に収まるようblockサイズを設定することが推奨されています．
+あと，最後にもう一つ，なんと numir がウェブ上のコンパイラ run.dlang.io で動くようになりました．mir関係のライブラリはほとんどがサポートされているので，使い方がわからないとか，コード辺を共有するときに便利だと思います．
+</p>
+
+<p>
+<a href="https://run.dlang.io/gist/671587b1452b916dc68dddd1cf507efb?compiler=ldc&amp;args=-release">https://run.dlang.io/gist/671587b1452b916dc68dddd1cf507efb?compiler=ldc&amp;args=-release</a>
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org3ff11e8" class="outline-2">
-<h2 id="org3ff11e8">2018年01月16日 C++でネストした要素型の取得&#xa0;&#xa0;&#xa0;<span class="tag"><span class="cpp">cpp</span></span></h2>
-<div class="outline-text-2" id="text-org3ff11e8">
+
+<div id="outline-container-org415ccbc" class="outline-2">
+<h2 id="org415ccbc">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org415ccbc">
 <p>
 ごくまれにC++で 
 </p>
+
 <div class="org-src-container">
-<pre class="src src-c++"><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span>
+<pre class="src src-c++"><span style="color: #4e3163;">std</span>::vector&lt;<span style="color: #4e3163;">std</span>::vector&lt;<span style="color: #ba2f59; font-weight: bold;">float</span>&gt;&gt; vv;
 </pre>
 </div>
 <p>
@@ -342,51 +362,51 @@ cudaGetDeviceProperties<span style="color: #4f97d7;">(</span>&amp;prop, <span st
 D言語のように後方参照可能な型システムでは， <a href="https://github.com/libmir/numir/blob/83dbfe883b5421ba5dcf782cef272f8d205907a6/source/numir/core.d#L195-L205">再帰的に型を辿れば簡単</a> だが，
 </p>
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #bc6ec5;">(</span>isArray<span style="color: #a45bad;">!</span>T<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span> = NestedElementType<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span>ElementType<span style="color: #a45bad;">!</span>T<span style="color: #2d9574;">)</span>;
-    <span style="color: #bc6ec5;">}</span> <span style="color: #4f97d7; font-weight: bold;">else</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span> = T;
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">static</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #6c3163;">(</span>isArray<span style="color: #4e3163;">!</span>T<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = NestedElementType<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span>ElementType<span style="color: #4e3163;">!</span>T<span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span> <span style="color: #3a81c3; font-weight: bold;">else</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = T;
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 <p>
 C++ではそうはいかない．しかし， <code>constexpr</code> を使えば間接的に型の再帰的な操作が可能になる．
 </p>
 <div class="org-src-container">
-<pre class="src src-C++"><span style="color: #2aa1ae; background-color: #292e34;">/* </span><span style="color: #2aa1ae; background-color: #292e34;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
+<pre class="src src-C++"><span style="color: #2aa1ae; background-color: #ecf3ec;">/* </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
 
-<span style="color: #2aa1ae; background-color: #292e34;">   &#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
-<span style="color: #2aa1ae; background-color: #292e34;"> template &lt;typename E&gt;</span>
-<span style="color: #2aa1ae; background-color: #292e34;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
-<span style="color: #2aa1ae; background-color: #292e34;">     E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
-<span style="color: #2aa1ae; background-color: #292e34;">*/</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">   &#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> template &lt;typename E&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">     E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
-<span style="color: #bc6ec5;">#include</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #2d9574;">type_traits</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #bc6ec5;">#include</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #2d9574;">vector</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
+<span style="color: #6c3163;">#include</span> <span style="color: #2d9574;">&lt;type_traits&gt;</span>
+<span style="color: #6c3163;">#include</span> <span style="color: #2d9574;">&lt;vector&gt;</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #7590db;">is_element</span> = <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">is_fundamental</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>::value;
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+constexpr <span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #715ab1;">is_element</span> = <span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_fundamental</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>::value;
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">enable_if_t</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">is_element</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #bc6ec5;">&gt;</span>, <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #bc6ec5; font-weight: bold;">deep_elem</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">return</span> E<span style="color: #bc6ec5;">{}</span>;
-<span style="color: #4f97d7;">}</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+constexpr <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> E<span style="color: #6c3163;">{}</span>;
+<span style="color: #3a81c3;">}</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">Container</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">_</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">enable_if_t</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #a45bad;">!</span><span style="color: #ce537a; font-weight: bold;">is_element</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Container</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">deep_elem</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Container</span> <span style="color: #7590db;">il</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">return</span> deep_elem<span style="color: #bc6ec5;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> &lt;<span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">Container</span>, <span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">_</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span>&lt;<span style="color: #4e3163;">!</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">Container</span>&gt;&gt;<span style="color: #3a81c3;">&gt;</span>
+constexpr <span style="color: #3a81c3; font-weight: bold;">auto</span> deep_elem<span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Container</span> <span style="color: #715ab1;">il</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> deep_elem<span style="color: #6c3163;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">remove_cv_t</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #bc6ec5;">(</span>deep_elem<span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #67b11d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #67b11d;">&gt;()</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">&gt;</span>;
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">using</span> <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">remove_cv_t</span><span style="color: #3a81c3;">&lt;</span>decltype<span style="color: #6c3163;">(</span><span style="color: #715ab1;">deep_elem</span><span style="color: #2d9574;">(</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">declval</span><span style="color: #67b11d;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #67b11d;">&gt;()</span><span style="color: #2d9574;">)</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">&gt;</span>;
 
-<span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">c</span>;
-static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">is_same</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #67b11d;">(</span>c<span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>, <span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span>::value<span style="color: #4f97d7;">)</span>;
+<span style="color: #4e3163;">std</span>::vector&lt;<span style="color: #4e3163;">std</span>::vector&lt;<span style="color: #ba2f59; font-weight: bold;">float</span>&gt;&gt; c;
+static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_same</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span>decltype<span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">c</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span>::value<span style="color: #3a81c3;">)</span>;
 
-<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{}</span>
+<span style="color: #ba2f59; font-weight: bold;">int</span> <span style="color: #6c3163; font-weight: bold;">main</span><span style="color: #3a81c3;">()</span> <span style="color: #3a81c3;">{}</span>
 </pre>
 </div>
 <p>
@@ -396,9 +416,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 </div>
 
-<div id="outline-container-org2b44fd1" class="outline-2">
-<h2 id="org2b44fd1">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org2b44fd1">
+<div id="outline-container-org223e276" class="outline-2">
+<h2 id="org223e276">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-org223e276">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -440,23 +460,23 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 その他の細かい設定としてはこんな事をしてます。
 </p>
 <div class="org-src-container">
-<pre class="src src-elisp">  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-journal &#12434;&#12502;&#12525;&#12464;&#29992;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12395;1&#12501;&#12449;&#12452;&#12523;&#12391;&#12414;&#12392;&#12417;&#12427;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-date-format <span style="color: #2d9574;">"%x"</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-time-format <span style="color: #2d9574;">"&lt;%Y-%m-%d %R&gt; "</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-file-format <span style="color: #2d9574;">"journal.org"</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-dir <span style="color: #2d9574;">"~/Documents/repos/shigekikarita.github.io/"</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-elisp">  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-journal &#12434;&#12502;&#12525;&#12464;&#29992;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12395;1&#12501;&#12449;&#12452;&#12523;&#12391;&#12414;&#12392;&#12417;&#12427;</span>
+  <span style="color: #3a81c3;">(</span>setq org-journal-date-format <span style="color: #2d9574;">"%x"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>setq org-journal-time-format <span style="color: #2d9574;">"&lt;%Y-%m-%d %R&gt; "</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>setq org-journal-file-format <span style="color: #2d9574;">"journal.org"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>setq org-journal-dir <span style="color: #2d9574;">"~/Documents/repos/shigekikarita.github.io/"</span><span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-mode &#12363;&#12425;&#12496;&#12483;&#12501;&#12449;&#31227;&#21205;&#12398;&#12467;&#12510;&#12531;&#12489;&#12434;&#21462;&#12426;&#25147;&#12377;</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftup-final-hook 'windmove-up<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftleft-final-hook 'windmove-left<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftdown-final-hook 'windmove-down<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftright-final-hook 'windmove-right<span style="color: #4f97d7;">)</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12363;&#12425;&#12496;&#12483;&#12501;&#12449;&#31227;&#21205;&#12398;&#12467;&#12510;&#12531;&#12489;&#12434;&#21462;&#12426;&#25147;&#12377;</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftup-final-hook 'windmove-up<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftleft-final-hook 'windmove-left<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftdown-final-hook 'windmove-down<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftright-final-hook 'windmove-right<span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-mode &#12399;&#34892;&#12398;&#25240;&#12426;&#36820;&#12375;&#12394;&#12375;&#12514;&#12540;&#12489;&#12395;&#12394;&#12427;&#12398;&#12391;&#12289;&#28961;&#21177;&#12395;&#12377;&#12427;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-startup-truncated nil<span style="color: #4f97d7;">)</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12399;&#34892;&#12398;&#25240;&#12426;&#36820;&#12375;&#12394;&#12375;&#12514;&#12540;&#12489;&#12395;&#12394;&#12427;&#12398;&#12391;&#12289;&#28961;&#21177;&#12395;&#12377;&#12427;</span>
+  <span style="color: #3a81c3;">(</span>setq org-startup-truncated nil<span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">&#26085;&#26412;&#35486;PDF&#12398;&#12383;&#12417;&#12395;lualatex&#20182;&#12289;&#20415;&#21033;TeX&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#20351;&#12358;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-classes '<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"ltjsarticle"</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#26085;&#26412;&#35486;PDF&#12398;&#12383;&#12417;&#12395;lualatex&#20182;&#12289;&#20415;&#21033;TeX&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#20351;&#12358;</span>
+  <span style="color: #3a81c3;">(</span>setq org-latex-classes '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"ltjsarticle"</span>
 <span style="color: #2d9574;">"\\documentclass{ltjsarticle}</span>
 <span style="color: #2d9574;">\\usepackage{url}</span>
 <span style="color: #2d9574;">\\usepackage{amsmath}</span>
@@ -472,9 +492,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subsubsection{%s}"</span> . <span style="color: #2d9574;">"\\subsubsection*{%s}"</span><span style="color: #67b11d;">)</span>
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\paragraph{%s}"</span> . <span style="color: #2d9574;">"\\paragraph*{%s}"</span><span style="color: #67b11d;">)</span>
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subparagraph{%s}"</span> . <span style="color: #2d9574;">"\\subparagraph*{%s}"</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>
-               <span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-pdf-process '<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"latexmk -gg -lualatex %f"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-default-class <span style="color: #2d9574;">"ltjsarticle"</span><span style="color: #4f97d7;">)</span>
+               <span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>setq org-latex-pdf-process '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">"latexmk -gg -lualatex %f"</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>setq org-latex-default-class <span style="color: #2d9574;">"ltjsarticle"</span><span style="color: #3a81c3;">)</span>
 </pre>
 </div>
 
@@ -488,22 +508,12 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 それでは、今年も宜しくお願いします。
 </p>
 </div>
-
-
-
-
-
-
-
-<div id="outline-container-org8f49871" class="outline-3">
-<h3 id="org8f49871"><span class="timestamp-wrapper"><span class="timestamp">&lt;2018-01-20 土 10:56&gt;</span></span></h3>
-</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-01-20 土 12:24</p>
-<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
+<p class="date">Created: 2018-02-25 Sun 21:32</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
