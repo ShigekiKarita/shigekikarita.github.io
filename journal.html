@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-02-25 Sun 23:08 -->
+<!-- 2018-02-25 Sun 23:09 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -256,15 +256,15 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org2021ae4">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
-<li><a href="#org3e92dc0">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#orgc497625">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#orgb4745d7">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
+<li><a href="#org0534a70">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#orgb751129">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#org9d1b3e8">いままで記事</a></li>
+<li><a href="#org0a5b80f">いままで記事</a></li>
 </ul>
 </li>
-<li><a href="#orgc9db23a">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org68f9c1e">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#org242d42e">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org9e4767f">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -281,19 +281,19 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-org2021ae4" class="outline-2">
-<h2 id="org2021ae4">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
-<div class="outline-text-2" id="text-org2021ae4">
+<div id="outline-container-orgb4745d7" class="outline-2">
+<h2 id="orgb4745d7">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
+<div class="outline-text-2" id="text-orgb4745d7">
 <p>
 いつもプログラミングの話題ばかりするのもつまらないので，アナログ回路の話をしたいと思います．ちなみに大学時代に必修だった回路理論は一度落としました．全く専門的な部分はわかっていないのでご容赦ください．
 </p>
 
 <p>
-ところで私にとって身近な回路というのはギターです．今日は仕事が忙しくて，普段は触らなくなったギターを久々に手に取ると音が出なくなっていました．中を開けてみると配線が切れていた&#x2026;．通電テスターも持ってないので，一つづつPUセレクタに押し付けて(3wayなのに8箇所も接続する端子がある&#x2026;???)，音がでるところに当たりをつけました．弦も外さなきゃいけないストラトと違ってテレキャスターはネジを外すだけで配線がいじれて，弦が同じ向きについているので，音を鳴らしながら回路がいじれるので良いですね．ハンダゴテを探すのに二時間くらいかかったのですが，高校生以来に久々にハンダ付けをしました．
+ところで私にとって身近な回路というのはギターです．今日は，普段触らなくなったギターを久々に手に取ると音が出なくなっていました．中を開けてみると配線が切れていた&#x2026;．通電テスターも持ってないので，一つづつPUセレクタに押し付けて(3wayなのに8箇所も接続する端子がある&#x2026;???)，音がでるところに当たりをつけました．弦も外さなきゃいけないストラトと違ってテレキャスターはネジを外すだけで配線がいじれて，弦が同じ向きについているので，音を鳴らしながら回路がいじれるので良いですね．ハンダゴテを探すのに二時間くらいかかったのですが，高校生以来に久々にハンダ付けをしました．
 </p>
 
 
-<div id="org3bafd03" class="figure">
+<div id="org39eb499" class="figure">
 <p><img src="./img/tl.jpeg" alt="tl.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;1:  </span>テレキャスターの配線．白い線のハンダがとれている</p>
@@ -304,7 +304,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="org96d8cc1" class="figure">
+<div id="orge2e62d1" class="figure">
 <p><img src="./img/rg1.jpeg" alt="rg1.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;2:  </span>元のポット(左)と，コイルタップ付きのポット(右)</p>
@@ -315,7 +315,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="orge158333" class="figure">
+<div id="org2f3f8fa" class="figure">
 <p><img src="http://www.ibanez.com/products/images/eg2017/pickup/3.png" alt="3.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;3:  </span>RGのPUセレクタ構成</p>
@@ -326,7 +326,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="org48b3434" class="figure">
+<div id="orge949421" class="figure">
 <p><img src="./img/pu.png" alt="pu.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;4:  </span>RGのPUセレクタ構成(コイルタップ時)</p>
@@ -334,11 +334,11 @@ for the JavaScript code in this tag.
 
 <p>
 つまり灰色の部分のフロントPUの片側をコイルタップポットでオン・オフできるようになれば良い．
-問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#orge158333">3</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
+問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org2f3f8fa">3</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
 </p>
 
 
-<div id="orge148f17" class="figure">
+<div id="org0077888" class="figure">
 <p><img src="./img/rg2.jpeg" alt="rg2.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;5:  </span>PUセレクタとの配線後</p>
@@ -349,7 +349,7 @@ for the JavaScript code in this tag.
 </p>
 
 <p>
-最後に以上の方法で配線した，PUの6状態(図<a href="#orge158333">3</a> と図<a href="#org48b3434">4</a> の左から2-4番目の状態を交互)を録音してみました．久々にギターを触ったので演奏はお粗末さまだが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
+最後に以上の方法で配線した，PUの6状態(図<a href="#org2f3f8fa">3</a> と図<a href="#orge949421">4</a> の左から2-4番目の状態を交互)を録音してみました．久々にギターを触ったので演奏はお粗末さまだが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
 </p>
 
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/404887164&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
@@ -358,9 +358,9 @@ for the JavaScript code in this tag.
 
 
 
-<div id="outline-container-org3e92dc0" class="outline-2">
-<h2 id="org3e92dc0">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org3e92dc0">
+<div id="outline-container-org0534a70" class="outline-2">
+<h2 id="org0534a70">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org0534a70">
 <p>
 幾何平均の計算
 </p>
@@ -431,17 +431,17 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-orgc497625" class="outline-2">
-<h2 id="orgc497625">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-orgc497625">
+<div id="outline-container-orgb751129" class="outline-2">
+<h2 id="orgb751129">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgb751129">
 <p>
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
-<div id="outline-container-org9d1b3e8" class="outline-3">
-<h3 id="org9d1b3e8">いままで記事</h3>
-<div class="outline-text-3" id="text-org9d1b3e8">
+<div id="outline-container-org0a5b80f" class="outline-3">
+<h3 id="org0a5b80f">いままで記事</h3>
+<div class="outline-text-3" id="text-org0a5b80f">
 <ul class="org-ul">
 <li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
 <li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
@@ -463,7 +463,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="org236f022" class="figure">
+<div id="org0919487" class="figure">
 <p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
 </p>
 <p><span class="figure-number">&#22259;6:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
@@ -520,9 +520,9 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-orgc9db23a" class="outline-2">
-<h2 id="orgc9db23a">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-orgc9db23a">
+<div id="outline-container-org242d42e" class="outline-2">
+<h2 id="org242d42e">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org242d42e">
 <p>
 ごくまれにC++で 
 </p>
@@ -590,9 +590,9 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 </div>
 
-<div id="outline-container-org68f9c1e" class="outline-2">
-<h2 id="org68f9c1e">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org68f9c1e">
+<div id="outline-container-org9e4767f" class="outline-2">
+<h2 id="org9e4767f">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-org9e4767f">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -686,7 +686,7 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-02-25 Sun 23:08</p>
+<p class="date">Created: 2018-02-25 Sun 23:09</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
