@@ -58,13 +58,13 @@
 
 方法は簡単で，上記のセレクタにある8端子のうち，フロントPUから伸びている部分を指でさわりながら，ギターからの出力音を聞くだけです．通電していなければ何も音は流れないし，通電していればブーっという感じのVan Halenのイントロみたいな音がします．
 
-最後に以上の方法で配線した，PUの6状態(図[[fig:rg-pu]] と図[[fig:rg-pu-tapped]] の左から2-4番目の状態を交互)を録音してみました．久々にギターを触ったので演奏はお粗末さまだが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
+最後に以上の方法で配線した6状態(タップなしの図[[fig:rg-pu]] とタップあり図[[fig:rg-pu-tapped]] の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
 
 #+BEGIN_EXPORT html
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/404887164&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
 #+END_EXPORT
 
-
+最初はフロントとブリッジの2PUのために2つポットがいると思って買っていたのですが，IBANEZの変態配線のおかげで1ポットだけで簡単にあらゆる組み合わせのPU構成をすることができました．余った1つのポットはテレキャスターの2PUで直列・並列を切り替えるために使おうかなと思います．
 
 * 2018年02月25日 幾何平均・総乗の計算の小技                               :D:
 
