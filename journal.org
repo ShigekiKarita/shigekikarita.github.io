@@ -16,6 +16,55 @@
 
 [[file:index.html][index]]
 
+* 2018年02月25日 幾何平均・総乗の計算の小技                               :D:
+
+
+幾何平均の計算
+
+\begin{align}
+\mathrm{gmean}(\mathbf{x}) = \left( \prod_{n=1}^{N} x_n \right)^{1/N}
+\end{align}
+
+なんかは総乗がでてくるため，指数的に値が増減して桁落ち／桁溢れを起こしやすくなる．
+そこで，掛け算をlog領域の足し算として行うことが考えられるが，
+さらに細かい浮動小数点における安定化のテクニックを mir の作者 @9il さんに教えてもらった．
+
+https://github.com/libmir/numir/pull/24#discussion_r168958617
+
+まず，浮動小数点 double y は「符号」(bool s), 「仮数」(mantissa, fraction, ulong f) と「指数」(exponent, ushort p)でできている．
+
+https://dlang.org/library/std/bitmanip/double_rep.html
+
+つまり $y = -1^s f \times 2^p$  (ただし $0.5 \geq f < 1$) となっている．
+うまく y をできるだけ桁溢れ／桁落ちせず計算するには，0.5-1付近の仮数と整数値の指数に分けて考える．
+ちなみに f, p から y に変換するCの関数には ~double ldexp(double f, int p)~ ，
+逆にy から f, p に分解するには ~double frexp(double x, int* p)~ が使える．
+
+https://cpprefjp.github.io/reference/cmath/ldexp.html
+
+最初の幾何平均を例にすると $x_n$ は必ず正の値なので符号部は無視してできる．
+まず，総乗 $y = \prod_{n=1}^{N} x_n$ を [[https://github.com/libmir/mir-algorithm/blob/a86b8e164c4d37805be4da572768ca702abbde42/source/mir/math/numeric.d#L19][mir.math.numeric.Prod]] で計算する．
+この関数の凄いところとして， $\prod_{n=1}^{N} x_n = \exp \sum_{n=1}^N \log x_n$ として
+計算するよりも，仮数部が0.5-1にとどまるため数値的に安定かつ，log 計算が全く出てこないため高速である点に注目したい．
+
+つぎに Prod $y$ のメンバである仮数 (簡単のために 1未満の double で表現) $y.x$ と指数 $y.exp$ から
+
+\begin{align}
+\mathrm{gmean}(\mathbf{x})
+&= y^{1/N} \\
+&= (y.x \times 2^{y.exp}) ^ {1/N} \\
+&= 2^{y.exp + \left( \log_2 y.x \right) / N} \\
+&= \left(y.x \times 2^{z - \lfloor z \rfloor}\right) \times 2^{\lfloor z \rfloor}
+\end{align}
+ただし $z=y.exp / N$ である．
+仮数部 $\left(y.x \times 2^{z - \lfloor z \rfloor}\right)$ が 0.5-1の値になっているかは少し微妙なところだが，
+0.5-1の値である $y.x$ と1-2の値である $2^{z - \lfloor z \rfloor}$ の積なので 0.5 - 2 の仮数ということになり，
+桁オチも大したことなさそうなので，そのまま ldexp に渡しても大丈夫だと思っている
+(仮数が 1 を超えていれば半分にして，指数部に1足せば良さそうだが，それこそがldexp自体の仕事である)．
+
+実際のコードはこちら https://github.com/libmir/numir/blob/37287658ff23ece164f50ac5563ba23bab224a06/source/numir/stats.d#L317
+
+
 * 2018年02月24日 D言語でnumpyっぽいコードを書く :D:
 
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-02-25 Sun 21:32 -->
+<!-- 2018-02-25 Sun 21:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -226,6 +226,28 @@ for the JavaScript code in this tag.
  }
 /*]]>*///-->
 </script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -234,13 +256,14 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org7acba76">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#orge127cb3">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org5030e61">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#orgdd8d802">いままで記事</a></li>
+<li><a href="#org10ad13b">いままで記事</a></li>
 </ul>
 </li>
-<li><a href="#org415ccbc">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org223e276">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#org23fe178">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#orgfc0a5a7">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -257,17 +280,90 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-org7acba76" class="outline-2">
-<h2 id="org7acba76">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org7acba76">
+<div id="outline-container-orge127cb3" class="outline-2">
+<h2 id="orge127cb3">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orge127cb3">
+<p>
+幾何平均の計算
+</p>
+
+\begin{align}
+\mathrm{gmean}(\mathbf{x}) = \left( \prod_{n=1}^{N} x_n \right)^{1/N}
+\end{align}
+
+<p>
+なんかは総乗がでてくるため，指数的に値が増減して桁落ち／桁溢れを起こしやすくなる．
+そこで，掛け算をlog領域の足し算として行うことが考えられるが，
+さらに細かい浮動小数点における安定化のテクニックを mir の作者 @9il さんに教えてもらった．
+</p>
+
+<p>
+<a href="https://github.com/libmir/numir/pull/24#discussion_r168958617">https://github.com/libmir/numir/pull/24#discussion_r168958617</a>
+</p>
+
+<p>
+まず，浮動小数点 double y は「符号」(bool s), 「仮数」(mantissa, fraction, ulong f) と「指数」(exponent, ushort p)でできている．
+</p>
+
+<p>
+<a href="https://dlang.org/library/std/bitmanip/double_rep.html">https://dlang.org/library/std/bitmanip/double_rep.html</a>
+</p>
+
+<p>
+つまり \(y = -1^s f \times 2^p\)  (ただし \(0.5 \geq f < 1\)) となっている．
+うまく y をできるだけ桁溢れ／桁落ちせず計算するには，0.5-1付近の仮数と整数値の指数に分けて考える．
+ちなみに f, p から y に変換するCの関数には <code>double ldexp(double f, int p)</code> ，
+逆にy から f, p に分解するには <code>double frexp(double x, int* p)</code> が使える．
+</p>
+
+<p>
+<a href="https://cpprefjp.github.io/reference/cmath/ldexp.html">https://cpprefjp.github.io/reference/cmath/ldexp.html</a>
+</p>
+
+<p>
+最初の幾何平均を例にすると \(x_n\) は必ず正の値なので符号部は無視してできる．
+まず，総乗 \(y = \prod_{n=1}^{N} x_n\) を <a href="https://github.com/libmir/mir-algorithm/blob/a86b8e164c4d37805be4da572768ca702abbde42/source/mir/math/numeric.d#L19">mir.math.numeric.Prod</a> で計算する．
+この関数の凄いところとして， \(\prod_{n=1}^{N} x_n = \exp \sum_{n=1}^N \log x_n\) として
+計算するよりも，仮数部が0.5-1にとどまるため数値的に安定かつ，log 計算が全く出てこないため高速である点に注目したい．
+</p>
+
+<p>
+つぎに Prod \(y\) のメンバである仮数 (簡単のために 1未満の double で表現) \(y.x\) と指数 \(y.exp\) から
+</p>
+
+\begin{align}
+\mathrm{gmean}(\mathbf{x})
+&= y^{1/N} \\
+&= (y.x \times 2^{y.exp}) ^ {1/N} \\
+&= 2^{y.exp + \left( \log_2 y.x \right) / N} \\
+&= \left(y.x \times 2^{z - \lfloor z \rfloor}\right) \times 2^{\lfloor z \rfloor}
+\end{align}
+<p>
+ただし \(z=y.exp / N\) である．
+仮数部 \(\left(y.x \times 2^{z - \lfloor z \rfloor}\right)\) が 0.5-1の値になっているかは少し微妙なところだが，
+0.5-1の値である \(y.x\) と1-2の値である \(2^{z - \lfloor z \rfloor}\) の積なので 0.5 - 2 の仮数ということになり，
+桁オチも大したことなさそうなので，そのまま ldexp に渡しても大丈夫だと思っている
+(仮数が 1 を超えていれば半分にして，指数部に1足せば良さそうだが，それこそがldexp自体の仕事である)．
+</p>
+
+<p>
+実際のコードはこちら <a href="https://github.com/libmir/numir/blob/37287658ff23ece164f50ac5563ba23bab224a06/source/numir/stats.d#L317">https://github.com/libmir/numir/blob/37287658ff23ece164f50ac5563ba23bab224a06/source/numir/stats.d#L317</a>
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org5030e61" class="outline-2">
+<h2 id="org5030e61">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org5030e61">
 <p>
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
-<div id="outline-container-orgdd8d802" class="outline-3">
-<h3 id="orgdd8d802">いままで記事</h3>
-<div class="outline-text-3" id="text-orgdd8d802">
+<div id="outline-container-org10ad13b" class="outline-3">
+<h3 id="org10ad13b">いままで記事</h3>
+<div class="outline-text-3" id="text-org10ad13b">
 <ul class="org-ul">
 <li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
 <li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
@@ -289,7 +385,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="org6ac6bcd" class="figure">
+<div id="orgdf1d036" class="figure">
 <p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
 </p>
 <p><span class="figure-number">&#22259;1:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
@@ -346,9 +442,9 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org415ccbc" class="outline-2">
-<h2 id="org415ccbc">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org415ccbc">
+<div id="outline-container-org23fe178" class="outline-2">
+<h2 id="org23fe178">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org23fe178">
 <p>
 ごくまれにC++で 
 </p>
@@ -416,9 +512,9 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 </div>
 
-<div id="outline-container-org223e276" class="outline-2">
-<h2 id="org223e276">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org223e276">
+<div id="outline-container-orgfc0a5a7" class="outline-2">
+<h2 id="orgfc0a5a7">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-orgfc0a5a7">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -512,7 +608,7 @@ static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-02-25 Sun 21:32</p>
+<p class="date">Created: 2018-02-25 Sun 21:42</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
