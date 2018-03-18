@@ -3,7 +3,7 @@
 #+LANGUAGE: ja
 
 
-#+OPTIONS: toc:nil num:nil H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
 
 #+BEGIN_abstract
@@ -84,7 +84,7 @@ void main() {
 ** モジュール内の関数・変数を調べる
 
 
-例えばPhobosで最近追加された関数を調べたいけど，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
+例えばPhobosで最近追加された関数が使えるか，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
 ~std.traits.hasMember~ はモジュールを引数に取れないので注意・
 
 #+begin_src d
@@ -112,7 +112,7 @@ DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリン�
 - コードに ~version(LDC) pragma(LDC_no_moduleinfo);~ と書く
 - コンパイラに ~-relocation-model=static~ フラグを付ける
 
-これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られることもなくなる．
+これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られなくなる．
 ちなみにDMDは2.076.0までのバージョンではきちんと依存を外してくれないので注意． https://dlang.org/blog/2017/08/23/d-as-a-better-c/
 
 ** コンパイル時ファイル読み込み

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-03-18 日 17:18 -->
+<!-- 2018-03-18 日 17:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>D言語のTips</title>
@@ -230,6 +230,30 @@ for the JavaScript code in this tag.
 <body>
 <div id="content">
 <h1 class="title">D言語のTips</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org8a57348">1. 型全般</a>
+<ul>
+<li><a href="#org48633ca">1.1. 関数の中で自身の戻り値型を取得する</a></li>
+<li><a href="#orgaec16a2">1.2. 特定のコードが動作するか検査する型制約を書く</a></li>
+</ul>
+</li>
+<li><a href="#org7ab6e9c">2. モジュール</a>
+<ul>
+<li><a href="#org2cf68d4">2.1. モジュール内の関数・変数を調べる</a></li>
+</ul>
+</li>
+<li><a href="#org93d1cbc">3. コンパイラ</a>
+<ul>
+<li><a href="#orgb056f7d">3.1. LDCでbetterCモード</a></li>
+<li><a href="#org93a3551">3.2. コンパイル時ファイル読み込み</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 <div class="abstract">
 <div class="org-center">
 <p>
@@ -239,12 +263,12 @@ for the JavaScript code in this tag.
 
 </div>
 
-<div id="outline-container-org0381f6a" class="outline-2">
-<h2 id="org0381f6a">型全般</h2>
-<div class="outline-text-2" id="text-org0381f6a">
-</div><div id="outline-container-org3e20617" class="outline-3">
-<h3 id="org3e20617">関数の中で自身の戻り値型を取得する</h3>
-<div class="outline-text-3" id="text-org3e20617">
+<div id="outline-container-org8a57348" class="outline-2">
+<h2 id="org8a57348"><span class="section-number-2">1</span> 型全般</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-org48633ca" class="outline-3">
+<h3 id="org48633ca"><span class="section-number-3">1.1</span> 関数の中で自身の戻り値型を取得する</h3>
+<div class="outline-text-3" id="text-1-1">
 <p>
 <code>typeof(return)</code> を使う．
 例えばmixin先の関数の中で戻り値型が欲しいことがある．
@@ -288,9 +312,9 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-orgac41621" class="outline-3">
-<h3 id="orgac41621">特定のコードが動作するか検査する型制約を書く</h3>
-<div class="outline-text-3" id="text-orgac41621">
+<div id="outline-container-orgaec16a2" class="outline-3">
+<h3 id="orgaec16a2"><span class="section-number-3">1.2</span> 特定のコードが動作するか検査する型制約を書く</h3>
+<div class="outline-text-3" id="text-1-2">
 <p>
 別にどう書いても良いが，C++のConcept (requires-expression) と同じパターンがある．
 </p>
@@ -324,14 +348,14 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-orga93fb10" class="outline-2">
-<h2 id="orga93fb10">モジュール</h2>
-<div class="outline-text-2" id="text-orga93fb10">
-</div><div id="outline-container-org4cac46a" class="outline-3">
-<h3 id="org4cac46a">モジュール内の関数・変数を調べる</h3>
-<div class="outline-text-3" id="text-org4cac46a">
+<div id="outline-container-org7ab6e9c" class="outline-2">
+<h2 id="org7ab6e9c"><span class="section-number-2">2</span> モジュール</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-org2cf68d4" class="outline-3">
+<h3 id="org2cf68d4"><span class="section-number-3">2.1</span> モジュール内の関数・変数を調べる</h3>
+<div class="outline-text-3" id="text-2-1">
 <p>
-例えばPhobosで最近追加された関数を調べたいけど，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
+例えばPhobosで最近追加された関数が使えるか，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
 <code>std.traits.hasMember</code> はモジュールを引数に取れないので注意・
 </p>
 
@@ -355,12 +379,12 @@ for the JavaScript code in this tag.
 </div>
 </div>
 
-<div id="outline-container-org1c4a7e4" class="outline-2">
-<h2 id="org1c4a7e4">コンパイラ</h2>
-<div class="outline-text-2" id="text-org1c4a7e4">
-</div><div id="outline-container-orgc467d54" class="outline-3">
-<h3 id="orgc467d54">LDCでbetterCモード</h3>
-<div class="outline-text-3" id="text-orgc467d54">
+<div id="outline-container-org93d1cbc" class="outline-2">
+<h2 id="org93d1cbc"><span class="section-number-2">3</span> コンパイラ</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-orgb056f7d" class="outline-3">
+<h3 id="orgb056f7d"><span class="section-number-3">3.1</span> LDCでbetterCモード</h3>
+<div class="outline-text-3" id="text-3-1">
 <p>
 DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリンクしないバイナリを作るオプションである．LDCでは
 </p>
@@ -371,15 +395,15 @@ DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリン�
 </ul>
 
 <p>
-これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られることもなくなる．
+これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られなくなる．
 ちなみにDMDは2.076.0までのバージョンではきちんと依存を外してくれないので注意． <a href="https://dlang.org/blog/2017/08/23/d-as-a-better-c/">https://dlang.org/blog/2017/08/23/d-as-a-better-c/</a>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org2360022" class="outline-3">
-<h3 id="org2360022">コンパイル時ファイル読み込み</h3>
-<div class="outline-text-3" id="text-org2360022">
+<div id="outline-container-org93a3551" class="outline-3">
+<h3 id="org93a3551"><span class="section-number-3">3.2</span> コンパイル時ファイル読み込み</h3>
+<div class="outline-text-3" id="text-3-2">
 <p>
 コンパイラオプションで，-J でファイルのパスを指定し， <code>import("ファイル名")</code> で読み込める．
 例えば簡単にQuineを書きたいとか（反則），コンパイル時にCヘッダーをパースしてD言語に変換したいときに使う．
@@ -408,7 +432,7 @@ DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリン�
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-03-18 日 17:18</p>
+<p class="date">Created: 2018-03-18 日 17:21</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
