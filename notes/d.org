@@ -1,0 +1,134 @@
+#+TITLE: D言語のTips
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+
+#+OPTIONS: toc:nil num:nil H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+
+#+BEGIN_abstract
+#+BEGIN_center
+忘れやすい簡単なイディオム集
+#+END_center
+#+END_abstract
+
+* 型全般
+
+** 関数の中で自身の戻り値型を取得する
+
+~typeof(return)~ を使う．
+例えばmixin先の関数の中で戻り値型が欲しいことがある．
+
+#+begin_src d
+import std.stdio;
+
+mixin template isVoid(string fname = __FUNCTION__) {
+    alias Ret = typeof(return);
+    enum isVoid = is(Ret == void);
+    
+    void f() {
+        if (isVoid) {
+            writeln(fname ~ " returns void");
+        } else {
+            writeln(fname ~ " does not return void");
+        }
+    }
+}
+
+int foo() {
+    mixin isVoid;
+    f();
+    return 1;
+}
+
+void main() {
+    foo();
+    
+    mixin isVoid;
+    f();
+
+/* 実行結果 https://wandbox.org/permlink/r9uG53ygmStEagBS
+prog.foo does not return void
+prog.main returns void
+*/
+}
+#+end_src
+
+** 特定のコードが動作するか検査する型制約を書く
+
+別にどう書いても良いが，C++のConcept (requires-expression) と同じパターンがある．
+
+- C++ Concepts（P0734R0） http://d.hatena.ne.jp/yohhoy/20170904/p1
+
+#+begin_src d
+import std.stdio;
+
+enum bool isAddable(T) = is(typeof((T a, T b){
+    // T が Addable ならコンパイルできるはずなコードを書く
+    auto c = a + b;
+    ++a;
+}));
+
+
+void main() {
+    static assert(isAddable!int);
+    static assert(!ocaml.isAddable!string);
+}
+#+end_src
+
+仕組みはこちらの解説がわかりやすい http://www.codelogy.org/entry/2012/08/12/120835
+
+
+* モジュール
+
+** モジュール内の関数・変数を調べる
+
+
+例えばPhobosで最近追加された関数を調べたいけど，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
+~std.traits.hasMember~ はモジュールを引数に取れないので注意・
+
+#+begin_src d
+import std.stdio;
+import std.algorithm;
+
+static if(!__traits(hasMember, std.algorithm, "minIndex")) {
+    // 2.069 とかではこちらが使われる
+    auto minIndex(R)(R x) {
+        return 0;
+    }
+}
+
+void main() {
+    [100,1,2,3].minIndex.writeln;
+}
+#+end_src
+
+* コンパイラ
+
+** LDCでbetterCモード
+
+DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリンクしないバイナリを作るオプションである．LDCでは
+
+- コードに ~version(LDC) pragma(LDC_no_moduleinfo);~ と書く
+- コンパイラに ~-relocation-model=static~ フラグを付ける
+
+これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られることもなくなる．
+ちなみにDMDは2.076.0までのバージョンではきちんと依存を外してくれないので注意． https://dlang.org/blog/2017/08/23/d-as-a-better-c/
+
+** コンパイル時ファイル読み込み
+
+コンパイラオプションで，-J でファイルのパスを指定し， ~import("ファイル名")~ で読み込める．
+例えば簡単にQuineを書きたいとか（反則），コンパイル時にCヘッダーをパースしてD言語に変換したいときに使う．
+
+#+begin_src d
+import std.stdio;
+
+void main() {
+    auto f = import("prog.d");
+    f.writeln; // このコードが出力される．
+}
+#+end_src
+
+https://wandbox.org/permlink/VvR7h4AIReRVpXBe
+
+- コンパイル時にCヘッダーをパースしてenumをmixinするコード https://github.com/ShigekiKarita/d-nv/blob/7946c12c5657d0a9e73167792d1565f2f1474e86/source/dnv/error.d#L28
