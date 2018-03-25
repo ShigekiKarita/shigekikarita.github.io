@@ -1,3 +1,4 @@
+
 #+TITLE: KARITECH
 #+AUTHOR: Shigeki Karita
 #+LANGUAGE: ja
@@ -15,6 +16,53 @@
 #+END_abstract
 
 [[file:index.html][index]]
+
+* 2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ               :Linux:
+
+最近，新しいノートPCにUbuntu18を入れました．以前はGCCやらドライバが最新なのでFedoraをよく使ってたんですが，最近はUbuntuも頑張っています(なんと標準のGCCがC++17をサポートしている7)．さらに昔と違って[[http://www.g104robo.com/entry/ubuntu-dualboot-win10-uefi][デュアルブート]]も死ぬほど簡単にできて，とても良いです．あと[[https://ubuntuapps.blog.fc2.com/blog-entry-1013.html][minimul install]]が選択できるようになり，一度も使わないLibriOfficeなんかも入らないのも容量が少ないデュアルブート環境では嬉しいですね．
+
+インストールして驚いたのは今回からDesktop環境が標準ではUnityではなくGNOME3になったので，今までとだいぶ見た目が違います．使い心地はSuperキーでウィンドウ操作するのが変わったくらいで，Dockとかは素のGNOME3と違ってUnityのままでした．以前からUnityよりGNOME3の方がGUI上でカスタマイズできる項目(gnome-tweaksでCtrlをCapsにとか)が多いのでLinux初心者にも優しいです．
+
+** IMEとしてibus-mozcを使う
+
+おそらくOSインストール時に日本語を選択してOSインストールするとibusが標準として選ばれるのですが，私はフォルダ名が日本語になるので嫌で英語でOSインストールします．日本語環境をインストールするには， ~Settings > Regions & Language > Manage Installed Languages~ から ~Installed Languages > Japanese~ と ~Keyboard input method system~ からIBus選択すると良いです．次に ~Regions & Languages~ に戻り， ~Input Sources > Japanese(Mozc)~ を選択するとGoogle日本語入力のオープンソース版であるMozcが使えます．
+
+ただし，Mozcを有効にして再起動すると何故かUS配列になってしまいました．
+
+http://ubuntu.hatenablog.jp/entry/20140403/1396524520
+
+このサイトに従って， ~/usr/share/ibus/component/mozc.xml~ というファイルにある ~layout~ を ~jp~ に変更すると日本語配列に戻りました．なんかシステムの値をきちんととれてないバグっぽいですね．
+
+
+** 追加のテーマ
+
+私はシンプルなデザインが好きなのでnumixを入れます．今回はppa無しでも ~sudo apt-get install numix-gtk-theme gnome-tweaks~ で入る． ~Tweaks > Appearance > Themes > Applications~ で ~Numix~ を選ぶと適用されます．
+
+ついでにダークテーマにしたいのですが，現時点ではTweaksから選択できないです．なので ~$HOME/.config/gtk-3.0/settings.ini~ を編集して
+#+begin_src conf
+[Settings]
+gtk-application-prefer-dark-theme=1
+#+end_src
+を追加すると反映されます．あとはNumixのアイコンを使えると最高なんですが，うまくいってないです．
+
+#+CAPTION: Numix適用後のテーマ
+#+NAME: fig:ubuntu18
+#+attr_html: :width 600px
+[[./img/ubuntu18.png]]
+
+
+** Emacs が中華フォントになる問題
+
+Emacsだけ漢字が中華フォントになってました．他のVSCodeやターミナル上でのEmacsは大丈夫なのでシステムの設定ファイルは関係なかったです．
+
+[[http://asukiaaa.blogspot.jp/2017/11/ubuntuemacs.html][ubuntuで動かすemacsの日本語フォントを調整する方法]]
+
+上記のサイトに解決方法がありましたが，Ubuntu18ではTakaoフォントではなく[[https://linuxfan.info/ubuntu-18-04-switch-noto-cjk][Noto Sans CJK日本語フォント]]に用いられているので，このように ~.emacs.d/init.el~ に設定すると他のGUIアプリと同じになって良いです．
+
+#+begin_src elisp
+(set-fontset-font t 'japanese-jisx0208 "Noto Sans CJK JP")
+#+end_src
+
 
 * 2018年02月25日 ギターのコイルタップ配線                      :アナログ回路:
 
