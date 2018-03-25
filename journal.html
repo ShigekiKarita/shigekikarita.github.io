@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-03-26 月 00:58 -->
+<!-- 2018-03-26 月 01:02 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -257,31 +257,29 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orge59aca7">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
+<li><a href="#orgc421c86">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
 <ul>
-<li><a href="#orga6ebf14">IMEとしてibus-mozcを使う</a></li>
-<li><a href="#org6f48315">追加のテーマ</a></li>
-<li><a href="#orgdcdb3a8">Emacs が中華フォントになる問題</a></li>
+<li><a href="#org2306f38">IMEとしてibus-mozcを使う</a></li>
+<li><a href="#orgdd535a2">追加のテーマ</a></li>
+<li><a href="#org36039bc">Emacs が中華フォントになる問題</a></li>
 </ul>
 </li>
-<li><a href="#org5d6ddea">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
-<li><a href="#orgf026dc6">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org156c4aa">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#org8b6bde9">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
+<li><a href="#org3ff609c">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org5515d87">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#orgd5c906e">いままで記事</a></li>
+<li><a href="#orgcccfc63">いままで記事</a></li>
 </ul>
 </li>
-<li><a href="#org58426ef">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org933fec7">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#orgcdb42b5">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org9baeafe">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
 <div class="abstract">
-<div class="org-center">
 <p>
-ライフログ的な&#x2026;
+Log(ja)
 </p>
-</div>
 
 </div>
 
@@ -289,9 +287,9 @@ for the JavaScript code in this tag.
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-orge59aca7" class="outline-2">
-<h2 id="orge59aca7">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
-<div class="outline-text-2" id="text-orge59aca7">
+<div id="outline-container-orgc421c86" class="outline-2">
+<h2 id="orgc421c86">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
+<div class="outline-text-2" id="text-orgc421c86">
 <p>
 最近，新しいノートPCにUbuntu18を入れました．以前はGCCやらドライバが最新なのでFedoraをよく使ってたんですが，最近はUbuntuも頑張っています(なんと標準のGCCがC++17をサポートしている7)．さらに昔と違って<a href="http://www.g104robo.com/entry/ubuntu-dualboot-win10-uefi">デュアルブート</a>も死ぬほど簡単にできて，とても良いです．あと<a href="https://ubuntuapps.blog.fc2.com/blog-entry-1013.html">minimul install</a>が選択できるようになり，一度も使わないLibriOfficeなんかも入らないのも容量が少ないデュアルブート環境では嬉しいですね．
 </p>
@@ -301,9 +299,9 @@ for the JavaScript code in this tag.
 </p>
 </div>
 
-<div id="outline-container-orga6ebf14" class="outline-3">
-<h3 id="orga6ebf14">IMEとしてibus-mozcを使う</h3>
-<div class="outline-text-3" id="text-orga6ebf14">
+<div id="outline-container-org2306f38" class="outline-3">
+<h3 id="org2306f38">IMEとしてibus-mozcを使う</h3>
+<div class="outline-text-3" id="text-org2306f38">
 <p>
 おそらくOSインストール時に日本語を選択してOSインストールするとibusが標準として選ばれるのですが，私はフォルダ名が日本語になるので嫌で英語でOSインストールします．日本語環境をインストールするには， <code>Settings &gt; Regions &amp; Language &gt; Manage Installed Languages</code> から <code>Installed Languages &gt; Japanese</code> と <code>Keyboard input method system</code> からIBus選択すると良いです．次に <code>Regions &amp; Languages</code> に戻り， <code>Input Sources &gt; Japanese(Mozc)</code> を選択するとGoogle日本語入力のオープンソース版であるMozcが使えます．
 </p>
@@ -323,9 +321,9 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org6f48315" class="outline-3">
-<h3 id="org6f48315">追加のテーマ</h3>
-<div class="outline-text-3" id="text-org6f48315">
+<div id="outline-container-orgdd535a2" class="outline-3">
+<h3 id="orgdd535a2">追加のテーマ</h3>
+<div class="outline-text-3" id="text-orgdd535a2">
 <p>
 私はシンプルなデザインが好きなのでnumixを入れます．今回はppa無しでも <code>sudo apt-get install numix-gtk-theme gnome-tweaks</code> で入る． <code>Tweaks &gt; Appearance &gt; Themes &gt; Applications</code> で <code>Numix</code> を選ぶと適用されます．
 </p>
@@ -343,7 +341,7 @@ for the JavaScript code in this tag.
 </p>
 
 
-<div id="orgaf5af4d" class="figure">
+<div id="org4ad1381" class="figure">
 <p><img src="./img/ubuntu18.png" alt="ubuntu18.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;1:  </span>Numix適用後のテーマ</p>
@@ -352,9 +350,9 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-orgdcdb3a8" class="outline-3">
-<h3 id="orgdcdb3a8">Emacs が中華フォントになる問題</h3>
-<div class="outline-text-3" id="text-orgdcdb3a8">
+<div id="outline-container-org36039bc" class="outline-3">
+<h3 id="org36039bc">Emacs が中華フォントになる問題</h3>
+<div class="outline-text-3" id="text-org36039bc">
 <p>
 Emacsだけ漢字が中華フォントになってました．他のVSCodeやターミナル上でのEmacsは大丈夫なのでシステムの設定ファイルは関係なかったです．
 </p>
@@ -376,9 +374,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org5d6ddea" class="outline-2">
-<h2 id="org5d6ddea">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
-<div class="outline-text-2" id="text-org5d6ddea">
+<div id="outline-container-org8b6bde9" class="outline-2">
+<h2 id="org8b6bde9">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
+<div class="outline-text-2" id="text-org8b6bde9">
 <p>
 いつもプログラミングの話題ばかりするのもつまらないので，アナログ回路の話をしたいと思います．ちなみに大学時代に必修だった回路理論は一度落としました．全く専門的な部分はわかっていないのでご容赦ください．
 </p>
@@ -388,7 +386,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orgf97536b" class="figure">
+<div id="org6b276ef" class="figure">
 <p><img src="./img/tl.jpeg" alt="tl.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;2:  </span>テレキャスターの配線．白い線のハンダがとれている</p>
@@ -399,7 +397,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orge156811" class="figure">
+<div id="orgd49cce8" class="figure">
 <p><img src="./img/rg1.jpeg" alt="rg1.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;3:  </span>元のポット(左)と，コイルタップ付きのポット(右)</p>
@@ -410,7 +408,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org9bbf11a" class="figure">
+<div id="org527d702" class="figure">
 <p><img src="http://www.ibanez.com/products/images/eg2017/pickup/3.png" alt="3.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;4:  </span>RGのPUセレクタ構成</p>
@@ -421,7 +419,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org49b8ca5" class="figure">
+<div id="orgdaa3f59" class="figure">
 <p><img src="./img/pu.png" alt="pu.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;5:  </span>RGのPUセレクタ構成(コイルタップ時)</p>
@@ -429,11 +427,11 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 
 <p>
 つまり灰色の部分のフロントPUの片側をコイルタップポットでオン・オフできるようになれば良い．
-問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org9bbf11a">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
+問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org527d702">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
 </p>
 
 
-<div id="orgb4971da" class="figure">
+<div id="orgf7e42de" class="figure">
 <p><img src="./img/rg2.jpeg" alt="rg2.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;6:  </span>PUセレクタとの配線後</p>
@@ -444,7 +442,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 <p>
-最後に以上の方法で配線した6状態(タップなしの図<a href="#org9bbf11a">4</a> とタップあり図<a href="#org49b8ca5">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
+最後に以上の方法で配線した6状態(タップなしの図<a href="#org527d702">4</a> とタップあり図<a href="#orgdaa3f59">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
 </p>
 
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/404887164&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
@@ -455,9 +453,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 </div>
 
-<div id="outline-container-orgf026dc6" class="outline-2">
-<h2 id="orgf026dc6">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-orgf026dc6">
+<div id="outline-container-org3ff609c" class="outline-2">
+<h2 id="org3ff609c">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org3ff609c">
 <p>
 幾何平均の計算
 </p>
@@ -528,17 +526,17 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org156c4aa" class="outline-2">
-<h2 id="org156c4aa">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org156c4aa">
+<div id="outline-container-org5515d87" class="outline-2">
+<h2 id="org5515d87">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org5515d87">
 <p>
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
-<div id="outline-container-orgd5c906e" class="outline-3">
-<h3 id="orgd5c906e">いままで記事</h3>
-<div class="outline-text-3" id="text-orgd5c906e">
+<div id="outline-container-orgcccfc63" class="outline-3">
+<h3 id="orgcccfc63">いままで記事</h3>
+<div class="outline-text-3" id="text-orgcccfc63">
 <ul class="org-ul">
 <li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
 <li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
@@ -560,7 +558,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org52bede6" class="figure">
+<div id="org72c45cb" class="figure">
 <p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
 </p>
 <p><span class="figure-number">&#22259;7:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
@@ -617,9 +615,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org58426ef" class="outline-2">
-<h2 id="org58426ef">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org58426ef">
+<div id="outline-container-orgcdb42b5" class="outline-2">
+<h2 id="orgcdb42b5">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgcdb42b5">
 <p>
 ごくまれにC++で 
 </p>
@@ -688,9 +686,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 </div>
 
-<div id="outline-container-org933fec7" class="outline-2">
-<h2 id="org933fec7">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org933fec7">
+<div id="outline-container-org9baeafe" class="outline-2">
+<h2 id="org9baeafe">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-org9baeafe">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -784,7 +782,7 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-03-26 月 00:58</p>
+<p class="date">Created: 2018-03-26 月 01:02</p>
 <p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

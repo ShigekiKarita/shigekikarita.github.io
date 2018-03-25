@@ -10,9 +10,7 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
 
 #+BEGIN_abstract
-#+BEGIN_center
-ライフログ的な...
-#+END_center
+Log(ja)
 #+END_abstract
 
 [[file:index.html][index]]
