@@ -1,0 +1,33 @@
+\begin{thebibliography}{1}
+
+\bibitem{Hori2013}
+Takaaki Hori and Atsushi Nakamura.
+\newblock {Speech Recognition Algorithms Using Weighted Finite-State
+  Transducers}.
+\newblock {\em Synthesis Lectures on Speech and Audio Processing}, 9(1):1--162,
+  jan 2013.
+
+\bibitem{Mohri2009}
+Mehryar Mohri.
+\newblock {Weighted Automata Algorithms}.
+\newblock pages 213--254. 2009.
+
+\bibitem{Mohri2008}
+Mehryar Mohri, Fernando Pereira, and Michael Riley.
+\newblock {Speech Recognition with Weighted Finite-State Transducers}.
+\newblock In {\em Springer Handbook of Speech Processing}, pages 559--584.
+  Springer Berlin Heidelberg, Berlin, Heidelberg, 2008.
+
+\bibitem{Shinozaki2012}
+T.~Shinozaki, S.~Furui, Y.~Horiuchi, and S.~Kuroiwa.
+\newblock Pipeline decomposition of speech decoders and their implementation
+  based on delayed evaluation.
+\newblock In {\em Proceedings of The 2012 Asia Pacific Signal and Information
+  Processing Association Annual Summit and Conference}, pages 1--4, Dec 2012.
+
+\bibitem{Young2015}
+Steve Young, Mark Gales, Xunying~Andrew Liu, and Phil Woodland.
+\newblock {The HTK Book}.
+\newblock 3.5(alpha1), 2015.
+
+\end{thebibliography}

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-04-07 土 03:22 -->
+<!-- 2018-04-23 月 09:07 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KARITECH カリテク</title>
+<title>Lattice Free-Maximum Mutual Information</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Shigeki Karita" />
 <style type="text/css">
@@ -227,99 +227,191 @@ for the JavaScript code in this tag.
  }
 /*]]>*///-->
 </script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">KARITECH カリテク</h1>
-<div class="abstract">
-<div class="org-center">
-<p>
+<h1 class="title">Lattice Free-Maximum Mutual Information</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org37ba4ab">1. MMIとは</a></li>
+<li><a href="#org7df5b81">2. 従来の系列学習やFrame-level MMI (cross entropy) との違い</a></li>
+<li><a href="#org7178405">3. 既存のコードなど</a></li>
+<li><a href="#orga78ceaf">4. 疑問</a>
+<ul>
+<li><a href="#orgb8aafc0">4.1. Latticeじゃないならどういうグラフなのか，なぜGPUで動くのか</a></li>
+<li><a href="#org2793061">4.2. 音素LMはどうやって作るか</a></li>
+<li><a href="#orgd6adca1">4.3. 特殊なHMMって何</a></li>
+<li><a href="#orge63f6b8">4.4. left/right-torleranceって何</a></li>
+<li><a href="#orgda3c518">4.5. なぜCEより良いのか，事前学習がいらないのか</a></li>
+</ul>
+</li>
+<li><a href="#orgf48f0f0">5. 補足</a>
+<ul>
+<li><a href="#org4c11f01">5.1. lattice</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
 
+<div id="outline-container-org37ba4ab" class="outline-2">
+<h2 id="org37ba4ab"><span class="section-number-2">1</span> MMIとは</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+デコード可能な単語列(=仮説)集合の中で，音声認識モデルが正解の単語列となる音素列を出力する確率を仮説集合全体(分母latticeと呼ぶ)の尤度総和で正規化したものを最大化する学習規準．
+</p>
+
+\begin{align}
+\mathcal{F}_\mathrm{MMI} = - \sum_u \log \frac{p(\mathbf{O}_u|S_u)^k p(W_u)}{\sum_W p(\mathbf{O}_u|S)^k p(W)}
+\end{align}
+<p>
+ここで，各記号は下記の通り
+</p>
+<ul class="org-ul">
+<li>\(u\): 学習セット中の一つの発話</li>
+<li>\(\mathbf{O}_u\): 発話 \(u\) の音声特徴量</li>
+<li>\(W_u\): 発話 \(u\) の正解単語列</li>
+<li>\(S_u\): 発話 \(u\) の正解単語列に対応するHMM状態列</li>
+<li>\(W\): (Lattice-freeでない場合は)発話 \(u\) をデコードした仮説集合lattice(=分母lattice)内の全単語列</li>
+<li>\(S\): 上記の \(W\) に対応するHMM状態列</li>
+<li>\(k\): 音響重み</li>
+</ul>
+
+<p>
+NNのbackpropに必要である，発話 \(u\) の時刻 \(t\) におけるHMM状態 \(r\) (正解を \(s_{u,t}\) とする)の出力確率となるsoftmax前のactivation \(a_{u,t}(r)\) に対する勾配は
+</p>
+\begin{align}
+\frac{\partial \mathcal{F}_\mathrm{MMI}}{\partial a} = \delta(r = s_{u,t}) - p_{u,t}(r)
+\end{align}
+<p>
+ここで \(p_{u,t}(r)\) は発話 \(u\) の分母latticeにおける時刻 \(t\) にHMM状態 \(r\) となる事後確率．注意点として，これは最大化の勾配なので，損失関数を対象とした更新式に適用するには勾配に-1をかける必要がある．
+</p>
+
+<p>
+MMI以外の系列学習については <a href="https://www.danielpovey.com/files/2013_interspeech_dnn.pdf">https://www.danielpovey.com/files/2013_interspeech_dnn.pdf</a> が詳しい
 </p>
 </div>
-
 </div>
 
-<div id="outline-container-org596c55a" class="outline-2">
-<h2 id="org596c55a">Link</h2>
-<div class="outline-text-2" id="text-org596c55a">
+<div id="outline-container-org7df5b81" class="outline-2">
+<h2 id="org7df5b81"><span class="section-number-2">2</span> 従来の系列学習やFrame-level MMI (cross entropy) との違い</h2>
+<div class="outline-text-2" id="text-2">
 <ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita">GitHub</a></li>
-<li><a href="https://twitter.com/kari_tech">Twitter</a></li>
-<li><a href="https://scholar.google.com/citations?hl=ja&amp;user=enV4FrIAAAAJ&amp;view_op=list_works&amp;sortby=pubdate#">Google Scholar</a></li>
-<li><a href="journal.html">Log (ja 日本語)</a></li>
+<li>cross entropyでは系列全体の尤度ではなく，フレーム毎の正解HMM状態の尤度を最大化している
+<ul class="org-ul">
+<li>フレーム毎のHMM状態の種類は定数個しかないので簡単に計算できる</li>
+</ul></li>
+<li>デコードを速くするために，1/3のフレームレートでHMM stateを出力している
+<ul class="org-ul">
+<li>下げたフレームレートを補うため1状態分の横断(traversal)を許す構造のHMMを使う</li>
+</ul></li>
+<li>cross entropyで事前学習はしない．いきなり正解系列の対数確率を最大化するように学習
+<ul class="org-ul">
+<li>ただしGPU上での計算を簡単にするためにlatticeなしで，音素n-gram言語モデルから作るグラフでforward-backward計算</li>
+<li>現状のコードでは状態遷移確率は更新していない</li>
+</ul></li>
+<li>CEのモデルより約5%良い結果になる</li>
 </ul>
-</div>
-</div>
 
-<div id="outline-container-org2265a75" class="outline-2">
-<h2 id="org2265a75">Software</h2>
-<div class="outline-text-2" id="text-org2265a75">
 <p>
-Basically distributed under BSL-1.0
+さらなるLF-MMIの詳細は，このページが一番よくまとまっている <a href="http://kaldi-asr.org/doc/chain.html">http://kaldi-asr.org/doc/chain.html</a>
 </p>
 </div>
+</div>
 
-<div id="outline-container-orgfeecd5c" class="outline-3">
-<h3 id="orgfeecd5c">D language</h3>
-<div class="outline-text-3" id="text-orgfeecd5c">
+<div id="outline-container-org7178405" class="outline-2">
+<h2 id="org7178405"><span class="section-number-2">3</span> 既存のコードなど</h2>
+<div class="outline-text-2" id="text-3">
 <ul class="org-ul">
-<li><a href="https://github.com/libmir/numir">libmir/numir</a>: numpy-like wrapper of ndslice in libmir</li>
-<li><a href="https://github.com/ShigekiKarita/d-nv">d-nv</a>:  CUDA wrapper with Driver, NVRTC, and compile time type check for kernel functions</li>
-<li><a href="https://github.com/ShigekiKarita/d-svm">d-svm</a>: minimal implementation of support vector machines (SVM)</li>
-<li><a href="https://github.com/ShigekiKarita/d-ssvm">d-ssvm</a>: structural SVM implementation (WIP). born to be faster than PyStruct and LIBSVM</li>
-<li><a href="https://github.com/ShigekiKarita/d-tree">d-tree</a>: classification and regression tree (CART) implmentation for tree based statistical models (random forest, gradient boost).</li>
-<li><a href="https://github.com/ShigekiKarita/d-graphviz">d-graphviz</a>: Graphviz wrapper with simple DSL supports visualization of module dependencies.</li>
-<li><a href="https://github.com/ShigekiKarita/d-ffmpeg-light">d-ffmpeg-light</a>: ffmpeg wrapper using command line interface.</li>
+<li>上記のドキュメントでは <a href="https://github.com/kaldi-asr/kaldi/blob/master/egs/swbd/s5c/local/chain/tuning/run_tdnn_2o.sh">swbd/s5c/local/chain/run_tdnn_2o.sh</a> が一番良いレシピらしい
+<ul class="org-ul">
+<li>現在はもっと高精度なものもあるがdata augumentationなどをしているので，かなり複雑</li>
+<li>rerunした結果に再現性がない?</li>
+</ul></li>
+
+<li>目的関数と勾配の計算
+<a href="https://github.com/kaldi-asr/kaldi/blob/ccd50e29312ab4a5a0793303f79f9b2f443ada38/src/chain/chain-training.cc#L144">https://github.com/kaldi-asr/kaldi/blob/ccd50e29312ab4a5a0793303f79f9b2f443ada38/src/chain/chain-training.cc#L144</a></li>
 </ul>
 </div>
 </div>
 
-
-<div id="outline-container-org776abc6" class="outline-3">
-<h3 id="org776abc6">OCaml</h3>
-<div class="outline-text-3" id="text-org776abc6">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/ocaml-kaleido-llvm5">ocaml-kaleido-llvm5</a>: Kaleidoscope tutorial re-implementation with OCaml bindings of LLVM5.0 and menhir.</li>
-</ul>
+<div id="outline-container-orga78ceaf" class="outline-2">
+<h2 id="orga78ceaf"><span class="section-number-2">4</span> 疑問</h2>
+<div class="outline-text-2" id="text-4">
 </div>
-</div>
-
-<div id="outline-container-orgcb47dc2" class="outline-3">
-<h3 id="orgcb47dc2">C++</h3>
-<div class="outline-text-3" id="text-orgcb47dc2">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/cxx14_thread_pool">cxx14_thread_pool</a>: generic thread pool implementation with priority queue for C++14.</li>
-<li><a href="https://github.com/ShigekiKarita/CMakeExampleCUDA">CMakeExampleCUDA</a>: example CMake project for CUDA/C++ integration.</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org95cbbc1" class="outline-3">
-<h3 id="org95cbbc1">Python</h3>
-<div class="outline-text-3" id="text-org95cbbc1">
-<ul class="org-ul">
-<li><a href="https://github.com/espnet/espnet">ESPnet</a>: fastest seq2seq based speech recognition toolkit (Apache2.0). contributing to pytorch backend.</li>
-</ul>
-</div>
-</div>
+<div id="outline-container-orgb8aafc0" class="outline-3">
+<h3 id="orgb8aafc0"><span class="section-number-3">4.1</span> Latticeじゃないならどういうグラフなのか，なぜGPUで動くのか</h3>
 </div>
 
 
-<div id="outline-container-org0cce74b" class="outline-2">
-<h2 id="org0cce74b">Technical notes</h2>
-<div class="outline-text-2" id="text-org0cce74b">
-<ul class="org-ul">
-<li><a href="notes/ocaml.html">OCaml (ja)</a></li>
-<li><a href="notes/d.html">D (ja)</a></li>
-<li><a href="notes/asr.html">音声認識システムを作る (ja)</a></li>
-</ul>
+<div id="outline-container-org2793061" class="outline-3">
+<h3 id="org2793061"><span class="section-number-3">4.2</span> 音素LMはどうやって作るか</h3>
+</div>
+
+
+<div id="outline-container-orgd6adca1" class="outline-3">
+<h3 id="orgd6adca1"><span class="section-number-3">4.3</span> 特殊なHMMって何</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+これのFig.1
+<a href="http://www.danielpovey.com/files/2018_icassp_semisupervised_mmi.pdf">http://www.danielpovey.com/files/2018_icassp_semisupervised_mmi.pdf</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge63f6b8" class="outline-3">
+<h3 id="orge63f6b8"><span class="section-number-3">4.4</span> left/right-torleranceって何</h3>
+</div>
+
+
+
+<div id="outline-container-orgda3c518" class="outline-3">
+<h3 id="orgda3c518"><span class="section-number-3">4.5</span> なぜCEより良いのか，事前学習がいらないのか</h3>
+</div>
+</div>
+
+
+<div id="outline-container-orgf48f0f0" class="outline-2">
+<h2 id="orgf48f0f0"><span class="section-number-2">5</span> 補足</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-org4c11f01" class="outline-3">
+<h3 id="org4c11f01"><span class="section-number-3">5.1</span> lattice</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+仮説として無限に長い単語まで含めると「デコード可能な仮説」は殆ど無限に存在する．そこで発話音声ごとに音声認識モデルによるスコアにおいて，十分尤もらしい仮説候補の集合である<a href="http://kaldi-asr.org/doc/lattices.html">lattice</a>を採用している．実際にはlatticeとは一つの発話に対して，仮説の中の単語候補をノード，単語間の遷移確率を枝の重みに持つ有向グラフである．効率のためにHMM音響モデルスコア，言語モデルスコアなどで枝刈りなどを行い現実的なサイズまで縮小する．
+</p>
+</div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Author: Shigeki Karita</p>
-<p class="date">Created: 2018-04-07 土 03:22</p>
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2018-04-23 月 09:07</p>
 <p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

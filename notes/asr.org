@@ -1,0 +1,114 @@
+#+TITLE: 月刊：音声認識システムを作る
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+
+#+BEGIN_abstract
+#+BEGIN_center
+D言語で作る大規模音声認識システム
+#+END_center
+#+END_abstract
+
+
+* 音声認識の概要
+
+みなさんは音声認識のことを知ってますか？私は，例えば大学の授業といった場面でも，音声認識の全体像を把握することは難しいだろうと思っています．その理由は長年の地道な改良によって統計・数学的な背景が多岐に渡りすぎたせいだと思います．そんな中で2010年代辺りから音声認識に新たな派閥ができました．
+
+- 従来：重み付き有限状態トランスデューサ(WFST)\cite{Mohri2008}を核とした階層的なモデルを複合した大規模なシステム\cite{Hori2013} ([[https://github.com/kaldi-asr/kaldi][Kaldi]], [[http://htk.eng.cam.ac.uk/][HTK]]など)
+- 最近：音声からテキストへの変換を直接モデル化した単純なシステム ([[https://github.com/espnet/espnet][ESPnet]]など)
+
+この流れで言うと，「ああ，この人は最近の音声認識はシンプルだから，そっちの解説を始めるんだな」と思うでしょう．たしかに私は普段，後者の新しい方式を研究しており，紹介しやすいものですと様々な最先端技術を実装するOSSプロジェクト[[https://github.com/espnet/espnet][ESPnet]]にも貢献しています．
+
+ところがどっこい，この解説記事では前者しか扱いません．無謀にも地道に古典的な音声認識システムをコツコツ作っていこうという話です．普通に作っても面白くないので，既存の音声認識ライブラリは使わず，純粋にD言語だけで一から作ろうと思います．
+
+** なぜ作るのか
+
+作る理由としては，いままで何冊も音声認識に関する本や論文を読みましたが，Kaldiの認識スクリプトの最初から最後まで実際は何が動いているかは私はわかりません．というのも歴史的に様々な先端技術(音響モデル，言語モデル，WFST)を複合しているため，全てを理解している人は少ないと思います．しっかりと全体を理解するには，一度全部作るのが速そうだと思ったわけです．
+
+D言語を採用した理由は実行速度やメモリ使用量の点で有利だからです．例えばPythonやHaskellで書くとリスト処理などパイプラインの実装は楽そうです．しかし経験的には実行速度が遅かったり，多くのメモリを消費します\cite{Shinozaki2012}．結局WFSTの演算などコアな部分はC/C++で書くことになるでしょう．それならばC/C++と同レベルのバイナリを作れて，標準ライブラリなどでリスト処理などアルゴリズムが充実したD言語が適していると思いました．
+
+
+** 大まかなプラン
+
+これから作るものの大雑把なリストです．性能評価の実験では，無料で入手できる大規模な[[http://www-lium.univ-lemans.fr/en/content/ted-lium-corpus][TEDLIUMコーパス]](有名人のCreativeCommonsな講演TED talkの音声と字幕を元にしたデータセット)を使います．
+
+1. 音声特徴量: まさに音声認識の秘伝のタレ．音声は巨大なので認識しやすくSTFTなどで変換します．最終的にMFCC特徴量を作ります．
+2. 音響モデル: 音声特徴量をいきなりテキストへ変換するのは難しいので，音声特徴量から音素へ変換するモデルを作ります．最終的にオーソドックスな隠れマルコフモデル(HMM)と混合正規分布モデル(GMM)を作ります．
+3. 発音辞書: 英語辞書とかに乗ってる，単語と音素列の対応を羅列したデータです．音韻学者を呼ばないとつくれないので，出来合いのデータに対してWFSTへの変換ツールを作ります．
+4. 言語モデル: TEDLIUMコーパスについてくるARPA形式のデータを変換するか，データセットから学習します．
+
+個人の趣味プロジェクトかつ，大規模な方を選んでしまったので月1くらいのペースでランダムに更新できればなと思います．半年くらいで何か認識できるようになれば嬉しいくらいのペースです．
+
+
+** 実装における情報源
+
+- The HTK Book \cite{Young2015} - 歴史的な経緯などもまとまった随一のドキュメントだと思います．
+- Kaldi http://kaldi-asr.org/doc/ - 2018年現在，最もアクティブな音声認識ツールキットでしょう．文章は読みにくいけど，コードにもコメントが多い印象．
+- \cite{Mohri2008} - OpenFSTの[[http://www.openfst.org/twiki/bin/view/FST/FstBackground][サイト]]にも紹介されている音声認識におけるWFSTの基礎的なアルゴリズムの説明．
+- \cite{Mohri2009} - 同じくOpenFSTのサイトに紹介されているWFSTアルゴリズムのサーベイ論文
+
+* Kaldiで学ぶ音声の階層構造と統計モデル
+
+まず実際に既存の音声認識ツールキット(Kaldi)が何をしているのか解説したいと思います．Ubuntuでは次のようにダウンロード・コンパイルします．とりあえずニューラルネット音響モデルはまだ使わないのでCUDAは必要ないです．
+
+#+begin_src zsh
+sudo apt-get install subversion libopenblas-dev libgfortran-7-dev libblas-dev
+sudo apt-get liblapacke-dev checkinstall
+sudo ln -s /usr/lib/x86_64-linux-gnu/libopenblas.so /usr/local/lib/
+git clone https://github.com/kaldi-asr/kaldi.git
+git checkout 1a1e265ae8386910a3967010c845fbd29ddb25e4
+cd kaldi/tools
+make -j4
+cd ../src
+./configure --shared --use-cuda=no --openblas-root=/usr/local
+make -j4
+#+end_src
+
+とりあえず我々がターゲットにしているTEDLIUMコーパスのレシピ(※実験のスクリプトのこと)を，動かしてみましょう．とりあえず本記事の対象であるtriphoneのGMM-HMM音響モデルの評価(stage 10)まで走ったら exit して大丈夫です．
+
+#+begin_src
+cd kaldi/egs/tedlium/s5_r2
+./run.sh |& tee log
+#+end_src
+
+このスクリプト [[https://github.com/kaldi-asr/kaldi/blob/master/egs/tedlium/s5_r2/run.sh][run.sh]] をひらくと，大まかな処理の段階わけがされています．
+#+begin_src bash
+if [ $stage -le 0 ]; then
+  local/download_data.sh
+fi
+#+end_src
+大まかに各ステージでやっていることを説明すると，こんな感じです．
+
+- stage 0-1. TEDLIUMコーパスと言語モデルのダウンロードと整備 (私の環境では5時間かかりました)
+- stage 2. 発音辞書の準備(WFST化)
+- stage 3-5. 言語モデルの準備(未知語などの前処理，学習，WFST化)
+- stage 6. MFCC特徴量の抽出，入力データの正規化
+- stage 7. データセットの縮小(最も短い10000発話を選択)
+- stage 8. 初期モデルとして音素単位のHMM音響モデルを縮小データで学習
+- stage 9. 初期モデルで作ったアライメントを元に，3組音素HMM(tri1)を全データで学習
+- stage 10. tri1をデコードして認識性能の評価
+
+音素HMMとは大雑把に言うと音素ごとに一つHMMを用意して，それぞれの音声の確率をモデル化しています．また，「アライメント」とは音声の各時刻がどの音素なのかという情報で，「3組音素」とは単純に現在の音声フレームに対する音素だけでなく前後の音素は何だったのかという情報も合わせた単位でHMMを作っています．
+
+* 音声特徴量
+
+
+
+* 音響モデル
+
+* 発音辞書
+
+* 言語モデル
+
+* 重み付き有限状態トランスデューサ
+
+* 認識デコーダ
+
+* 系列学習
+
+
+#+BIBLIOGRAPHY: asr plain

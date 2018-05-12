@@ -1,0 +1,82 @@
+#+TITLE: Lattice Free-Maximum Mutual Information
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+# #+HTML_MATHJAX:  path:"css/MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+* MMIとは
+
+デコード可能な単語列(=仮説)集合の中で，音声認識モデルが正解の単語列となる音素列を出力する確率を仮説集合全体(分母latticeと呼ぶ)の尤度総和で正規化したものを最大化する学習規準．
+
+\begin{align}
+\mathcal{F}_\mathrm{MMI} = - \sum_u \log \frac{p(\mathbf{O}_u|S_u)^k p(W_u)}{\sum_W p(\mathbf{O}_u|S)^k p(W)}
+\end{align}
+ここで，各記号は下記の通り
+- $u$: 学習セット中の一つの発話
+- $\mathbf{O}_u$: 発話 $u$ の音声特徴量
+- $W_u$: 発話 $u$ の正解単語列
+- $S_u$: 発話 $u$ の正解単語列に対応するHMM状態列
+- $W$: (Lattice-freeでない場合は)発話 $u$ をデコードした仮説集合lattice(=分母lattice)内の全単語列
+- $S$: 上記の $W$ に対応するHMM状態列
+- $k$: 音響重み
+
+NNのbackpropに必要である，発話 $u$ の時刻 $t$ におけるHMM状態 $r$ (正解を $s_{u,t}$ とする)の出力確率となるsoftmax前のactivation $a_{u,t}(r)$ に対する勾配は
+\begin{align}
+\frac{\partial \mathcal{F}_\mathrm{MMI}}{\partial a} = \delta(r = s_{u,t}) - p_{u,t}(r)
+\end{align}
+ここで $p_{u,t}(r)$ は発話 $u$ の分母latticeにおける時刻 $t$ にHMM状態 $r$ となる事後確率．注意点として，これは最大化の勾配なので，損失関数を対象とした更新式に適用するには勾配に-1をかける必要がある．
+
+MMI以外の系列学習については https://www.danielpovey.com/files/2013_interspeech_dnn.pdf が詳しい
+
+* 従来の系列学習やFrame-level MMI (cross entropy) との違い
+
+- cross entropyでは系列全体の尤度ではなく，フレーム毎の正解HMM状態の尤度を最大化している
+  - フレーム毎のHMM状態の種類は定数個しかないので簡単に計算できる
+- デコードを速くするために，1/3のフレームレートでHMM stateを出力している
+  - 下げたフレームレートを補うため1状態分の横断(traversal)を許す構造のHMMを使う
+- cross entropyで事前学習はしない．いきなり正解系列の対数確率を最大化するように学習
+  - ただしGPU上での計算を簡単にするためにlatticeなしで，音素n-gram言語モデルから作るグラフでforward-backward計算
+  - 現状のコードでは状態遷移確率は更新していない
+- CEのモデルより約5%良い結果になる
+
+さらなるLF-MMIの詳細は，このページが一番よくまとまっている http://kaldi-asr.org/doc/chain.html
+
+* 既存のコードなど
+
+- 上記のドキュメントでは [[https://github.com/kaldi-asr/kaldi/blob/master/egs/swbd/s5c/local/chain/tuning/run_tdnn_2o.sh][swbd/s5c/local/chain/run_tdnn_2o.sh]] が一番良いレシピらしい
+  - 現在はもっと高精度なものもあるがdata augumentationなどをしているので，かなり複雑
+  - rerunした結果に再現性がない?
+
+- 目的関数と勾配の計算
+  https://github.com/kaldi-asr/kaldi/blob/ccd50e29312ab4a5a0793303f79f9b2f443ada38/src/chain/chain-training.cc#L144
+
+* 疑問
+
+** Latticeじゃないならどういうグラフなのか，なぜGPUで動くのか
+
+
+** 音素LMはどうやって作るか
+
+
+** 特殊なHMMって何
+
+これのFig.1
+http://www.danielpovey.com/files/2018_icassp_semisupervised_mmi.pdf
+
+** left/right-torleranceって何
+
+
+
+** なぜCEより良いのか，事前学習がいらないのか
+
+
+* 補足
+
+** lattice
+
+仮説として無限に長い単語まで含めると「デコード可能な仮説」は殆ど無限に存在する．そこで発話音声ごとに音声認識モデルによるスコアにおいて，十分尤もらしい仮説候補の集合である[[http://kaldi-asr.org/doc/lattices.html][lattice]]を採用している．実際にはlatticeとは一つの発話に対して，仮説の中の単語候補をノード，単語間の遷移確率を枝の重みに持つ有向グラフである．効率のためにHMM音響モデルスコア，言語モデルスコアなどで枝刈りなどを行い現実的なサイズまで縮小する．
+
+
+

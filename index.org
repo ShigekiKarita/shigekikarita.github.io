@@ -52,3 +52,4 @@ Basically distributed under BSL-1.0
 
 - [[file:notes/ocaml.html][OCaml (ja)]]
 - [[file:notes/d.org][D (ja)]]
+- [[file:notes/asr.org][音声認識システムを作る (ja)]]

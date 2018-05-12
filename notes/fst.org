@@ -1,0 +1,58 @@
+#+TITLE: 有限状態トランスデューサのノート
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+
+#+BEGIN_abstract
+#+BEGIN_center
+D言語で作る
+#+END_center
+#+END_abstract
+
+* 最初の一歩
+
+まずは[[http://openfst.org/twiki/bin/view/FST/FstQuickTour][OpenFSTのチュートリアル]]相当のツールを作る．
+まずこういうFSTを作る．
+
+[[http://openfst.org/twiki/pub/FST/FstQuickTour/symbolicfst.jpg]]
+
+#+begin_src d
+void main {
+
+}
+#+end_src
+
+* WFSTの基礎概念
+
+** 半環 semiring
+
+
+* 基本的なアルゴリズムの実装
+
+音声認識で使われるWFSTアルゴリズム (http://kaldi-asr.org/doc/fst_algo.html)
+
+- 合成 composition
+- 決定化 determinization
+- 最小化 minimization
+- ε除去 epsilon removal
+
+Kaldiのドキュメント(http://kaldi-asr.org/doc/graph.html)によると，次の４つのFSTを合成します．
+
+- G (Grammer): 文法・言語モデルのアクセプタ(入出力シンボルが同じ)
+- L (Lexicon): 発音辞書(音素列 -> 単語)のトランスデューサ
+- C (Context dependency): 音素 -> 並んだ音素N個の組(文脈依存音素)．具体例 http://kaldi-asr.org/doc/tree_externals.html#tree_window
+- H (HMM definitons): 状態遷移のID -> 文脈依存音素．具体例 http://kaldi-asr.org/doc/hmm.htm
+
+これを $HCLG = $
+ここで asl=add-self-loop, rds=remove-disambiguation-symbolsとのことです．
+
+* 文献
+
+- \cite{Mohri2008} - OpenFSTの[[http://www.openfst.org/twiki/bin/view/FST/FstBackground][サイト]]にも紹介されている音声認識におけるWFSTの基礎的なアルゴリズムの説明．
+- \cite{Mohri2009} - 同じくOpenFSTのサイトに紹介されているWFSTアルゴリズムのサーベイ論文
+- OpenFSTのアルゴリズム実装一覧(計算量なども) http://openfst.org/twiki/bin/view/FST/FstQuickTour#AvailableOperations
+- 網羅的なWFSTの研究一覧 https://cs.nyu.edu/~mohri/transducer-algorithms.html

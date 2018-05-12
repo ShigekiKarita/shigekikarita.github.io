@@ -1,0 +1,12 @@
+\BOOKMARK [1][-]{section.1}{音声認識の概要}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{なぜ作るのか}{section.1}% 2
+\BOOKMARK [2][-]{subsection.1.2}{大まかなプラン}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{実装における情報源}{section.1}% 4
+\BOOKMARK [1][-]{section.2}{Kaldiで学ぶ音声の階層構造と統計モデル}{}% 5
+\BOOKMARK [1][-]{section.3}{音声特徴量}{}% 6
+\BOOKMARK [1][-]{section.4}{音響モデル}{}% 7
+\BOOKMARK [1][-]{section.5}{発音辞書}{}% 8
+\BOOKMARK [1][-]{section.6}{言語モデル}{}% 9
+\BOOKMARK [1][-]{section.7}{重み付き有限状態トランスデューサ}{}% 10
+\BOOKMARK [1][-]{section.8}{認識デコーダ}{}% 11
+\BOOKMARK [1][-]{section.9}{系列学習}{}% 12

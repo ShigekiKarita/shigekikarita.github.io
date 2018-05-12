@@ -1,0 +1,814 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<!-- 2018-05-12 土 21:37 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>D for Deep Learning</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Shigeki Karita" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="css/org.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">D for Deep Learning</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org8f1d4f8">1. 背景とD言語 (1日目, 5/7)</a></li>
+<li><a href="#orgb20b432">2. CPUホスト・CUDAデバイスそれぞれのメモリ管理 (2日目, 5/8)</a></li>
+<li><a href="#org3492e48">3. 虚無 (3日目, 5/9)</a></li>
+<li><a href="#org43b7867">4. CPUホスト・CUDAデバイス両対応な関数オブジェクト (4日目, 5/10)</a>
+<ul>
+<li><a href="#org9a720d5">4.1. Function 関数オブジェクト</a></li>
+<li><a href="#org585cede">4.2. BLASライブラリの導入</a></li>
+</ul>
+</li>
+<li><a href="#orgcc023ac">5. シンプルな自動微分メカニズムと型消去 (5日目, 5/11)</a>
+<ul>
+<li><a href="#org7a1875f">5.1. 自動微分の仕組み</a></li>
+<li><a href="#orgc164e71">5.2. 変数 Variable の仕組み</a></li>
+</ul>
+</li>
+<li><a href="#org88ca4e2">6. BackPropの実装とテスト (6日目, 5/12)</a>
+<ul>
+<li><a href="#org9d20022">6.1. BackProp の実装</a></li>
+</ul>
+</li>
+<li><a href="#org199a7aa">7. 手書き文字認識MNISTの実行 (7日目, 5/13)</a></li>
+<li><a href="#orgc2f5099">8. <span class="todo TODO">TODO</span> 残った課題</a></li>
+</ul>
+</div>
+</div>
+<div class="abstract">
+<p>
+いまD言語が熱い．D言語はC++の後継となるべく，Digital Mars C++コンパイラの作者Walter Brightや，Modern C++ Designの作者Andrei Alexandrescuらが日々改良を重ねて，テンプレートやモジュール，ガベージコレクション(GC)などのリッチな言語機能と，C/C++との互換性・同等の速さ・フットプリントの小ささを両立している．最近ではCUDAライブラリのラッパーが充実し，LDCコンパイラではCUDA kernelが書けるようになった．さらにnumpyのように多次元配列を自在に扱えるMirも登場した．こんなに充実した言語でディープラーニング用のライブラリを書きたくなるのは当然だ．
+</p>
+
+</div>
+
+<div id="outline-container-org8f1d4f8" class="outline-2">
+<h2 id="org8f1d4f8"><span class="section-number-2">1</span> 背景とD言語 (1日目, 5/7)</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+私は勤務先で日頃からC++でクローズドなDeep Learningライブラリを自作していてた．CPUホストコードではC++17をCUDAデバイスコードではC++14を使っていたので，型安全にジェネリックなコードを書き，shared_ptrを使って安全にコードを書いていたが，ときどき循環参照を起こしてメモリリークを起こしてGCが欲しくなったり，SFINAEに頼ってジェネリックなコードを書くのに辛くなってきました(だが，Rustのような型クラスは嫌だった)．そんな中でGCがあり，SFINAEに頼らない簡単なメタプログラミング機能を使えるD言語を使いたい気持ちは日に日に高まっていった．
+</p>
+
+<p>
+そんな中で10連休に及ぶGWは仕事のことは忘れて虚無に過ごしたのですが，最終日に突如として<a href="https://github.com/libmir/dcompute">dcompute</a>というD言語でCUDAカーネルを書く謎の技術を思い出し，触ってみた．結果から言うとコンパイルすらできなかった．デバイス側のポインタの扱いやカーネル生成など大部分はすでにLDC本家にマージされており，若干の便利機能が残ったdcomputeライブラリは清く捨てた．実際には以下のページ
+</p>
+
+<ul class="org-ul">
+<li>CUDA Driver APIのD言語ラッパー <a href="https://github.com/DerelictOrg/DerelictCUDA/blob/master/source/derelict/cuda/driverapi.d">DerelictCUDA</a></li>
+<li><a href="https://github.com/ldc-developers/ldc/blob/085d9a69db42a608759aea638b388f2149dd629a/tests/codegen/dcompute_cu_addrspaces.d#L3">LDCのCUDAカーネルからのPTX生成のテストコード</a></li>
+<li><a href="https://llvm.org/docs/NVPTXUsage.html#llvm-nvvm-ptr-to-gen-intrinsics">LLVMのPTXコード生成の仕組み</a></li>
+<li><a href="https://llvm.org/docs/CompileCudaWithLLVM.html">ClangでCUDAバイナリをコンパイルする方法</a></li>
+</ul>
+
+<p>
+を参考にしてMakefileからldc2コマンドを直に叩いてD言語からCUDAの中間コードであるPTXを生成し，CUDA Driver APIで呼び出すことにした．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-makefile"><span style="color: #6c3163; font-weight: bold;">kernel/%.ptx</span>: kernel/%.d tool/compute_capability.out
+    ldc2 $<span style="color: #4e3163;">&lt;</span> --mdcompute-targets=cuda-$<span style="color: #3a81c3;">(</span><span style="color: #715ab1;">CUDA_COMPUTE_CAPABILITY</span><span style="color: #3a81c3;">)</span><span style="color: #4e3163;">0</span> -H -Hd kernel -mdcompute-file-prefix=$<span style="color: #3a81c3;">(</span><span style="color: #715ab1;">shell</span> basename -s .d $<span style="color: #4e3163;">&lt;</span><span style="color: #3a81c3;">)</span>
+    mv $<span style="color: #3a81c3;">(</span><span style="color: #715ab1;">shell</span> basename -s .d $<span style="color: #4e3163;">&lt;</span><span style="color: #3a81c3;">)</span>_cuda$<span style="color: #3a81c3;">(</span><span style="color: #715ab1;">CUDA_COMPUTE_CAPABILITY</span><span style="color: #3a81c3;">)</span><span style="color: #4e3163;">0_</span>$<span style="color: #3a81c3;">(</span><span style="color: #715ab1;">CUDA_BIT</span><span style="color: #3a81c3;">)</span>.ptx <span style="color: #6c3163; font-weight: bold;">$</span><span style="color: #4e3163; font-weight: bold;">@</span>
+</pre>
+</div>
+
+<p>
+上記のコマンドでは，PTXファイル <code>(モジュール名).ptx</code> だけでなく，D言語のヘッダー定義 <code>(モジュール名).di</code> を生成して，PTXのJITコンパイル後の関数呼び出しにおける静的型検査に使おうと考えた(これは最後まで実装していないが，<a href="https://github.com/ShigekiKarita/d-nv/blob/master/source/dnv/typechecker.d">NVRTCラッパーを作ったときに同じことを</a>以前やったので，そんなに難しくない．)．
+</p>
+
+<p>
+この日はCUDA入門で最初にやるベクトル加算(axpy)の実装と実行まで動いている．困った点として，CUDA Driver APIにあるコンテキスト <code>cuContext</code> を破棄するタイミングが，GCより前に起こってしまい，いくつかのCUDA関係のオブジェクトのデストラクタがGCによってCUDA関係のDestroy/Free系関数を呼んでうまく開放できなかった．簡単な解決策として， <code>cuContext</code> の破棄の前に明示的にGCを呼ぶことで回避した．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">module</span> grain.<span style="color: #4e3163;">cuda</span>;
+
+...
+
+<span style="color: #3a81c3; font-weight: bold;">shared</span> <span style="color: #3a81c3; font-weight: bold;">static</span> ~<span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #3a81c3;">()</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> core.<span style="color: #ba2f59; font-weight: bold;">memory</span> : GC;
+    GC.collect<span style="color: #6c3163;">()</span>;
+    checkCudaErrors<span style="color: #6c3163;">(</span>cuCtxDestroy<span style="color: #2d9574;">(</span>context<span style="color: #2d9574;">)</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+3日目くらいで作業メモを残そうと思い，この文書を書き始めてタイトルには1週間と書いてみたが，この期間は普通に働いているので一日2-5時間程度の作業時間だった．なおリポジトリは下記の通りで，git cloneしてmakeを叩けばテストまで走る，動作していたDコンパイラは<a href="https://github.com/ldc-developers/ldc/releases/tag/v1.9.0">LDC1.9.0</a>(Linux X64)．
+</p>
+
+<ul class="org-ul">
+<li>この日の最終 commit  <a href="https://github.com/ShigekiKarita/grain/tree/54c0c6b390c3258dcb80c5868cd3304387c6abdc">https://github.com/ShigekiKarita/grain/tree/54c0c6b390c3258dcb80c5868cd3304387c6abdc</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgb20b432" class="outline-2">
+<h2 id="orgb20b432"><span class="section-number-2">2</span> CPUホスト・CUDAデバイスそれぞれのメモリ管理 (2日目, 5/8)</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+とりあえずCUDAは <code>CuPtr(T)</code> というホストだと <code>T[]</code> に相当するCUDA配列の構造体を作った．この構造体はデバイス上のアドレス <code>cuDeviceptr ptr</code> と長さ <code>size_t length</code> のペア．メソッドとしてはCPUメモリからのコピーコンストラクタ <code>this(T[] host)</code> と，デバイスメモリをコピーする <code>CuPtr!T dup()</code> を作った．(参照の)コピーコンストラクタは <code>@disable this(this);</code> として無効化した，これは経験上GCによるCUDAデバイスメモリの管理は悲惨なことになるからだ．実際にはGCの代わりに標準ライブラリにある参照カウンタ <code>RefCounted(T)</code> を使うことで管理する．<a href="https://www.cs.virginia.edu/~mwb7w/cuda_support/memory_management_overhead.html">CUDAはmalloc/freeのコストが高い</a>ので，いずれはメモリプールなどを実装したい．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">struct</span> <span style="color: #ba2f59; font-weight: bold;">CuPtr</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> derelict.<span style="color: #ba2f59; font-weight: bold;">cuda</span>;
+    <span style="color: #ba2f59; font-weight: bold;">CUdeviceptr</span> <span style="color: #715ab1;">ptr</span>;
+    <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">length</span>;
+
+    <span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">CUdeviceptr</span> <span style="color: #715ab1;">p</span>, <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">l</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">this</span>.ptr = p;
+        <span style="color: #3a81c3; font-weight: bold;">this</span>.length = l;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">n</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">this</span>.length = n;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemAlloc<span style="color: #67b11d;">(</span>&amp;ptr, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * n<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #2d9574;">[]</span> <span style="color: #715ab1;">host</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #2d9574;">(</span>host.length<span style="color: #2d9574;">)</span>;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemcpyHtoD<span style="color: #67b11d;">(</span>ptr, &amp;host<span style="color: #b1951d;">[</span><span style="color: #4e3163;">0</span><span style="color: #b1951d;">]</span>, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * length<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #4e3163;">@disable</span> <span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">(</span><span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">)</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">not copyable</span>
+
+    ~<span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #6c3163;">()</span> <span style="color: #6c3163;">{</span>
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemFree<span style="color: #67b11d;">(</span>ptr<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">dup</span><span style="color: #6c3163;">()</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #ba2f59; font-weight: bold;">CUdeviceptr</span> <span style="color: #715ab1;">ret</span>;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemAlloc<span style="color: #67b11d;">(</span>&amp;ret, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * length<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemcpyDtoD<span style="color: #67b11d;">(</span>ret, ptr, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * length<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+        <span style="color: #3a81c3; font-weight: bold;">return</span> <span style="color: #3a81c3; font-weight: bold;">typeof</span><span style="color: #2d9574;">(</span><span style="color: #3a81c3; font-weight: bold;">this</span><span style="color: #2d9574;">)(</span>ret, length<span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #6c3163; font-weight: bold;">toHost</span><span style="color: #6c3163;">(</span><span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #2d9574;">[]</span> <span style="color: #715ab1;">host</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        host.length = length;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemcpyDtoH<span style="color: #67b11d;">(</span>&amp;host<span style="color: #b1951d;">[</span><span style="color: #4e3163;">0</span><span style="color: #b1951d;">]</span>, ptr, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * length<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+        <span style="color: #3a81c3; font-weight: bold;">return</span> host;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">toHost</span><span style="color: #6c3163;">()</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">host</span> = <span style="color: #3a81c3; font-weight: bold;">new</span> T<span style="color: #2d9574;">[</span>length<span style="color: #2d9574;">]</span>;
+        checkCudaErrors<span style="color: #2d9574;">(</span>cuMemcpyDtoH<span style="color: #67b11d;">(</span>&amp;host<span style="color: #b1951d;">[</span><span style="color: #4e3163;">0</span><span style="color: #b1951d;">]</span>, ptr, T.<span style="color: #3a81c3; font-weight: bold;">sizeof</span> * length<span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>;
+        <span style="color: #3a81c3; font-weight: bold;">return</span> host;
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+本当はGCが管理する動的配列 <code>T[]</code> ではなく，malloc/freeで自前で管理した配列を使いたいのだが，どうせ後でMirを使うことになるので，自作はやめてGCの動的配列を使うことにした．いずれ参照カウンタ付のmalloc/freeで確保・開放するMir配列(<a href="http://mir.dlang.io/mir_ndslice_allocation.html#stdcSlice">stdcSlice</a>)を使うことにする．
+</p>
+
+<ul class="org-ul">
+<li>この日の最終 commit <a href="https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b">https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org3492e48" class="outline-2">
+<h2 id="org3492e48"><span class="section-number-2">3</span> 虚無 (3日目, 5/9)</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+この日は泊りがけの出張で新幹線の中で少しだけ作業した&#x2026;気がしていたが，変数名を変えたくらいだった．ノートPCにはCUDA対応デバイスがなく，ましてOpenCLも動かす気にはならなかったので，D言語の<a href="https://dlang.org/spec/version.html">条件コンパイル</a>機能でCUDAが必要な部分を以下のように指定したいなと思った．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">version</span> <span style="color: #3a81c3;">(</span>grain_cuda<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+   <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">CUDA&#20381;&#23384;&#12398;&#12467;&#12540;&#12489;</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+どうやってユーザ定義のversionを作るのかわからなかったので，困ったときのmir-algorithmリポジトリの<a href="https://github.com/libmir/mir-algorithm/blob/master/dub.json">dub.json</a>を見ると
+</p>
+
+<div class="org-src-container">
+<pre class="src src-json">...
+<span style="color: #3a81c3; font-weight: bold;">"buildTypes"</span>: <span style="color: #3a81c3;">{</span>
+  <span style="color: #3a81c3; font-weight: bold;">"unittest"</span>: <span style="color: #6c3163;">{</span>
+     <span style="color: #3a81c3; font-weight: bold;">"buildOptions"</span>: <span style="color: #2d9574;">[</span><span style="color: #2d9574;">"unittests"</span>, <span style="color: #2d9574;">"debugMode"</span>, <span style="color: #2d9574;">"debugInfo"</span><span style="color: #2d9574;">]</span>,
+     <span style="color: #3a81c3; font-weight: bold;">"versions"</span>: <span style="color: #2d9574;">[</span><span style="color: #2d9574;">"mir_test"</span><span style="color: #2d9574;">]</span>
+  <span style="color: #6c3163;">}</span>,
+<span style="color: #3a81c3;">}</span>,
+...
+</pre>
+</div>
+
+<p>
+という記述があり，この例では <code>mir_test</code> というversionをunittestのとき (~dub &#x2013;build=unittest~でビルドしたとき) に有効になるという具合だった．なお，この機能を実装したのは5日目である．
+</p>
+
+<ul class="org-ul">
+<li>この日の最終 commit <a href="https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b">https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org43b7867" class="outline-2">
+<h2 id="org43b7867"><span class="section-number-2">4</span> CPUホスト・CUDAデバイス両対応な関数オブジェクト (4日目, 5/10)</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+前日の出張のせいで風邪を引いたので全体的にダラダラと妄想しただけでした．
+</p>
+</div>
+
+<div id="outline-container-org9a720d5" class="outline-3">
+<h3 id="org9a720d5"><span class="section-number-3">4.1</span> Function 関数オブジェクト</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+4日目にしてようやくDeep learningっぽいことを始めるのですが，自動微分可能な関数の設計を考えました．思えば私が一番設計がシンプルで好きな(=私が理解できた)既存のフレームワークはChainerのversion 1でした．今のChainerは色々なトレードオフで，v1ほどは綺麗ではないと思います(例えばPytorchもChainer v1を参考に作られています)．Chainer v1の素晴らしかったことは
+</p>
+
+<ol class="org-ol">
+<li>動的な計算グラフ(define by run)を考案した</li>
+<li>ユーザ定義のFuncitonが簡単にかけた</li>
+<li>全てPythonで書かれていた (デバッグやコードの拡張が簡単)</li>
+</ol>
+
+<p>
+ということではないかと思うのですが，3番目の全てPythonで書かれていたというのは素晴らしくないことでもあり，静的型検査やネイティブコードの速さといった恩恵が，C++で書かれた他フレームワークのように受けられない点もまた人気が低い原因かなと思います．初日に述べたように私はC++で1,2の利点を持つライブラリを職場では作って使っているのですが，C++もときどき辛いことがあります．だからchainerのようなライブラリをD言語で作れば楽しいだろうなと思ったのです．
+</p>
+
+<p>
+ところで，Chainer v1のFunctionを定義する場合はこんな感じでかけます．
+</p>
+
+<ul class="org-ul">
+<li>from <a href="https://github.com/chainer/chainer/blob/v1/chainer/functions/activation/relu.py">https://github.com/chainer/chainer/blob/v1/chainer/functions/activation/relu.py</a></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #3a81c3; font-weight: bold;">class</span> <span style="color: #ba2f59; font-weight: bold;">ReLU</span><span style="color: #3a81c3;">(</span>function.Function<span style="color: #3a81c3;">)</span>:
+
+    <span style="color: #2aa1ae;">"""Rectified Linear Unit."""</span>
+    <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #cc9393;">TODO</span><span style="color: #2aa1ae; background-color: #ecf3ec;">(beam2d): Implement in-place version.</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">__init__</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, use_cudnn=<span style="color: #4e3163;">True</span><span style="color: #3a81c3;">)</span>:
+        <span style="color: #3a81c3; font-weight: bold;">self</span>.use_cudnn = use_cudnn
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">check_type_forward</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, in_types<span style="color: #3a81c3;">)</span>:
+        type_check.expect<span style="color: #3a81c3;">(</span>
+            in_types.size<span style="color: #6c3163;">()</span> == <span style="color: #4e3163;">1</span>,
+            in_types<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>.dtype.kind == <span style="color: #2d9574;">'f'</span>,
+        <span style="color: #3a81c3;">)</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">forward_cpu</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, x<span style="color: #3a81c3;">)</span>:
+        <span style="color: #3a81c3; font-weight: bold;">return</span> utils.force_array<span style="color: #3a81c3;">(</span>numpy.maximum<span style="color: #6c3163;">(</span>x<span style="color: #2d9574;">[</span><span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span>, <span style="color: #4e3163;">0</span>, dtype=x<span style="color: #2d9574;">[</span><span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span>.dtype<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>,
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">forward_gpu</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, x<span style="color: #3a81c3;">)</span>:
+        <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>cuda.cudnn_enabled <span style="color: #3a81c3; font-weight: bold;">and</span> <span style="color: #3a81c3; font-weight: bold;">self</span>.use_cudnn <span style="color: #3a81c3; font-weight: bold;">and</span>
+                x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>.flags.c_contiguous <span style="color: #3a81c3; font-weight: bold;">and</span>
+                <span style="color: #6c3163;">(</span>_cudnn_version &gt;= <span style="color: #4e3163;">3000</span> <span style="color: #3a81c3; font-weight: bold;">or</span> x<span style="color: #2d9574;">[</span><span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span>.dtype != numpy.float16<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>:
+            <span style="color: #715ab1;">y</span> = cudnn.activation_forward<span style="color: #3a81c3;">(</span>x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>, _mode<span style="color: #3a81c3;">)</span>
+            <span style="color: #3a81c3; font-weight: bold;">self</span>.y = y
+        <span style="color: #3a81c3; font-weight: bold;">else</span>:
+            <span style="color: #715ab1;">y</span> = cuda.cupy.maximum<span style="color: #3a81c3;">(</span>x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>, <span style="color: #4e3163;">0</span><span style="color: #3a81c3;">)</span>
+        <span style="color: #3a81c3; font-weight: bold;">return</span> y,
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">backward_cpu</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, x, gy<span style="color: #3a81c3;">)</span>:
+        <span style="color: #3a81c3; font-weight: bold;">return</span> utils.force_array<span style="color: #3a81c3;">(</span>gy<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span> * <span style="color: #6c3163;">(</span>x<span style="color: #2d9574;">[</span><span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span> &gt; <span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>,
+
+    <span style="color: #3a81c3; font-weight: bold;">def</span> <span style="color: #6c3163; font-weight: bold;">backward_gpu</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">self</span>, x, gy<span style="color: #3a81c3;">)</span>:
+        <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>cuda.cudnn_enabled <span style="color: #3a81c3; font-weight: bold;">and</span> <span style="color: #3a81c3; font-weight: bold;">self</span>.use_cudnn <span style="color: #3a81c3; font-weight: bold;">and</span>
+                x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>.flags.c_contiguous <span style="color: #3a81c3; font-weight: bold;">and</span> gy<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>.flags.c_contiguous <span style="color: #3a81c3; font-weight: bold;">and</span>
+                <span style="color: #6c3163;">(</span>_cudnn_version &gt;= <span style="color: #4e3163;">3000</span> <span style="color: #3a81c3; font-weight: bold;">or</span> x<span style="color: #2d9574;">[</span><span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span>.dtype != numpy.float16<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>:
+            <span style="color: #715ab1;">gx</span> = cudnn.activation_backward<span style="color: #3a81c3;">(</span>x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>, <span style="color: #3a81c3; font-weight: bold;">self</span>.y, gy<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>, _mode<span style="color: #3a81c3;">)</span>
+        <span style="color: #3a81c3; font-weight: bold;">else</span>:
+            <span style="color: #715ab1;">gx</span> = cuda.elementwise<span style="color: #3a81c3;">(</span>
+                <span style="color: #2d9574;">'T x, T gy'</span>, <span style="color: #2d9574;">'T gx'</span>,
+                <span style="color: #2d9574;">'gx = x &gt; 0 ? gy : (T)0'</span>,
+                <span style="color: #2d9574;">'relu_bwd'</span><span style="color: #3a81c3;">)(</span>x<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span>, gy<span style="color: #6c3163;">[</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span>
+        <span style="color: #3a81c3; font-weight: bold;">return</span> gx,
+</pre>
+</div>
+
+<p>
+これを真似して，こんな感じで書こうと思います．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">class</span> <span style="color: #ba2f59; font-weight: bold;">ReLU</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">dim</span><span style="color: #3a81c3;">)</span> : Function <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isFloatingPoint<span style="color: #4e3163;">!</span>T<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #715ab1;">inplace</span> = <span style="color: #4e3163;">false</span>;
+
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">forward</span><span style="color: #6c3163;">(</span>Variable<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">HostStorage</span><span style="color: #2d9574;">)</span> x<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">import</span> mir.<span style="color: #ba2f59; font-weight: bold;">ndslice</span> : each;
+        <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">y</span> = <span style="color: #3a81c3; font-weight: bold;">this</span>.inplace ? x : x.dup;
+        y.sliced.each<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #67b11d;">(</span><span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">a</span><span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #b1951d;">(</span>a &lt; <span style="color: #4e3163;">0</span><span style="color: #b1951d;">)</span> a = <span style="color: #4e3163;">0</span>; <span style="color: #67b11d;">}</span><span style="color: #2d9574;">)</span>;
+        <span style="color: #3a81c3; font-weight: bold;">return</span> y;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">backward</span><span style="color: #6c3163;">(</span>Variable<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">HostStorage</span><span style="color: #2d9574;">)</span> gy, Variable<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">HostStorage</span><span style="color: #2d9574;">)</span> x<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">gx</span> = gy.dup;
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>i; <span style="color: #4e3163;">0</span>..gx.data.length<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #67b11d;">(</span>x.data<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span> &lt; <span style="color: #4e3163;">0</span>.<span style="color: #4e3163;">0</span><span style="color: #67b11d;">)</span> gx.data<span style="color: #67b11d;">[</span>i<span style="color: #67b11d;">]</span> = <span style="color: #4e3163;">0</span>.<span style="color: #4e3163;">0</span>;
+        <span style="color: #2d9574;">}</span>
+        <span style="color: #3a81c3; font-weight: bold;">return</span> gx;
+    <span style="color: #6c3163;">}</span>
+
+    <span style="color: #3a81c3; font-weight: bold;">version</span><span style="color: #6c3163;">(</span>grain_cuda<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">forward</span><span style="color: #2d9574;">(</span>Variable<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">DeviceStorage</span><span style="color: #67b11d;">)</span> x<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #3a81c3; font-weight: bold;">import</span> grain.<span style="color: #ba2f59; font-weight: bold;">kernel</span> : relu;
+            <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">y</span> = <span style="color: #3a81c3; font-weight: bold;">this</span>.inplace ? x : x.dup;
+            <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">n</span> = <span style="color: #3a81c3; font-weight: bold;">cast</span><span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">uint</span><span style="color: #67b11d;">)</span> y.data.length;
+            Global.kernel<span style="color: #4e3163;">!</span>relu
+                .launch<span style="color: #67b11d;">(</span>y.data.ptr, n, <span style="color: #b1951d;">[</span><span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span><span style="color: #b1951d;">]</span>, <span style="color: #b1951d;">[</span>n,<span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span><span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span>;
+            <span style="color: #3a81c3; font-weight: bold;">return</span> y;
+        <span style="color: #2d9574;">}</span>
+
+        <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">backward</span><span style="color: #2d9574;">(</span>Variable<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">DeviceStorage</span><span style="color: #67b11d;">)</span> gy, Variable<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">dim</span>, <span style="color: #ba2f59; font-weight: bold;">DeviceStorage</span><span style="color: #67b11d;">)</span> x<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #3a81c3; font-weight: bold;">import</span> grain.<span style="color: #ba2f59; font-weight: bold;">kernel</span> : reluGrad;
+            <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">gx</span> = CuPtr<span style="color: #4e3163;">!</span>T<span style="color: #67b11d;">(</span>gy.data.length<span style="color: #67b11d;">)</span>;
+            <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">n</span> = <span style="color: #3a81c3; font-weight: bold;">cast</span><span style="color: #67b11d;">(</span><span style="color: #ba2f59; font-weight: bold;">uint</span><span style="color: #67b11d;">)</span> gy.data.length;
+            Global.kernel<span style="color: #4e3163;">!</span>reluGrad
+                .launch<span style="color: #67b11d;">(</span>gx.data.ptr, gy.data.ptr, x.data.ptr, n, <span style="color: #b1951d;">[</span><span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span><span style="color: #b1951d;">]</span>, <span style="color: #b1951d;">[</span>n,<span style="color: #4e3163;">1</span>,<span style="color: #4e3163;">1</span><span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span>;
+            <span style="color: #3a81c3; font-weight: bold;">return</span> gx;
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+ここで， <code>struct Variable(T, size_t dim, alias Storage)</code> という構造体は自動微分可能な多次元配列で，要素型(float, intなど) <code>T</code> と多次元配列の次元数(スカラ=0, ベクトル=1, 行列=2, &#x2026;), メモリの種類(CPUメモリ=HostStorage, CUDAメモリ=DeviceStorage)という型変数を持っています．Pythonと違って次元が合わないといった実行時エラーはおきません．ただし経験上，行や列などのサイズまで静的に指定するのは使いにくいのでやめました．もしかするとMirのndsliceのようにContiguousかどうかは静的に決まるので型に入れた方がパフォーマンス的に良いかもしれない．
+</p>
+
+<p>
+あと <code>import grain.kernel : relu;</code> はD言語で書かれたカーネルのヘッダー定義で，元のコードはこんな感じで<a href="https://github.com/ShigekiKarita/grain/blob/8825341f9a1986d1916d6433ec4dd26562f2d977/kernel/kernel.d">kernel/kernel.d</a>に定義されています．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #4e3163;">@kernel</span> <span style="color: #ba2f59; font-weight: bold;">void</span> <span style="color: #6c3163; font-weight: bold;">relu</span><span style="color: #3a81c3;">(</span>GlobalPointer<span style="color: #4e3163;">!</span><span style="color: #ba2f59; font-weight: bold;">float</span> x, <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">N</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">i</span> = GlobalIndex.x;
+    <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #6c3163;">(</span>i &gt;= N<span style="color: #6c3163;">)</span> <span style="color: #3a81c3; font-weight: bold;">return</span>;
+    <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #6c3163;">(</span>x<span style="color: #2d9574;">[</span>i<span style="color: #2d9574;">]</span> &lt; <span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span> x<span style="color: #6c3163;">[</span>i<span style="color: #6c3163;">]</span> = <span style="color: #4e3163;">0</span>;
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+ポイントとしては，デバイスのカーネル実装含めてD言語で全部シンプルに書かれている点と，きちんと引数の型が静的にチェックされるという点です．Deep learningのように何日も掛かる処理で実行時の型エラーに悩まされたくないのです&#x2026;．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org585cede" class="outline-3">
+<h3 id="org585cede"><span class="section-number-3">4.2</span> BLASライブラリの導入</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+さすがに自前で行列演算までは実装したくないので，Mirの人が作ってくれたndslice用のBLASラッパー<a href="https://github.com/kaleidicassociates/lubeck">lubeck</a>と，以前に作った<a href="https://github.com/ShigekiKarita/d-nv/blob/7946c12c5657d0a9e73167792d1565f2f1474e86/source/dnv/cuda/cublas.d#L1">cuBLASラッパー</a>を使うことにしました．CPU用のBLASのバックエンドは<a href="https://shigekikarita.github.io/blog/2017/10/27/001.html">経験的に速いIntel MKL</a>を使います．
+</p>
+
+<ul class="org-ul">
+<li>この日の最終 commit (とくに変更はない) <a href="https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b">https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgcc023ac" class="outline-2">
+<h2 id="orgcc023ac"><span class="section-number-2">5</span> シンプルな自動微分メカニズムと型消去 (5日目, 5/11)</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+出張先の神奈川が京都と比べて寒すぎた．風邪を引いて一日中寝てたので，大まかな設計を考えて，3,4日目に考えたCUDA依存の条件コンパイルと自動微分関数(ReLU, MatMul)を実装した．
+</p>
+</div>
+
+<div id="outline-container-org7a1875f" class="outline-3">
+<h3 id="org7a1875f"><span class="section-number-3">5.1</span> 自動微分の仕組み</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+多層ニューラルネットワークの自動微分は，合成関数の導関数=<a href="https://ja.wikipedia.org/wiki/%E9%80%A3%E9%8E%96%E5%BE%8B">微分の連鎖律</a>によって成り立っている．
+</p>
+
+\begin{align}
+y &= f(g(x)) \\
+\frac{\partial f}{\partial x} &= \frac{\partial f}{\partial g}\frac{\partial g}{\partial x}
+\end{align}
+
+<p>
+例えば一層目のニューラルネットワーク(=パラメータ行列によるアフィン変換とReLUなどの非線形変換の合成関数)を \(g\), 二層目を \(f\) と書くと，損失関数をLとすると入力 \(x\) に対する損失値は \(L(f(g(x)))\) として表されます．このような多層ニューラルネットに対して損失値を最小化するためには backprop と呼ばれる効率的なアルゴリズムがあります．
+</p>
+
+<ul class="org-ul">
+<li>二層目を \(f(x) -= \frac{\partial L}{\partial f}\) となるように，さらに連鎖律でアフィン変換のパラメータ行列の勾配までもとめて更新する．</li>
+<li>一層目を \(g(x) -= \frac{\partial L}{\partial f}\frac{\partial f}{\partial g}\) となるように更新する．ここで， \(\frac{\partial L}{\partial f}\) は二層で求めた値なので，そのまま効率よく使いまわせます．この手順を逆伝搬=backpropといいます．</li>
+</ul>
+
+<p>
+backpropに必要な実装として，
+</p>
+
+<ul class="org-ul">
+<li>\(L(f(g(x)))\) のように変数が L &lt;- f &lt;- g として作られてきた連鎖の履歴として有向グラフ(複数の変数から1つの変数が作られたりするのでリストではない)の保存する仕組み</li>
+<li>各関数(e.g., \(f\) )における伝搬してきた損失値の出力値に対する微分 (e.g., \(\frac{\partial L}{\partial f}\)) から入力値に対する微分 (e.g., \(\frac{\partial L}{\partial f}\frac{\partial f}{\partial g}\)) をもらって受け渡す仕組み．</li>
+</ul>
+
+<p>
+以上から昨日chainerの例と共に出した，Function の forward 関数の正体は入力から出力を計算し，backward 関数は二番目の出力の微分から入力の微分を返す関数でした．
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc164e71" class="outline-3">
+<h3 id="orgc164e71"><span class="section-number-3">5.2</span> 変数 Variable の仕組み</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+上記の二箇所は <code>Variable(T, size_t dim, alias Storage)</code> の中に実装することになりますが，履歴の有向グラフの型が問題になります．Variableは次元 <code>dim</code> などを様々な型変数に持つために，
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">struct</span> <span style="color: #ba2f59; font-weight: bold;">Variable</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span>, <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">dim</span>, <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">Storage</span>, <span style="color: #ba2f59; font-weight: bold;">Args</span>...<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+  <span style="color: #ba2f59; font-weight: bold;">Function</span> <span style="color: #715ab1;">func</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#21512;&#25104;&#20803;&#12398;&#38306;&#25968;</span>
+  Tuple<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">Args</span><span style="color: #6c3163;">)</span> args; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#21512;&#25104;&#20803;&#12398;&#38306;&#25968;&#12398;&#20837;&#21147;</span>
+  RefCounted<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span>Storage<span style="color: #4e3163;">!</span>T<span style="color: #6c3163;">)</span> data, grad;
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+として，書くと動的にグラフを作る再帰NNなどの例を考えると，2回再帰したあとのVariableと，3回再帰した後のVariableで型が変わるわけです．TheanoのようにScanなどの特殊な型を作れば解決できますが，さすがに使い勝手が悪いので，うまく型消去した型 <code>struct UntypedVariable</code> を作ります．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">struct</span> <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> std.<span style="color: #ba2f59; font-weight: bold;">variant</span> : Variant;
+    <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">dim</span>;
+    <span style="color: #ba2f59; font-weight: bold;">size_t</span><span style="color: #6c3163;">[]</span> <span style="color: #715ab1;">shape</span>;
+    <span style="color: #ba2f59; font-weight: bold;">ptrdiff_t</span><span style="color: #6c3163;">[]</span> <span style="color: #715ab1;">strides</span>;
+    <span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #715ab1;">isHost</span>;
+    <span style="color: #ba2f59; font-weight: bold;">TypeInfo</span> <span style="color: #715ab1;">elem</span>;
+    <span style="color: #ba2f59; font-weight: bold;">Variant</span> <span style="color: #715ab1;">data</span>, <span style="color: #715ab1;">grad</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#22411;&#28040;&#21435;&#12375;&#12383; HostStorage!T &#12414;&#12383;&#12399; DeviceStorage!T</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+
+<ul class="org-ul">
+<li>この日の最終 commit (構想だけに終わって実装できてないところも多い) <a href="https://github.com/ShigekiKarita/grain/tree/8825341f9a1986d1916d6433ec4dd26562f2d977">https://github.com/ShigekiKarita/grain/tree/8825341f9a1986d1916d6433ec4dd26562f2d977</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org88ca4e2" class="outline-2">
+<h2 id="org88ca4e2"><span class="section-number-2">6</span> BackPropの実装とテスト (6日目, 5/12)</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+この日は風邪が治ってきたので，実際に微分可能な変数と関数を実装して動かした．
+</p>
+
+
+
+<p>
+昨日の続きで，関数の型消去&#x2026;ではなく，関数のbackward関数を型消去したdelegateと必要な引数を集めるBackProp構造体を作ります．
+</p>
+</div>
+
+<div id="outline-container-org9d20022" class="outline-3">
+<h3 id="org9d20022"><span class="section-number-3">6.1</span> BackProp の実装</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+先日のFunctionを継承したReLUの実装には問題がありました． <code>class</code> を使っているので， <code>Function</code> が持つGPU配列が結局GCの管理下におかれてしまっています．ただ最初の実装として，完璧である必要はないのでとりあえずテストできる動くものを作った訳です．C++のように効率の追求もできるけど，簡単にプロトタイピングもできるのがD言語のいいところですね．
+</p>
+
+<p>
+解決策としては，冒頭に述べたような関数オブジェクトの backward 関数に出力の微分値リスト(<code>UntypedVariable[]</code>)を適用して，入力の微分値リスト(<code>UntypedVariable[]</code>)を返すdelegateのような <code>BackProp</code> オブジェクトを参照カウンタで管理すれば良いわけです．以上をまとめるとこんな感じの相互再帰みたいにかけます．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">struct</span> <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span> <span style="color: #3a81c3;">{</span>
+  ...
+  RefCounted<span style="color: #4e3163;">!</span>BackProp <span style="color: #715ab1;">bprop</span>;
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#20986;&#21147;&#12373;&#12428;&#12383;&#22793;&#25968;&#12398;tuple&#20013;&#12398;&#20301;&#32622;</span>
+  <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">outPosition</span> = <span style="color: #4e3163;">0</span>;
+
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">loss &#12398;&#12424;&#12358;&#12394; backprop &#12398;&#36215;&#28857;&#12399; gradOutput &#12364; null</span>
+  <span style="color: #ba2f59; font-weight: bold;">void</span> <span style="color: #6c3163; font-weight: bold;">backward</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span>* <span style="color: #715ab1;">gradOutput</span>=<span style="color: #4e3163;">null</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #2d9574;">(</span>bprop.refCountedStore.isInitialized<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      bprop.backward<span style="color: #67b11d;">(</span>outPosition, gradOutput<span style="color: #67b11d;">)</span>;
+    <span style="color: #2d9574;">}</span>
+  <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
+
+<span style="color: #3a81c3; font-weight: bold;">struct</span> <span style="color: #ba2f59; font-weight: bold;">BackProp</span> <span style="color: #3a81c3;">{</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#21512;&#25104;&#20803;&#12398;&#36870;&#20253;&#25644;&#38306;&#25968; (ReLU&#12398;backward&#12395;</span>
+  <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span><span style="color: #6c3163;">[]</span> <span style="color: #ba2f59; font-weight: bold;">delegate</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span><span style="color: #2d9574;">[]</span><span style="color: #6c3163;">)</span> proc;
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#20986;&#21147;&#20516;&#12398;&#24494;&#20998; (forward&#26178;&#12395;&#20986;&#21147;tuple&#12398;&#35201;&#32032;&#25968;&#12391;&#21021;&#26399;&#21270;&#12373;&#12428;&#12427;)</span>
+  <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span><span style="color: #6c3163;">[]</span> <span style="color: #715ab1;">gradOutputs</span>;
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#21512;&#25104;&#20803;&#12398;&#38306;&#25968;&#12398;&#20837;&#21147; (&#21021;&#26399;&#21270;&#12399;&#12373;&#12428;&#12394;&#12356;)</span>
+  <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span><span style="color: #6c3163;">[]</span> <span style="color: #715ab1;">inputs</span>;
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#21463;&#12369;&#21462;&#12387;&#12383; gradOutputs &#12398;&#25968;</span>
+  <span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">nGrad</span> = <span style="color: #4e3163;">0</span>;
+
+  <span style="color: #ba2f59; font-weight: bold;">void</span> <span style="color: #6c3163; font-weight: bold;">backward</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">pos</span>, <span style="color: #ba2f59; font-weight: bold;">UntypedVariable</span>* <span style="color: #715ab1;">grad</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #2d9574;">(</span>grad <span style="color: #3a81c3; font-weight: bold;">is</span> <span style="color: #4e3163;">null</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      enforce<span style="color: #67b11d;">(</span>gradOutputs.empty, <span style="color: #2d9574;">"this variable is not loss"</span><span style="color: #67b11d;">)</span>;
+    <span style="color: #2d9574;">}</span> <span style="color: #3a81c3; font-weight: bold;">else</span> <span style="color: #2d9574;">{</span>
+      ++nGrad;
+      gradOutputs<span style="color: #67b11d;">[</span>pos<span style="color: #67b11d;">]</span> = grad;
+    <span style="color: #2d9574;">}</span>
+    <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#20986;&#21147;&#20516;&#12398;&#20840;&#12390;&#12398;&#24494;&#20998;&#12364;&#38598;&#12414;&#12387;&#12383;</span>
+    <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #2d9574;">(</span>grad <span style="color: #3a81c3; font-weight: bold;">is</span> <span style="color: #4e3163;">null</span> || nGrad + <span style="color: #4e3163;">1</span> == gradOutputs.length<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+      <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">gradInputs</span> = proc<span style="color: #67b11d;">(</span>gradOutputs<span style="color: #67b11d;">)</span>;
+      <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>i; <span style="color: #4e3163;">0</span>..inputs.length<span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
+        <span style="color: #ba2f59; font-weight: bold;">inputs</span><span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>.<span style="color: #6c3163; font-weight: bold;">backward</span><span style="color: #b1951d;">(</span><span style="color: #ba2f59; font-weight: bold;">gradInputs</span><span style="color: #3a81c3;">[</span>i<span style="color: #3a81c3;">]</span><span style="color: #b1951d;">)</span>;
+      <span style="color: #67b11d;">}</span>
+    <span style="color: #2d9574;">}</span>
+  <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div>
+
+<p>
+イメージとしては BackPropの起点の <code>Variable!(...) loss</code> (損失値) から, <code>gradOutput = [1]</code> として逆伝搬できます．
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org199a7aa" class="outline-2">
+<h2 id="org199a7aa"><span class="section-number-2">7</span> 手書き文字認識MNISTの実行 (7日目, 5/13)</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+ここまでできたらあとはSoftMaxCrossEntropy関数を実装して<a href="https://twitter.com/fchollet/status/807198327288791040">Deep LearningのUnit Testといわれる手書き文字認識MNIST</a>を動かします．
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc2f5099" class="outline-2">
+<h2 id="orgc2f5099"><span class="section-number-2">8</span> <span class="todo TODO">TODO</span> 残った課題</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+そんなに難しくないが，1月くらいかかりそう．これ以外にも新しいFunction実装したなどのPR募集してます．
+</p>
+
+<ul class="org-ul">
+<li>カーネル引数の静的型チェック</li>
+<li>UntypedVariableからVariableへの動的型チェック</li>
+<li>GC配列をMirのstdcSliceへの置き換え</li>
+<li>cuDNNとCNNのサポート <a href="https://github.com/henrygouk/DerelictCuDNN">https://github.com/henrygouk/DerelictCuDNN</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2018-05-12 土 21:37</p>
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

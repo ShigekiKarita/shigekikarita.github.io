@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-04-07 土 03:22 -->
+<!-- 2018-04-07 土 17:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KARITECH カリテク</title>
+<title>有限状態トランスデューサの覚書</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Shigeki Karita" />
 <style type="text/css">
@@ -227,99 +227,136 @@ for the JavaScript code in this tag.
  }
 /*]]>*///-->
 </script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">KARITECH カリテク</h1>
+<h1 class="title">有限状態トランスデューサの覚書</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5ef37a1">1. 最初の一歩</a></li>
+<li><a href="#org87d4a34">2. WFSTの基礎概念</a>
+<ul>
+<li><a href="#org31dac68">2.1. 半環 semiring</a></li>
+</ul>
+</li>
+<li><a href="#org27941d1">3. 基本的なアルゴリズムの実装</a></li>
+<li><a href="#org1fba11c">4. 文献</a></li>
+</ul>
+</div>
+</div>
 <div class="abstract">
 <div class="org-center">
 <p>
-
+D言語で作る
 </p>
 </div>
 
 </div>
 
-<div id="outline-container-org596c55a" class="outline-2">
-<h2 id="org596c55a">Link</h2>
-<div class="outline-text-2" id="text-org596c55a">
-<ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita">GitHub</a></li>
-<li><a href="https://twitter.com/kari_tech">Twitter</a></li>
-<li><a href="https://scholar.google.com/citations?hl=ja&amp;user=enV4FrIAAAAJ&amp;view_op=list_works&amp;sortby=pubdate#">Google Scholar</a></li>
-<li><a href="journal.html">Log (ja 日本語)</a></li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org2265a75" class="outline-2">
-<h2 id="org2265a75">Software</h2>
-<div class="outline-text-2" id="text-org2265a75">
+<div id="outline-container-org5ef37a1" class="outline-2">
+<h2 id="org5ef37a1"><span class="section-number-2">1</span> 最初の一歩</h2>
+<div class="outline-text-2" id="text-1">
 <p>
-Basically distributed under BSL-1.0
+まずは<a href="http://openfst.org/twiki/bin/view/FST/FstQuickTour">OpenFSTのチュートリアル</a>相当のツールを作る．
+まずこういうFSTを作る．
+</p>
+
+
+<div class="figure">
+<p><img src="http://openfst.org/twiki/pub/FST/FstQuickTour/symbolicfst.jpg" alt="symbolicfst.jpg" />
 </p>
 </div>
 
-<div id="outline-container-orgfeecd5c" class="outline-3">
-<h3 id="orgfeecd5c">D language</h3>
-<div class="outline-text-3" id="text-orgfeecd5c">
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #ce537a; font-weight: bold;">void</span> <span style="color: #7590db;">main</span> <span style="color: #4f97d7;">{</span>
+
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org87d4a34" class="outline-2">
+<h2 id="org87d4a34"><span class="section-number-2">2</span> WFSTの基礎概念</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org31dac68" class="outline-3">
+<h3 id="org31dac68"><span class="section-number-3">2.1</span> 半環 semiring</h3>
+</div>
+</div>
+
+
+<div id="outline-container-org27941d1" class="outline-2">
+<h2 id="org27941d1"><span class="section-number-2">3</span> 基本的なアルゴリズムの実装</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+音声認識で使われるWFSTアルゴリズム (<a href="http://kaldi-asr.org/doc/fst_algo.html">http://kaldi-asr.org/doc/fst_algo.html</a>)
+</p>
+
 <ul class="org-ul">
-<li><a href="https://github.com/libmir/numir">libmir/numir</a>: numpy-like wrapper of ndslice in libmir</li>
-<li><a href="https://github.com/ShigekiKarita/d-nv">d-nv</a>:  CUDA wrapper with Driver, NVRTC, and compile time type check for kernel functions</li>
-<li><a href="https://github.com/ShigekiKarita/d-svm">d-svm</a>: minimal implementation of support vector machines (SVM)</li>
-<li><a href="https://github.com/ShigekiKarita/d-ssvm">d-ssvm</a>: structural SVM implementation (WIP). born to be faster than PyStruct and LIBSVM</li>
-<li><a href="https://github.com/ShigekiKarita/d-tree">d-tree</a>: classification and regression tree (CART) implmentation for tree based statistical models (random forest, gradient boost).</li>
-<li><a href="https://github.com/ShigekiKarita/d-graphviz">d-graphviz</a>: Graphviz wrapper with simple DSL supports visualization of module dependencies.</li>
-<li><a href="https://github.com/ShigekiKarita/d-ffmpeg-light">d-ffmpeg-light</a>: ffmpeg wrapper using command line interface.</li>
+<li>合成 composition</li>
+<li>決定化 determinization</li>
+<li>最小化 minimization</li>
+<li>ε除去 epsilon removal</li>
 </ul>
-</div>
-</div>
 
+<p>
+Kaldiのドキュメント(<a href="http://kaldi-asr.org/doc/graph.html">http://kaldi-asr.org/doc/graph.html</a>)によると，次の４つのFSTを合成します．
+</p>
 
-<div id="outline-container-org776abc6" class="outline-3">
-<h3 id="org776abc6">OCaml</h3>
-<div class="outline-text-3" id="text-org776abc6">
 <ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/ocaml-kaleido-llvm5">ocaml-kaleido-llvm5</a>: Kaleidoscope tutorial re-implementation with OCaml bindings of LLVM5.0 and menhir.</li>
+<li>G:</li>
+<li>L:</li>
+<li>C:</li>
+<li>H:</li>
 </ul>
+
+<p>
+これを $HCLG = $
+ここで asl=add-self-loop, rds=remove-disambiguation-symbolsとのことです．
+</p>
 </div>
 </div>
 
-<div id="outline-container-orgcb47dc2" class="outline-3">
-<h3 id="orgcb47dc2">C++</h3>
-<div class="outline-text-3" id="text-orgcb47dc2">
+<div id="outline-container-org1fba11c" class="outline-2">
+<h2 id="org1fba11c"><span class="section-number-2">4</span> 文献</h2>
+<div class="outline-text-2" id="text-4">
 <ul class="org-ul">
-<li><a href="https://github.com/ShigekiKarita/cxx14_thread_pool">cxx14_thread_pool</a>: generic thread pool implementation with priority queue for C++14.</li>
-<li><a href="https://github.com/ShigekiKarita/CMakeExampleCUDA">CMakeExampleCUDA</a>: example CMake project for CUDA/C++ integration.</li>
-</ul>
-</div>
-</div>
-
-<div id="outline-container-org95cbbc1" class="outline-3">
-<h3 id="org95cbbc1">Python</h3>
-<div class="outline-text-3" id="text-org95cbbc1">
-<ul class="org-ul">
-<li><a href="https://github.com/espnet/espnet">ESPnet</a>: fastest seq2seq based speech recognition toolkit (Apache2.0). contributing to pytorch backend.</li>
-</ul>
-</div>
-</div>
-</div>
-
-
-<div id="outline-container-org0cce74b" class="outline-2">
-<h2 id="org0cce74b">Technical notes</h2>
-<div class="outline-text-2" id="text-org0cce74b">
-<ul class="org-ul">
-<li><a href="notes/ocaml.html">OCaml (ja)</a></li>
-<li><a href="notes/d.html">D (ja)</a></li>
-<li><a href="notes/asr.html">音声認識システムを作る (ja)</a></li>
+<li>[<a href="#Mohri2008">Mohri2008</a>] - OpenFSTの<a href="http://www.openfst.org/twiki/bin/view/FST/FstBackground">サイト</a>にも紹介されている音声認識におけるWFSTの基礎的なアルゴリズムの説明．</li>
+<li>[<a href="#Mohri2009">Mohri2009</a>] - 同じくOpenFSTのサイトに紹介されているWFSTアルゴリズムのサーベイ論文</li>
+<li>OpenFSTのアルゴリズム実装一覧(計算量なども) <a href="http://openfst.org/twiki/bin/view/FST/FstQuickTour#AvailableOperations">http://openfst.org/twiki/bin/view/FST/FstQuickTour#AvailableOperations</a></li>
+<li>網羅的なWFSTの研究一覧 <a href="https://cs.nyu.edu/~mohri/transducer-algorithms.html">https://cs.nyu.edu/~mohri/transducer-algorithms.html</a></li>
 </ul>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Author: Shigeki Karita</p>
-<p class="date">Created: 2018-04-07 土 03:22</p>
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2018-04-07 土 17:19</p>
 <p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

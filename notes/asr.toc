@@ -1,0 +1,12 @@
+\contentsline {section}{\numberline {1}音声認識の概要}{1}{section.1}
+\contentsline {subsection}{\numberline {1.1}なぜ作るのか}{2}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}大まかなプラン}{2}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}実装における情報源}{3}{subsection.1.3}
+\contentsline {section}{\numberline {2}Kaldiで学ぶ音声の階層構造と統計モデル}{3}{section.2}
+\contentsline {section}{\numberline {3}音声特徴量}{5}{section.3}
+\contentsline {section}{\numberline {4}音響モデル}{5}{section.4}
+\contentsline {section}{\numberline {5}発音辞書}{5}{section.5}
+\contentsline {section}{\numberline {6}言語モデル}{5}{section.6}
+\contentsline {section}{\numberline {7}重み付き有限状態トランスデューサ}{5}{section.7}
+\contentsline {section}{\numberline {8}認識デコーダ}{5}{section.8}
+\contentsline {section}{\numberline {9}系列学習}{5}{section.9}

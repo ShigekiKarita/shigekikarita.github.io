@@ -1,0 +1,387 @@
+#+TITLE: D for Deep Learning
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+
+#+BEGIN_abstract
+いまD言語が熱い．D言語はC++の後継となるべく，Digital Mars C++コンパイラの作者Walter Brightや，Modern C++ Designの作者Andrei Alexandrescuらが日々改良を重ねて，テンプレートやモジュール，ガベージコレクション(GC)などのリッチな言語機能と，C/C++との互換性・同等の速さ・フットプリントの小ささを両立している．最近ではCUDAライブラリのラッパーが充実し，LDCコンパイラではCUDA kernelが書けるようになった．さらにnumpyのように多次元配列を自在に扱えるMirも登場した．こんなに充実した言語でディープラーニング用のライブラリを書きたくなるのは当然だ．
+#+END_abstract
+
+* 背景とD言語 (1日目, 5/7)
+
+私は勤務先で日頃からC++でクローズドなDeep Learningライブラリを自作していてた．CPUホストコードではC++17をCUDAデバイスコードではC++14を使っていたので，型安全にジェネリックなコードを書き，shared_ptrを使って安全にコードを書いていたが，ときどき循環参照を起こしてメモリリークを起こしてGCが欲しくなったり，SFINAEに頼ってジェネリックなコードを書くのに辛くなってきました(だが，Rustのような型クラスは嫌だった)．そんな中でGCがあり，SFINAEに頼らない簡単なメタプログラミング機能を使えるD言語を使いたい気持ちは日に日に高まっていった．
+
+そんな中で10連休に及ぶGWは仕事のことは忘れて虚無に過ごしたのですが，最終日に突如として[[https://github.com/libmir/dcompute][dcompute]]というD言語でCUDAカーネルを書く謎の技術を思い出し，触ってみた．結果から言うとコンパイルすらできなかった．デバイス側のポインタの扱いやカーネル生成など大部分はすでにLDC本家にマージされており，若干の便利機能が残ったdcomputeライブラリは清く捨てた．実際には以下のページ
+
+- CUDA Driver APIのD言語ラッパー [[https://github.com/DerelictOrg/DerelictCUDA/blob/master/source/derelict/cuda/driverapi.d][DerelictCUDA]]
+- [[https://github.com/ldc-developers/ldc/blob/085d9a69db42a608759aea638b388f2149dd629a/tests/codegen/dcompute_cu_addrspaces.d#L3][LDCのCUDAカーネルからのPTX生成のテストコード]]
+- [[https://llvm.org/docs/NVPTXUsage.html#llvm-nvvm-ptr-to-gen-intrinsics][LLVMのPTXコード生成の仕組み]]
+- [[https://llvm.org/docs/CompileCudaWithLLVM.html][ClangでCUDAバイナリをコンパイルする方法]]
+
+を参考にしてMakefileからldc2コマンドを直に叩いてD言語からCUDAの中間コードであるPTXを生成し，CUDA Driver APIで呼び出すことにした．
+
+#+begin_src makefile
+kernel/%.ptx: kernel/%.d tool/compute_capability.out
+    ldc2 $< --mdcompute-targets=cuda-$(CUDA_COMPUTE_CAPABILITY)0 -H -Hd kernel -mdcompute-file-prefix=$(shell basename -s .d $<)
+    mv $(shell basename -s .d $<)_cuda$(CUDA_COMPUTE_CAPABILITY)0_$(CUDA_BIT).ptx $@
+#+end_src
+
+上記のコマンドでは，PTXファイル ~(モジュール名).ptx~ だけでなく，D言語のヘッダー定義 ~(モジュール名).di~ を生成して，PTXのJITコンパイル後の関数呼び出しにおける静的型検査に使おうと考えた(これは最後まで実装していないが，[[https://github.com/ShigekiKarita/d-nv/blob/master/source/dnv/typechecker.d][NVRTCラッパーを作ったときに同じことを]]以前やったので，そんなに難しくない．)．
+
+この日はCUDA入門で最初にやるベクトル加算(axpy)の実装と実行まで動いている．困った点として，CUDA Driver APIにあるコンテキスト ~cuContext~ を破棄するタイミングが，GCより前に起こってしまい，いくつかのCUDA関係のオブジェクトのデストラクタがGCによってCUDA関係のDestroy/Free系関数を呼んでうまく開放できなかった．簡単な解決策として， ~cuContext~ の破棄の前に明示的にGCを呼ぶことで回避した．
+
+#+begin_src d
+module grain.cuda;
+
+...
+
+shared static ~this() {
+    import core.memory : GC;
+    GC.collect();
+    checkCudaErrors(cuCtxDestroy(context));
+}
+#+end_src
+
+3日目くらいで作業メモを残そうと思い，この文書を書き始めてタイトルには1週間と書いてみたが，この期間は普通に働いているので一日2-5時間程度の作業時間だった．なおリポジトリは下記の通りで，git cloneしてmakeを叩けばテストまで走る，動作していたDコンパイラは[[https://github.com/ldc-developers/ldc/releases/tag/v1.9.0][LDC1.9.0]](Linux X64)．
+
+- この日の最終 commit  https://github.com/ShigekiKarita/grain/tree/54c0c6b390c3258dcb80c5868cd3304387c6abdc
+
+* CPUホスト・CUDAデバイスそれぞれのメモリ管理 (2日目, 5/8)
+
+とりあえずCUDAは ~CuPtr(T)~ というホストだと ~T[]~ に相当するCUDA配列の構造体を作った．この構造体はデバイス上のアドレス ~cuDeviceptr ptr~ と長さ ~size_t length~ のペア．メソッドとしてはCPUメモリからのコピーコンストラクタ ~this(T[] host)~ と，デバイスメモリをコピーする ~CuPtr!T dup()~ を作った．(参照の)コピーコンストラクタは ~@disable this(this);~ として無効化した，これは経験上GCによるCUDAデバイスメモリの管理は悲惨なことになるからだ．実際にはGCの代わりに標準ライブラリにある参照カウンタ ~RefCounted(T)~ を使うことで管理する．[[https://www.cs.virginia.edu/~mwb7w/cuda_support/memory_management_overhead.html][CUDAはmalloc/freeのコストが高い]]ので，いずれはメモリプールなどを実装したい．
+
+#+begin_src d
+struct CuPtr(T) {
+    import derelict.cuda;
+    CUdeviceptr ptr;
+    size_t length;
+
+    this(CUdeviceptr p, size_t l) {
+        this.ptr = p;
+        this.length = l;
+    }
+
+    this(size_t n) {
+        this.length = n;
+        checkCudaErrors(cuMemAlloc(&ptr, T.sizeof * n));
+    }
+
+    this(T[] host) {
+        this(host.length);
+        checkCudaErrors(cuMemcpyHtoD(ptr, &host[0], T.sizeof * length));
+    }
+
+    @disable this(this); // not copyable
+
+    ~this() {
+        checkCudaErrors(cuMemFree(ptr));
+    }
+
+    auto dup() {
+        CUdeviceptr ret;
+        checkCudaErrors(cuMemAlloc(&ret, T.sizeof * length));
+        checkCudaErrors(cuMemcpyDtoD(ret, ptr, T.sizeof * length));
+        return typeof(this)(ret, length);
+    }
+
+    ref toHost(ref T[] host) {
+        host.length = length;
+        checkCudaErrors(cuMemcpyDtoH(&host[0], ptr, T.sizeof * length));
+        return host;
+    }
+
+    auto toHost() {
+        auto host = new T[length];
+        checkCudaErrors(cuMemcpyDtoH(&host[0], ptr, T.sizeof * length));
+        return host;
+    }
+}
+#+end_src
+
+本当はGCが管理する動的配列 ~T[]~ ではなく，malloc/freeで自前で管理した配列を使いたいのだが，どうせ後でMirを使うことになるので，自作はやめてGCの動的配列を使うことにした．いずれ参照カウンタ付のmalloc/freeで確保・開放するMir配列([[http://mir.dlang.io/mir_ndslice_allocation.html#stdcSlice][stdcSlice]])を使うことにする．
+
+- この日の最終 commit https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b
+
+* 虚無 (3日目, 5/9)
+
+この日は泊りがけの出張で新幹線の中で少しだけ作業した...気がしていたが，変数名を変えたくらいだった．ノートPCにはCUDA対応デバイスがなく，ましてOpenCLも動かす気にはならなかったので，D言語の[[https://dlang.org/spec/version.html][条件コンパイル]]機能でCUDAが必要な部分を以下のように指定したいなと思った．
+
+#+begin_src d
+version (grain_cuda) {
+   // CUDA依存のコード
+}
+#+end_src
+
+どうやってユーザ定義のversionを作るのかわからなかったので，困ったときのmir-algorithmリポジトリの[[https://github.com/libmir/mir-algorithm/blob/master/dub.json][dub.json]]を見ると
+
+#+begin_src json
+...
+"buildTypes": {
+  "unittest": {
+     "buildOptions": ["unittests", "debugMode", "debugInfo"],
+	 "versions": ["mir_test"]
+  },
+},
+...
+#+end_src
+
+という記述があり，この例では ~mir_test~ というversionをunittestのとき (~dub --build=unittest~でビルドしたとき) に有効になるという具合だった．なお，この機能を実装したのは5日目である．
+
+- この日の最終 commit https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b
+
+* CPUホスト・CUDAデバイス両対応な関数オブジェクト (4日目, 5/10)
+
+前日の出張のせいで風邪を引いたので全体的にダラダラと妄想しただけでした．
+
+** Function 関数オブジェクト
+
+4日目にしてようやくDeep learningっぽいことを始めるのですが，自動微分可能な関数の設計を考えました．思えば私が一番設計がシンプルで好きな(=私が理解できた)既存のフレームワークはChainerのversion 1でした．今のChainerは色々なトレードオフで，v1ほどは綺麗ではないと思います(例えばPytorchもChainer v1を参考に作られています)．Chainer v1の素晴らしかったことは
+
+1. 動的な計算グラフ(define by run)を考案した
+2. ユーザ定義のFuncitonが簡単にかけた
+3. 全てPythonで書かれていた (デバッグやコードの拡張が簡単)
+
+ということではないかと思うのですが，3番目の全てPythonで書かれていたというのは素晴らしくないことでもあり，静的型検査やネイティブコードの速さといった恩恵が，C++で書かれた他フレームワークのように受けられない点もまた人気が低い原因かなと思います．初日に述べたように私はC++で1,2の利点を持つライブラリを職場では作って使っているのですが，C++もときどき辛いことがあります．だからchainerのようなライブラリをD言語で作れば楽しいだろうなと思ったのです．
+
+ところで，Chainer v1のFunctionを定義する場合はこんな感じでかけます．
+
+- from https://github.com/chainer/chainer/blob/v1/chainer/functions/activation/relu.py
+
+#+begin_src python
+class ReLU(function.Function):
+
+    """Rectified Linear Unit."""
+    # TODO(beam2d): Implement in-place version.
+
+    def __init__(self, use_cudnn=True):
+        self.use_cudnn = use_cudnn
+
+    def check_type_forward(self, in_types):
+        type_check.expect(
+            in_types.size() == 1,
+            in_types[0].dtype.kind == 'f',
+        )
+
+    def forward_cpu(self, x):
+        return utils.force_array(numpy.maximum(x[0], 0, dtype=x[0].dtype)),
+
+    def forward_gpu(self, x):
+        if (cuda.cudnn_enabled and self.use_cudnn and
+                x[0].flags.c_contiguous and
+                (_cudnn_version >= 3000 or x[0].dtype != numpy.float16)):
+            y = cudnn.activation_forward(x[0], _mode)
+            self.y = y
+        else:
+            y = cuda.cupy.maximum(x[0], 0)
+        return y,
+
+    def backward_cpu(self, x, gy):
+        return utils.force_array(gy[0] * (x[0] > 0)),
+
+    def backward_gpu(self, x, gy):
+        if (cuda.cudnn_enabled and self.use_cudnn and
+                x[0].flags.c_contiguous and gy[0].flags.c_contiguous and
+                (_cudnn_version >= 3000 or x[0].dtype != numpy.float16)):
+            gx = cudnn.activation_backward(x[0], self.y, gy[0], _mode)
+        else:
+            gx = cuda.elementwise(
+                'T x, T gy', 'T gx',
+                'gx = x > 0 ? gy : (T)0',
+                'relu_bwd')(x[0], gy[0])
+        return gx,
+#+end_src
+
+これを真似して，こんな感じで書こうと思います．
+
+#+begin_src d
+class ReLU(T, size_t dim) : Function if (isFloatingPoint!T) {
+    bool inplace = false;
+
+    auto forward(Variable!(T, dim, HostStorage) x) {
+        import mir.ndslice : each;
+        auto y = this.inplace ? x : x.dup;
+        y.sliced.each!((ref a) { if (a < 0) a = 0; });
+        return y;
+    }
+
+    auto backward(Variable!(T, dim, HostStorage) gy, Variable!(T, dim, HostStorage) x) {
+        auto gx = gy.dup;
+        foreach (i; 0..gx.data.length) {
+            if (x.data[i] < 0.0) gx.data[i] = 0.0;
+        }
+        return gx;
+    }
+
+    version(grain_cuda) {
+        auto forward(Variable!(T, dim, DeviceStorage) x) {
+            import grain.kernel : relu;
+            auto y = this.inplace ? x : x.dup;
+            auto n = cast(uint) y.data.length;
+            Global.kernel!relu
+                .launch(y.data.ptr, n, [1,1,1], [n,1,1]);
+            return y;
+        }
+
+        auto backward(Variable!(T, dim, DeviceStorage) gy, Variable!(T, dim, DeviceStorage) x) {
+            import grain.kernel : reluGrad;
+            auto gx = CuPtr!T(gy.data.length);
+            auto n = cast(uint) gy.data.length;
+            Global.kernel!reluGrad
+                .launch(gx.data.ptr, gy.data.ptr, x.data.ptr, n, [1,1,1], [n,1,1]);
+            return gx;
+        }
+    }
+}
+#+end_src
+
+ここで， ~struct Variable(T, size_t dim, alias Storage)~ という構造体は自動微分可能な多次元配列で，要素型(float, intなど) ~T~ と多次元配列の次元数(スカラ=0, ベクトル=1, 行列=2, ...), メモリの種類(CPUメモリ=HostStorage, CUDAメモリ=DeviceStorage)という型変数を持っています．Pythonと違って次元が合わないといった実行時エラーはおきません．ただし経験上，行や列などのサイズまで静的に指定するのは使いにくいのでやめました．もしかするとMirのndsliceのようにContiguousかどうかは静的に決まるので型に入れた方がパフォーマンス的に良いかもしれない．
+
+あと ~import grain.kernel : relu;~ はD言語で書かれたカーネルのヘッダー定義で，元のコードはこんな感じで[[https://github.com/ShigekiKarita/grain/blob/8825341f9a1986d1916d6433ec4dd26562f2d977/kernel/kernel.d][kernel/kernel.d]]に定義されています．
+
+#+begin_src d
+@kernel void relu(GlobalPointer!float x, size_t N) {
+    auto i = GlobalIndex.x;
+    if (i >= N) return;
+    if (x[i] < 0) x[i] = 0;
+}
+#+end_src
+
+ポイントとしては，デバイスのカーネル実装含めてD言語で全部シンプルに書かれている点と，きちんと引数の型が静的にチェックされるという点です．Deep learningのように何日も掛かる処理で実行時の型エラーに悩まされたくないのです...．
+
+** BLASライブラリの導入
+
+さすがに自前で行列演算までは実装したくないので，Mirの人が作ってくれたndslice用のBLASラッパー[[https://github.com/kaleidicassociates/lubeck][lubeck]]と，以前に作った[[https://github.com/ShigekiKarita/d-nv/blob/7946c12c5657d0a9e73167792d1565f2f1474e86/source/dnv/cuda/cublas.d#L1][cuBLASラッパー]]を使うことにしました．CPU用のBLASのバックエンドは[[https://shigekikarita.github.io/blog/2017/10/27/001.html][経験的に速いIntel MKL]]を使います．
+
+- この日の最終 commit (とくに変更はない) https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b
+
+
+* シンプルな自動微分メカニズムと型消去 (5日目, 5/11)
+
+出張先の神奈川が京都と比べて寒すぎた．風邪を引いて一日中寝てたので，大まかな設計を考えて，3,4日目に考えたCUDA依存の条件コンパイルと自動微分関数(ReLU, MatMul)を実装した．
+
+** 自動微分の仕組み
+
+多層ニューラルネットワークの自動微分は，合成関数の導関数=[[https://ja.wikipedia.org/wiki/%E9%80%A3%E9%8E%96%E5%BE%8B][微分の連鎖律]]によって成り立っている．
+
+\begin{align}
+y &= f(g(x)) \\
+\frac{\partial f}{\partial x} &= \frac{\partial f}{\partial g}\frac{\partial g}{\partial x}
+\end{align}
+
+例えば一層目のニューラルネットワーク(=パラメータ行列によるアフィン変換とReLUなどの非線形変換の合成関数)を $g$, 二層目を $f$ と書くと，損失関数をLとすると入力 $x$ に対する損失値は $L(f(g(x)))$ として表されます．このような多層ニューラルネットに対して損失値を最小化するためには backprop と呼ばれる効率的なアルゴリズムがあります．
+
+- 二層目を $f(x) -= \frac{\partial L}{\partial f}$ となるように，さらに連鎖律でアフィン変換のパラメータ行列の勾配までもとめて更新する．
+- 一層目を $g(x) -= \frac{\partial L}{\partial f}\frac{\partial f}{\partial g}$ となるように更新する．ここで， $\frac{\partial L}{\partial f}$ は二層で求めた値なので，そのまま効率よく使いまわせます．この手順を逆伝搬=backpropといいます．
+
+backpropに必要な実装として，
+
+- $L(f(g(x)))$ のように変数が L <- f <- g として作られてきた連鎖の履歴として有向グラフ(複数の変数から1つの変数が作られたりするのでリストではない)の保存する仕組み
+- 各関数(e.g., $f$ )における伝搬してきた損失値の出力値に対する微分 (e.g., $\frac{\partial L}{\partial f}$) から入力値に対する微分 (e.g., $\frac{\partial L}{\partial f}\frac{\partial f}{\partial g}$) をもらって受け渡す仕組み．
+
+以上から昨日chainerの例と共に出した，Function の forward 関数の正体は入力から出力を計算し，backward 関数は二番目の出力の微分から入力の微分を返す関数でした．
+
+** 変数 Variable の仕組み
+
+上記の二箇所は ~Variable(T, size_t dim, alias Storage)~ の中に実装することになりますが，履歴の有向グラフの型が問題になります．Variableは次元 ~dim~ などを様々な型変数に持つために，
+
+#+begin_src d
+struct Variable(T, size_t dim, alias Storage, Args...) {
+  Function func; // 合成元の関数
+  Tuple!(Args) args; // 合成元の関数の入力
+  RefCounted!(Storage!T) data, grad;
+}
+#+end_src
+
+として，書くと動的にグラフを作る再帰NNなどの例を考えると，2回再帰したあとのVariableと，3回再帰した後のVariableで型が変わるわけです．TheanoのようにScanなどの特殊な型を作れば解決できますが，さすがに使い勝手が悪いので，うまく型消去した型 ~struct UntypedVariable~ を作ります．
+
+#+begin_src d
+struct UntypedVariable {
+    import std.variant : Variant;
+    size_t dim;
+    size_t[] shape;
+    ptrdiff_t[] strides;
+    bool isHost;
+    TypeInfo elem;
+    Variant data, grad; // 型消去した HostStorage!T または DeviceStorage!T
+}
+#+end_src
+
+
+- この日の最終 commit (構想だけに終わって実装できてないところも多い) https://github.com/ShigekiKarita/grain/tree/8825341f9a1986d1916d6433ec4dd26562f2d977
+
+* BackPropの実装とテスト (6日目, 5/12)
+
+この日は風邪が治ってきたので，実際に微分可能な変数と関数を実装して動かした．
+
+
+
+昨日の続きで，関数の型消去...ではなく，関数のbackward関数を型消去したdelegateと必要な引数を集めるBackProp構造体を作ります．
+
+** BackProp の実装
+
+先日のFunctionを継承したReLUの実装には問題がありました． ~class~ を使っているので， ~Function~ が持つGPU配列が結局GCの管理下におかれてしまっています．ただ最初の実装として，完璧である必要はないのでとりあえずテストできる動くものを作った訳です．C++のように効率の追求もできるけど，簡単にプロトタイピングもできるのがD言語のいいところですね．
+
+解決策としては，冒頭に述べたような関数オブジェクトの backward 関数に出力の微分値リスト(~UntypedVariable[]~)を適用して，入力の微分値リスト(~UntypedVariable[]~)を返すdelegateのような ~BackProp~ オブジェクトを参照カウンタで管理すれば良いわけです．以上をまとめるとこんな感じの相互再帰みたいにかけます．
+
+#+begin_src d
+struct UntypedVariable {
+  ...
+  RefCounted!BackProp bprop;
+  // 出力された変数のtuple中の位置
+  size_t outPosition = 0;
+
+  // loss のような backprop の起点は gradOutput が null
+  void backward(UntypedVariable* gradOutput=null) {
+    if (bprop.refCountedStore.isInitialized) {
+      bprop.backward(outPosition, gradOutput);
+    }
+  }
+}
+
+struct BackProp {
+  // 合成元の逆伝搬関数 (ReLUのbackwardに
+  UntypedVariable[] delegate(UntypedVariable[]) proc;
+  // 出力値の微分 (forward時に出力tupleの要素数で初期化される)
+  UntypedVariable[] gradOutputs;
+  // 合成元の関数の入力 (初期化はされない)
+  UntypedVariable[] inputs;
+  // 受け取った gradOutputs の数
+  size_t nGrad = 0;
+
+  void backward(size_t pos, UntypedVariable* grad) {
+    if (grad is null) {
+      enforce(gradOutputs.empty, "this variable is not loss");
+    } else {
+      ++nGrad;
+      gradOutputs[pos] = grad;
+    }
+    // 出力値の全ての微分が集まった
+    if (grad is null || nGrad + 1 == gradOutputs.length) {
+      auto gradInputs = proc(gradOutputs);
+      foreach (i; 0..inputs.length) {
+        inputs[i].backward(gradInputs[i]);
+      }
+    }
+  }
+}
+#+end_src
+
+イメージとしては BackPropの起点の ~Variable!(...) loss~ (損失値) から, ~gradOutput = [1]~ として逆伝搬できます．
+
+
+* 手書き文字認識MNISTの実行 (7日目, 5/13)
+
+ここまでできたらあとはSoftMaxCrossEntropy関数を実装して[[https://twitter.com/fchollet/status/807198327288791040][Deep LearningのUnit Testといわれる手書き文字認識MNIST]]を動かします．
+
+* TODO 残った課題
+
+そんなに難しくないが，1月くらいかかりそう．これ以外にも新しいFunction実装したなどのPR募集してます．
+
+- カーネル引数の静的型チェック
+- UntypedVariableからVariableへの動的型チェック
+- GC配列をMirのstdcSliceへの置き換え
+- cuDNNとCNNのサポート https://github.com/henrygouk/DerelictCuDNN
+
+
