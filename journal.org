@@ -30,7 +30,7 @@ sudo apt-get install libopenblas-dev
 dub run --compiler=ldc2 --build=release-nobounds
 #+end_src
 
-比較対象の既製BLASとして ~dub.json~ の ~"libs": ["mkl_rt"]~ のときMKLを使い， ~"libs": ["openblas"]~ にすればOpenBLASを使う．また，かつてD言語最速を謳っていたmir-glasは最近あまりメンテされていないので，LDC1.7.0以外ではリンカエラーがでるので，仕方なく一昔前のLDC1.7.0を使っている．過去の経験からMKLが圧倒的に速いということはわかるのだが，年に一度くらい思い出したようにGEMMを書きたくなる．
+比較対象の既製BLASとして ~dub.json~ の ~"libs": ["mkl_rt"]~ のときMKLを使い， ~"libs": ["openblas"]~ にすればOpenBLASを使う．また，かつてD言語最速を謳っていたmir-glasは放置気味で，LDC1.7.0以外ではリンカエラーがでるので，仕方なく一昔前のLDC1.7.0を使っている．過去の経験からMKLが圧倒的に速いということはわかるのだが，年に一度くらい思い出したようにGEMMを書きたくなる．
 
 今更だが，GEMMとは $C := \alpha A \times B + \beta C$ を計算するFORTRAN由来の関数である．とりあえずこの関数が速いと，色々な問題(連立方程式，ニューラルネットなど)が高速に計算できるので重要視されている．
 
