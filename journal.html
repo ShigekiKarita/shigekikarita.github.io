@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-03-26 月 01:02 -->
+<!-- 2018-05-19 土 00:28 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -257,22 +257,32 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc421c86">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
+<li><a href="#orga817be1">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#org2306f38">IMEとしてibus-mozcを使う</a></li>
-<li><a href="#orgdd535a2">追加のテーマ</a></li>
-<li><a href="#org36039bc">Emacs が中華フォントになる問題</a></li>
+<li><a href="#orgf759374">準備</a></li>
+<li><a href="#org9ff6965">mir/numir を使う</a></li>
+<li><a href="#org81e9917">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</a></li>
+<li><a href="#org2a9a84d">std.parallelism.parallel でマルチスレッド化</a></li>
+<li><a href="#org31f2d48">static foreach でループを unroll する</a></li>
+<li><a href="#orgee3f9a3">全体の結果 [ms/gemm]</a></li>
 </ul>
 </li>
-<li><a href="#org8b6bde9">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
-<li><a href="#org3ff609c">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org5515d87">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#org6e8c28c">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
 <ul>
-<li><a href="#orgcccfc63">いままで記事</a></li>
+<li><a href="#org967c454">IMEとしてibus-mozcを使う</a></li>
+<li><a href="#orga088cdb">追加のテーマ</a></li>
+<li><a href="#org9d6de9c">Emacs が中華フォントになる問題</a></li>
 </ul>
 </li>
-<li><a href="#orgcdb42b5">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org9baeafe">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#org50f8085">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
+<li><a href="#orgbc2283f">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#orgf9ca225">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<ul>
+<li><a href="#orgb6f6887">いままで記事</a></li>
+</ul>
+</li>
+<li><a href="#orgf9ffc53">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#orgad89be6">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -287,9 +297,312 @@ Log(ja)
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-orgc421c86" class="outline-2">
-<h2 id="orgc421c86">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
-<div class="outline-text-2" id="text-orgc421c86">
+<div id="outline-container-orga817be1" class="outline-2">
+<h2 id="orga817be1">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orga817be1">
+<p>
+TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
+</p>
+</div>
+
+
+<div id="outline-container-orgf759374" class="outline-3">
+<h3 id="orgf759374">準備</h3>
+<div class="outline-text-3" id="text-orgf759374">
+<div class="org-src-container">
+<pre class="src src-bash">git clone https://github.com/ShigekiKarita/d-gemm
+<span style="color: #4f97d7;">cd</span> d-gemm
+curl https://dlang.org/install.sh | bash -s ldc-1.7.0
+sudo apt-get install libopenblas-dev
+dub run --compiler=ldc2 --build=release-nobounds
+</pre>
+</div>
+
+<p>
+比較対象の既製BLASとして <code>dub.json</code> の <code>"libs": ["mkl_rt"]</code> のときMKLを使い， <code>"libs": ["openblas"]</code> にすればOpenBLASを使う．また，かつてD言語最速を謳っていたmir-glasは最近あまりメンテされていないので，LDC1.7.0以外ではリンカエラーがでるので，仕方なく一昔前のLDC1.7.0を使っている．過去の経験からMKLが圧倒的に速いということはわかるのだが，年に一度くらい思い出したようにGEMMを書きたくなる．
+</p>
+
+<p>
+今更だが，GEMMとは \(C := \alpha A \times B + \beta C\) を計算するFORTRAN由来の関数である．とりあえずこの関数が速いと，色々な問題(連立方程式，ニューラルネットなど)が高速に計算できるので重要視されている．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9ff6965" class="outline-3">
+<h3 id="org9ff6965">mir/numir を使う</h3>
+<div class="outline-text-3" id="text-org9ff6965">
+<p>
+D言語の行列演算ライブラリといえば，とりあえずBLASが使える <a href="https://github.com/libmir/mir-algorithm">mir</a> を使うのがおすすめです．さらに補助ライブラリ <a href="https://github.com/libmir/numir">numir</a> を使うことで，numpyライクなAPIも追加できます．とりあえず適当にfor-loopでリファレンス実装を作る．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">import</span> mir.<span style="color: #ce537a; font-weight: bold;">ndslice</span>;
+
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">naiveGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
+    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
+<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
+    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #a45bad;">0</span> .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #ce537a; font-weight: bold;">E</span> <span style="color: #7590db;">ab</span> = <span style="color: #a45bad;">0</span>;
+            <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>k; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
+                ab += a<span style="color: #b1951d;">[</span>i, k<span style="color: #b1951d;">]</span> * b<span style="color: #b1951d;">[</span>k, j<span style="color: #b1951d;">]</span>;
+            <span style="color: #67b11d;">}</span>
+            c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * ab + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+
+<p>
+この実装では1024x1024の行列積の実行速度は1.9秒もかかる．遅すぎて100回も計測できない．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org81e9917" class="outline-3">
+<h3 id="org81e9917">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</h3>
+<div class="outline-text-3" id="text-org81e9917">
+<p>
+まず思いつくのは，一番内側のループを標準ライブラリstd.numericにある内積の実装dotProductを使うことである．dotProductを使う注意点として，<a href="https://github.com/dlang/phobos/blob/27a875709dbbb607795a562b4c20bebe3d38f81e/std/numeric.d#L1713">配列に対するオーバーロード</a> <code>dotProduct(F1, F2)(in F1[] avector, in F2[] bvector)</code> 以外はforループになっているので遅い．内積の引数を連続した配列にするにはgemmの右行列を転置する必要がありメモリーのコピーが発生するが，実際に計測すると倍くらい速くなる．この実装では 0.412秒と最初の実装から5倍近く速くなった．
+</p>
+
+<p>
+しかし，もっといい方法があった． <a href="https://github.com/libmir/mir-algorithm">mir-algorithm</a> にある <code>map</code> と <code>sum</code> を使うことだ．車輪の再発明と思うかもしれないが，dotProductは所詮ナイーブにループをアンロールしただけの実装であるため，LLVMのSIMD最適化などを徹底したmir-algorithmの敵ではない．この実装は0.274秒となり，最初の実装から7倍も速くなった．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d">pragma<span style="color: #4f97d7;">(</span>inline, <span style="color: #a45bad;">true</span><span style="color: #4f97d7;">)</span>
+<span style="color: #4f97d7; font-weight: bold;">nothrow</span> <span style="color: #a45bad;">@nogc</span>
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">mapDot</span><span style="color: #4f97d7;">(</span>S<span style="color: #4f97d7;">)(</span><span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">import</span> mir.<span style="color: #ce537a; font-weight: bold;">math</span> : sum;
+    <span style="color: #4f97d7; font-weight: bold;">return</span> sum<span style="color: #a45bad;">!</span><span style="color: #2d9574;">"fast"</span><span style="color: #bc6ec5;">(</span>a<span style="color: #2d9574;">[]</span> * b<span style="color: #2d9574;">[]</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span>
+
+<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">mapGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
+    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
+<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
+    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
+    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #a45bad;">0</span> .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2a9a84d" class="outline-3">
+<h3 id="org2a9a84d">std.parallelism.parallel でマルチスレッド化</h3>
+<div class="outline-text-3" id="text-org2a9a84d">
+<p>
+GLASはシングルスレッドで動いているようなので，ほぼ禁じ手になるが，D言語では <code>std.parallelism.parallel</code> を使うと for ループを簡単にマルチスレッド化できる．これは凄まじい速さで，最初の実装から40.5倍も高速になった．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">dotParallelGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
+    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
+<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">import</span> std.<span style="color: #ce537a; font-weight: bold;">numeric</span> : dotProduct;
+    <span style="color: #4f97d7; font-weight: bold;">import</span> std.<span style="color: #ce537a; font-weight: bold;">parallelism</span>;
+    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
+    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
+    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span>.iota.parallel<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span>.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org31f2d48" class="outline-3">
+<h3 id="org31f2d48">static foreach でループを unroll する</h3>
+<div class="outline-text-3" id="text-org31f2d48">
+<p>
+各イテレーションの処理が軽すぎると，条件の判定やスレッドの切り替えなどが頻繁におこり遅くなってしまう．そこで単純に本来は複数イテレーションを展開(unroll)して1イテレーションで実行すると少しだけ速くなる(ことがある).実際には上記のマルチスレッド化ほどは速くならなかったが，41.5倍も高速になった．ちなみに外側のループも unroll してみたが効果はなかった．コードの抽象化を少し妨げるので，適材適所に使いたい．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">dotParallelUnrollGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">size_t</span> <span style="color: #7590db;">unroll</span>, <span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
+    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
+<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
+    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
+<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
+    <span style="color: #4f97d7; font-weight: bold;">import</span> std.<span style="color: #ce537a; font-weight: bold;">parallelism</span>;
+    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
+    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
+    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span>.iota.parallel<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
+        <span style="color: #4f97d7; font-weight: bold;">immutable</span> <span style="color: #7590db;">bsteps</span> = b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> / unroll;
+        <span style="color: #4f97d7; font-weight: bold;">immutable</span> <span style="color: #7590db;">bremain</span> = b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> % unroll;
+        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>bs; bsteps.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">c_</span> = c<span style="color: #67b11d;">[</span>i, bs * unroll .. <span style="color: #b1951d;">(</span>bs + <span style="color: #a45bad;">1</span><span style="color: #b1951d;">)</span> * unroll + <span style="color: #a45bad;">1</span><span style="color: #67b11d;">]</span>;
+            <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #7590db;">b_</span> = bt<span style="color: #67b11d;">[</span>bs * unroll .. $, <span style="color: #a45bad;">0</span> .. $<span style="color: #67b11d;">]</span>;
+            <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">LOOP UNROLL</span>
+            <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>j; <span style="color: #a45bad;">0</span> .. unroll<span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
+                c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span> = alpha * mapDot<span style="color: #b1951d;">(</span>a<span style="color: #4f97d7;">[</span>i<span style="color: #4f97d7;">]</span>, b_<span style="color: #4f97d7;">[</span>j<span style="color: #4f97d7;">]</span><span style="color: #b1951d;">)</span> + beta * c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span>;
+            <span style="color: #67b11d;">}</span>
+        <span style="color: #2d9574;">}</span>
+        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> - bremain .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
+        <span style="color: #2d9574;">}</span>
+    <span style="color: #bc6ec5;">}</span>
+<span style="color: #4f97d7;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgee3f9a3" class="outline-3">
+<h3 id="orgee3f9a3">全体の結果 [ms/gemm]</h3>
+<div class="outline-text-3" id="text-orgee3f9a3">
+<p>
+結局MKLには勝てなかったが，GLASとOpenBLASには勝てそうなところまでいったと思う．GLASのマネをして <code>ldc.attributes</code> や <code>ldc.intrinsics</code> といった小細工も使ったが，全く速くならなかった．去年書いたときは全く勝てそうになかったが，来年は真面目にCoppersmith-Winogradあたりを実装すればMKLに勝てるんじゃないかと思う．
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+
+<col  class="org-right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"># row</th>
+<th scope="col" class="org-right">128</th>
+<th scope="col" class="org-right">256</th>
+<th scope="col" class="org-right">512</th>
+<th scope="col" class="org-right">1024</th>
+<th scope="col" class="org-right">speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">for-loop</td>
+<td class="org-right">1.9</td>
+<td class="org-right">29.8</td>
+<td class="org-right">235.2</td>
+<td class="org-right">1950.7</td>
+<td class="org-right">1.0x</td>
+</tr>
+
+<tr>
+<td class="org-left">std.numeric.dotProduct</td>
+<td class="org-right">0.7</td>
+<td class="org-right">6.1</td>
+<td class="org-right">49.4</td>
+<td class="org-right">412.0</td>
+<td class="org-right">4.7x</td>
+</tr>
+
+<tr>
+<td class="org-left">mir.ndslice map/sum</td>
+<td class="org-right">0.5</td>
+<td class="org-right">4.5</td>
+<td class="org-right">34.8</td>
+<td class="org-right">274.0</td>
+<td class="org-right">7.1x</td>
+</tr>
+
+<tr>
+<td class="org-left">+std.parallelism.parallel</td>
+<td class="org-right">1.0</td>
+<td class="org-right">1.9</td>
+<td class="org-right">6.9</td>
+<td class="org-right">48.2</td>
+<td class="org-right">40.5x</td>
+</tr>
+
+<tr>
+<td class="org-left">+static foreach unroll</td>
+<td class="org-right">0.7</td>
+<td class="org-right">1.4</td>
+<td class="org-right">6.2</td>
+<td class="org-right">47.0</td>
+<td class="org-right">41.5x</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">&#xa0;</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left">mir-glas</td>
+<td class="org-right">0.1</td>
+<td class="org-right">1.2</td>
+<td class="org-right">13.7</td>
+<td class="org-right">79.8</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">OpenBLAS</td>
+<td class="org-right">0.2</td>
+<td class="org-right">1.1</td>
+<td class="org-right">8.0</td>
+<td class="org-right">36.2</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+
+<tr>
+<td class="org-left">MKL</td>
+<td class="org-right">0.08</td>
+<td class="org-right">0.7</td>
+<td class="org-right">4.7</td>
+<td class="org-right">27.5</td>
+<td class="org-right">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org6e8c28c" class="outline-2">
+<h2 id="org6e8c28c">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
+<div class="outline-text-2" id="text-org6e8c28c">
 <p>
 最近，新しいノートPCにUbuntu18を入れました．以前はGCCやらドライバが最新なのでFedoraをよく使ってたんですが，最近はUbuntuも頑張っています(なんと標準のGCCがC++17をサポートしている7)．さらに昔と違って<a href="http://www.g104robo.com/entry/ubuntu-dualboot-win10-uefi">デュアルブート</a>も死ぬほど簡単にできて，とても良いです．あと<a href="https://ubuntuapps.blog.fc2.com/blog-entry-1013.html">minimul install</a>が選択できるようになり，一度も使わないLibriOfficeなんかも入らないのも容量が少ないデュアルブート環境では嬉しいですね．
 </p>
@@ -299,9 +612,9 @@ Log(ja)
 </p>
 </div>
 
-<div id="outline-container-org2306f38" class="outline-3">
-<h3 id="org2306f38">IMEとしてibus-mozcを使う</h3>
-<div class="outline-text-3" id="text-org2306f38">
+<div id="outline-container-org967c454" class="outline-3">
+<h3 id="org967c454">IMEとしてibus-mozcを使う</h3>
+<div class="outline-text-3" id="text-org967c454">
 <p>
 おそらくOSインストール時に日本語を選択してOSインストールするとibusが標準として選ばれるのですが，私はフォルダ名が日本語になるので嫌で英語でOSインストールします．日本語環境をインストールするには， <code>Settings &gt; Regions &amp; Language &gt; Manage Installed Languages</code> から <code>Installed Languages &gt; Japanese</code> と <code>Keyboard input method system</code> からIBus選択すると良いです．次に <code>Regions &amp; Languages</code> に戻り， <code>Input Sources &gt; Japanese(Mozc)</code> を選択するとGoogle日本語入力のオープンソース版であるMozcが使えます．
 </p>
@@ -321,9 +634,9 @@ Log(ja)
 </div>
 
 
-<div id="outline-container-orgdd535a2" class="outline-3">
-<h3 id="orgdd535a2">追加のテーマ</h3>
-<div class="outline-text-3" id="text-orgdd535a2">
+<div id="outline-container-orga088cdb" class="outline-3">
+<h3 id="orga088cdb">追加のテーマ</h3>
+<div class="outline-text-3" id="text-orga088cdb">
 <p>
 私はシンプルなデザインが好きなのでnumixを入れます．今回はppa無しでも <code>sudo apt-get install numix-gtk-theme gnome-tweaks</code> で入る． <code>Tweaks &gt; Appearance &gt; Themes &gt; Applications</code> で <code>Numix</code> を選ぶと適用されます．
 </p>
@@ -341,7 +654,7 @@ Log(ja)
 </p>
 
 
-<div id="org4ad1381" class="figure">
+<div id="orgb24e6de" class="figure">
 <p><img src="./img/ubuntu18.png" alt="ubuntu18.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;1:  </span>Numix適用後のテーマ</p>
@@ -350,9 +663,9 @@ Log(ja)
 </div>
 
 
-<div id="outline-container-org36039bc" class="outline-3">
-<h3 id="org36039bc">Emacs が中華フォントになる問題</h3>
-<div class="outline-text-3" id="text-org36039bc">
+<div id="outline-container-org9d6de9c" class="outline-3">
+<h3 id="org9d6de9c">Emacs が中華フォントになる問題</h3>
+<div class="outline-text-3" id="text-org9d6de9c">
 <p>
 Emacsだけ漢字が中華フォントになってました．他のVSCodeやターミナル上でのEmacsは大丈夫なのでシステムの設定ファイルは関係なかったです．
 </p>
@@ -374,9 +687,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org8b6bde9" class="outline-2">
-<h2 id="org8b6bde9">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
-<div class="outline-text-2" id="text-org8b6bde9">
+<div id="outline-container-org50f8085" class="outline-2">
+<h2 id="org50f8085">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
+<div class="outline-text-2" id="text-org50f8085">
 <p>
 いつもプログラミングの話題ばかりするのもつまらないので，アナログ回路の話をしたいと思います．ちなみに大学時代に必修だった回路理論は一度落としました．全く専門的な部分はわかっていないのでご容赦ください．
 </p>
@@ -386,7 +699,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org6b276ef" class="figure">
+<div id="orge4c7bd0" class="figure">
 <p><img src="./img/tl.jpeg" alt="tl.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;2:  </span>テレキャスターの配線．白い線のハンダがとれている</p>
@@ -397,7 +710,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orgd49cce8" class="figure">
+<div id="orgdcb4887" class="figure">
 <p><img src="./img/rg1.jpeg" alt="rg1.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;3:  </span>元のポット(左)と，コイルタップ付きのポット(右)</p>
@@ -408,7 +721,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org527d702" class="figure">
+<div id="orgba79174" class="figure">
 <p><img src="http://www.ibanez.com/products/images/eg2017/pickup/3.png" alt="3.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;4:  </span>RGのPUセレクタ構成</p>
@@ -419,7 +732,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orgdaa3f59" class="figure">
+<div id="orgf1c1c73" class="figure">
 <p><img src="./img/pu.png" alt="pu.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;5:  </span>RGのPUセレクタ構成(コイルタップ時)</p>
@@ -427,11 +740,11 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 
 <p>
 つまり灰色の部分のフロントPUの片側をコイルタップポットでオン・オフできるようになれば良い．
-問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org527d702">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
+問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#orgba79174">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
 </p>
 
 
-<div id="orgf7e42de" class="figure">
+<div id="org89b6e1b" class="figure">
 <p><img src="./img/rg2.jpeg" alt="rg2.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;6:  </span>PUセレクタとの配線後</p>
@@ -442,7 +755,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 <p>
-最後に以上の方法で配線した6状態(タップなしの図<a href="#org527d702">4</a> とタップあり図<a href="#orgdaa3f59">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
+最後に以上の方法で配線した6状態(タップなしの図<a href="#orgba79174">4</a> とタップあり図<a href="#orgf1c1c73">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
 </p>
 
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/404887164&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
@@ -453,9 +766,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 </div>
 
-<div id="outline-container-org3ff609c" class="outline-2">
-<h2 id="org3ff609c">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org3ff609c">
+<div id="outline-container-orgbc2283f" class="outline-2">
+<h2 id="orgbc2283f">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgbc2283f">
 <p>
 幾何平均の計算
 </p>
@@ -526,17 +839,17 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org5515d87" class="outline-2">
-<h2 id="org5515d87">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org5515d87">
+<div id="outline-container-orgf9ca225" class="outline-2">
+<h2 id="orgf9ca225">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgf9ca225">
 <p>
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
-<div id="outline-container-orgcccfc63" class="outline-3">
-<h3 id="orgcccfc63">いままで記事</h3>
-<div class="outline-text-3" id="text-orgcccfc63">
+<div id="outline-container-orgb6f6887" class="outline-3">
+<h3 id="orgb6f6887">いままで記事</h3>
+<div class="outline-text-3" id="text-orgb6f6887">
 <ul class="org-ul">
 <li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
 <li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
@@ -558,7 +871,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org72c45cb" class="figure">
+<div id="org884e5ba" class="figure">
 <p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
 </p>
 <p><span class="figure-number">&#22259;7:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
@@ -615,9 +928,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-orgcdb42b5" class="outline-2">
-<h2 id="orgcdb42b5">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-orgcdb42b5">
+<div id="outline-container-orgf9ffc53" class="outline-2">
+<h2 id="orgf9ffc53">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgf9ffc53">
 <p>
 ごくまれにC++で 
 </p>
@@ -686,9 +999,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 </div>
 
-<div id="outline-container-org9baeafe" class="outline-2">
-<h2 id="org9baeafe">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org9baeafe">
+<div id="outline-container-orgad89be6" class="outline-2">
+<h2 id="orgad89be6">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-orgad89be6">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -782,7 +1095,7 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-03-26 月 01:02</p>
+<p class="date">Created: 2018-05-19 土 00:28</p>
 <p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>

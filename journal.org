@@ -15,6 +15,163 @@ Log(ja)
 
 [[file:index.html][index]]
 
+* 2018年05月19日 D言語で GEMM を高速化する                                :D:
+
+TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
+
+
+** 準備
+
+#+begin_src bash
+git clone https://github.com/ShigekiKarita/d-gemm
+cd d-gemm
+curl https://dlang.org/install.sh | bash -s ldc-1.7.0
+sudo apt-get install libopenblas-dev
+dub run --compiler=ldc2 --build=release-nobounds
+#+end_src
+
+比較対象の既製BLASとして ~dub.json~ の ~"libs": ["mkl_rt"]~ のときMKLを使い， ~"libs": ["openblas"]~ にすればOpenBLASを使う．また，かつてD言語最速を謳っていたmir-glasは最近あまりメンテされていないので，LDC1.7.0以外ではリンカエラーがでるので，仕方なく一昔前のLDC1.7.0を使っている．過去の経験からMKLが圧倒的に速いということはわかるのだが，年に一度くらい思い出したようにGEMMを書きたくなる．
+
+今更だが，GEMMとは $C := \alpha A \times B + \beta C$ を計算するFORTRAN由来の関数である．とりあえずこの関数が速いと，色々な問題(連立方程式，ニューラルネットなど)が高速に計算できるので重要視されている．
+
+** mir/numir を使う
+
+D言語の行列演算ライブラリといえば，とりあえずBLASが使える [[https://github.com/libmir/mir-algorithm][mir]] を使うのがおすすめです．さらに補助ライブラリ [[https://github.com/libmir/numir][numir]] を使うことで，numpyライクなAPIも追加できます．とりあえず適当にfor-loopでリファレンス実装を作る．
+
+#+begin_src d
+import mir.ndslice;
+
+auto naiveGemm(S, T=DeepElementType!S)(
+    const T alpha, const S a, const S b, const T beta, ref S c) if (isSlice!S)
+in {
+    assert(c.length!0 == a.length!0);
+    assert(a.length!1 == b.length!0);
+    assert(c.length!1 == b.length!1);
+} do {
+    alias E = DeepElementType!S;
+    foreach (i; 0 .. a.length!0) {
+        foreach (j; 0 .. b.length!1) {
+            E ab = 0;
+            foreach (k; 0 .. a.length!1) {
+                ab += a[i, k] * b[k, j];
+            }
+            c[i, j] = alpha * ab + beta * c[i, j];
+        }
+    }
+}
+#+end_src
+
+この実装では1024x1024の行列積の実行速度は1.9秒もかかる．遅すぎて100回も計測できない．
+
+** std.numeric.dotProduct よりも mir-algorithm の map と sum を使う
+
+まず思いつくのは，一番内側のループを標準ライブラリstd.numericにある内積の実装dotProductを使うことである．dotProductを使う注意点として，[[https://github.com/dlang/phobos/blob/27a875709dbbb607795a562b4c20bebe3d38f81e/std/numeric.d#L1713][配列に対するオーバーロード]] ~dotProduct(F1, F2)(in F1[] avector, in F2[] bvector)~ 以外はforループになっているので遅い．内積の引数を連続した配列にするにはgemmの右行列を転置する必要がありメモリーのコピーが発生するが，実際に計測すると倍くらい速くなる．この実装では 0.412秒と最初の実装から5倍近く速くなった．
+
+しかし，もっといい方法があった． [[https://github.com/libmir/mir-algorithm][mir-algorithm]] にある ~map~ と ~sum~ を使うことだ．車輪の再発明と思うかもしれないが，dotProductは所詮ナイーブにループをアンロールしただけの実装であるため，LLVMのSIMD最適化などを徹底したmir-algorithmの敵ではない．この実装は0.274秒となり，最初の実装から7倍も速くなった．
+
+#+begin_src d
+pragma(inline, true)
+nothrow @nogc
+auto mapDot(S)(in S a, in S b) if (isSlice!S) {
+    import mir.math : sum;
+    return sum!"fast"(a[] * b[]);
+}
+
+auto mapGemm(S, T=DeepElementType!S)(
+    const T alpha, const S a, const S b, const T beta, ref S c) if (isSlice!S)
+in {
+    assert(c.length!0 == a.length!0);
+    assert(a.length!1 == b.length!0);
+    assert(c.length!1 == b.length!1);
+} do {
+    alias E = DeepElementType!S;
+    auto bt = b.transposed.slice;
+    foreach (i; 0 .. a.length!0) {
+        foreach (j; 0 .. b.length!1) {
+            c[i, j] = alpha * mapDot(a[i], bt[j]) + beta * c[i, j];
+        }
+    }
+}
+#+end_src
+
+** std.parallelism.parallel でマルチスレッド化
+
+GLASはシングルスレッドで動いているようなので，ほぼ禁じ手になるが，D言語では ~std.parallelism.parallel~ を使うと for ループを簡単にマルチスレッド化できる．これは凄まじい速さで，最初の実装から40.5倍も高速になった．
+
+#+begin_src d
+auto dotParallelGemm(S, T=DeepElementType!S)(
+    const T alpha, const S a, const S b, const T beta, ref S c) if (isSlice!S)
+in {
+    assert(c.length!0 == a.length!0);
+    assert(a.length!1 == b.length!0);
+    assert(c.length!1 == b.length!1);
+} do {
+    import std.numeric : dotProduct;
+    import std.parallelism;
+    alias E = DeepElementType!S;
+    auto bt = b.transposed.slice;
+    foreach (i; a.length!0.iota.parallel) {
+        foreach (j; b.length!1.iota.parallel) {
+            c[i, j] = alpha * mapDot(a[i], bt[j]) + beta * c[i, j];
+        }
+    }
+}
+#+end_src
+
+** static foreach でループを unroll する
+
+各イテレーションの処理が軽すぎると，条件の判定やスレッドの切り替えなどが頻繁におこり遅くなってしまう．そこで単純に本来は複数イテレーションを展開(unroll)して1イテレーションで実行すると少しだけ速くなる(ことがある).実際には上記のマルチスレッド化ほどは速くならなかったが，41.5倍も高速になった．ちなみに外側のループも unroll してみたが効果はなかった．コードの抽象化を少し妨げるので，適材適所に使いたい．
+
+#+begin_src d
+auto dotParallelUnrollGemm(size_t unroll, S, T=DeepElementType!S)(
+    const T alpha, const S a, const S b, const T beta, ref S c) if (isSlice!S)
+in {
+    assert(c.length!0 == a.length!0);
+    assert(a.length!1 == b.length!0);
+    assert(c.length!1 == b.length!1);
+} do {
+    import std.parallelism;
+    alias E = DeepElementType!S;
+    auto bt = b.transposed.slice;
+    foreach (i; a.length!0.iota.parallel) {
+        immutable bsteps = b.length!1 / unroll;
+        immutable bremain = b.length!1 % unroll;
+        foreach (bs; bsteps.iota.parallel) {
+            auto c_ = c[i, bs * unroll .. (bs + 1) * unroll + 1];
+            const b_ = bt[bs * unroll .. $, 0 .. $];
+            // LOOP UNROLL
+            static foreach (j; 0 .. unroll) {
+                c_[j] = alpha * mapDot(a[i], b_[j]) + beta * c_[j];
+            }
+        }
+        foreach (j; b.length!1 - bremain .. b.length!1) {
+            c[i, j] = alpha * mapDot(a[i], bt[j]) + beta * c[i, j];
+        }
+    }
+}
+#+end_src
+
+** 全体の結果 [ms/gemm]
+
+結局MKLには勝てなかったが，GLASとOpenBLASには勝てそうなところまでいったと思う．GLASのマネをして ~ldc.attributes~ や ~ldc.intrinsics~ といった小細工も使ったが，全く速くならなかった．去年書いたときは全く勝てそうになかったが，来年は真面目にCoppersmith-Winogradあたりを実装すればMKLに勝てるんじゃないかと思う．
+
+| # row                     |  128 |  256 |   512 |   1024 | speedup |
+|---------------------------+------+------+-------+--------+---------|
+| for-loop                  |  1.9 | 29.8 | 235.2 | 1950.7 |    1.0x |
+| std.numeric.dotProduct    |  0.7 |  6.1 |  49.4 |  412.0 |    4.7x |
+| mir.ndslice map/sum       |  0.5 |  4.5 |  34.8 |  274.0 |    7.1x |
+| +std.parallelism.parallel |  1.0 |  1.9 |   6.9 |   48.2 |   40.5x |
+| +static foreach unroll    |  0.7 |  1.4 |   6.2 |   47.0 |   41.5x |
+|---------------------------+------+------+-------+--------+---------|
+|                           |      |      |       |        |         |
+|---------------------------+------+------+-------+--------+---------|
+| mir-glas                  |  0.1 |  1.2 |  13.7 |   79.8 |         |
+| OpenBLAS                  |  0.2 |  1.1 |   8.0 |   36.2 |         |
+| MKL                       | 0.08 |  0.7 |   4.7 |   27.5 |         |
+
+Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
+
+
 * 2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ               :Linux:
 
 最近，新しいノートPCにUbuntu18を入れました．以前はGCCやらドライバが最新なのでFedoraをよく使ってたんですが，最近はUbuntuも頑張っています(なんと標準のGCCがC++17をサポートしている7)．さらに昔と違って[[http://www.g104robo.com/entry/ubuntu-dualboot-win10-uefi][デュアルブート]]も死ぬほど簡単にできて，とても良いです．あと[[https://ubuntuapps.blog.fc2.com/blog-entry-1013.html][minimul install]]が選択できるようになり，一度も使わないLibriOfficeなんかも入らないのも容量が少ないデュアルブート環境では嬉しいですね．
