@@ -19,6 +19,7 @@ Log(ja)
 
 TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
 
+ソースコード https://github.com/ShigekiKarita/d-gemm
 
 ** 準備
 
