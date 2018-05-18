@@ -94,6 +94,8 @@ in {
 }
 #+end_src
 
+実は残ったループも [[http://numir.dpldocs.info/numir.core.manipulation.alongDim.html][numirのalongDim]] を使えば上手いこと消せるのだが，次に並列化やアンロールなど泥臭いことをやるので，やめておいた．
+
 ** std.parallelism.parallel でマルチスレッド化
 
 GLASはシングルスレッドで動いているようなので，ほぼ禁じ手になるが，D言語では ~std.parallelism.parallel~ を使うと for ループを簡単にマルチスレッド化できる．これは凄まじい速さで，最初の実装から40.5倍も高速になった．
