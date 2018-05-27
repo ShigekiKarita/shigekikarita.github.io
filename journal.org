@@ -15,6 +15,119 @@ Log(ja)
 
 [[file:index.html][index]]
 
+
+* 2018年05月28日 D言語のコーディングスタイル (抄訳)                       :D:
+
+私がD言語で一番好きなところは，標準ライブラリやランタイムが結構読みやすいことです．
+残念ながら，あまり日本語の記事で解説がないので(これがD言語の唯一の欠点)，公式の英語ドキュメントを紹介したいと思います．
+
+** 公式のドキュメント
+
+[[https://dlang.org/dstyle.html][The D Style]]
+
+[[https://github.com/dlang/dlang.org/blob/a00a6699500ecfeba9e7a50da599e88b7feacc2f/images/style3.gif][おしゃれなD言語くん]] が出迎えてくれるD言語公式のスタイルを説明したページです．D言語始めたばかりの人はぜひ一読ください．
+そこそこ長いので，常識的な部分を除いたD言語固有の部分を抜粋してまとめました．
+
+*** D言語全般の推奨事項
+
+- 字下げはタブではなく4スペースで行う
+- 命名規則：クラス/構造体/インタフェースは PascalCase を使う．モジュールは全て小文字．それ以外の識別子(変数/関数など)は camelCase を使う．aliasやtemplateは使い方次第
+- 関数: [[https://tour.dlang.org/tour/ja/gems/attributes][property]] が使えるところは使う (getter/setterはさける)．関数名は動詞にすべきだが，propertyは名詞にする．
+- ドキュメント: public な関数は [[https://tour.dlang.org/tour/ja/gems/documentation][Ddoc]] 形式の少なくとも Params (引数) と Returns (返り値) が載ったドキュメントをつける 
+  #+begin_src d
+/**
+Checks whether a number is positive.
+`0` isn't considered as positive number.
+
+Params:
+    number = number to be checked
+
+Returns: `true` if the number is positive, `0` otherwise.
+
+See_Also: $(LREF isNegative)
+*/
+bool isPositive(int number)
+{
+    return number > 0;
+}
+  #+end_src
+- 単体テスト: 出来る限り実用的に，全ての関数はすぐそばに unittest ブロックで動作例を示す．コードは網羅的に一度は検証し[[https://dlang.org/articles/code_coverage.html][カバレッジ計測する]]
+  
+
+*** 標準ライブラリ特有の事項(任意)
+
+以下は，標準ライブラリ特有の部分です．好みの問題で，私はあまり従っていません．
+
+- 中括弧またはブレース ~{...}~  は1行にそれ単体で記述する ([[https://ja.wikipedia.org/wiki/%E5%AD%97%E4%B8%8B%E3%81%92%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB#BSD/%E3%82%AA%E3%83%BC%E3%83%AB%E3%83%9E%E3%83%B3%E3%81%AE%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB][Allman style]])
+- 不要な括弧 (例: ~(a == b) ? "foo" : "bar"~) は避ける
+- 各行は80文字以下を推奨．いかなるときも120文字は超えてはいけない
+- import 文:
+  - グローバルなimportは避け，ローカルなimportにすべき
+  - import 順は辞書順にソートすべき
+- 返り値型は ~auto~ 等ではなく，可読性を高められる場合は明示すべき
+- 構造体を返すとき，public な構造体より，[[https://dlang.org/spec/struct.html#nested][ネスト構造体]]を推奨
+- 属性:
+  - 非テンプレート関数は属性 (@nogc, @safe, pure, nothrow) の適用可能なものは明記すべき
+  - テンプレート関数はコンパイラが推論するため，属性を明記すべきでは *ない*
+  - 複数の属性は@を除いたアルファベット順に記述すべき (例 ~const @nogc nothrow pure @safe~)
+  - *全ての* unittest ブロックは属性を明記し，推論されたテンプレート関数の属性を保証すべき
+- テンプレートの中に unittest を書いてはいけない．実体化のたびに重複して生成される．外に書くべき．
+- テンプレートの制約は字下げしてはいけない ([[https://dlang.org/concepts.html][制約の公式ページ]] は違反している?)
+  #+begin_src d
+  void foo(R)(R r)
+  if (R == 1)
+  #+end_src
+- ドキュメント (DDoc)
+  - 全ての public なシンボルはドキュメント化すべき
+  - Params:, Returns:, See_Also: 中のテキストは1行に収まらない場合，一段字下げする
+  - ドキュメントの開始 ~/**~ や ~/++~ は2つ以上の+や*を使ってはいけない
+  - ditto (同上) というドキュメント (~/// ditto~) 以外は，一行コメントではなくブロックコメントを使う．
+  - ドキュメントコメントで各行に*をつけてはいけない
+  #+begin_src d
+  /**
+   * これは
+   * 推奨されない
+   */
+  #+end_src
+  - Examples セクションは3つのダッシュ ~---~ のみを使う
+  #+begin_src d
+/**
+数の平方根を計算します。
+
+ここには実際に与えられた数の平方根を
+求める関数の社会的な価値について
+細かく説明する長いパラグラフが入ります。
+
+Example:
+---
+double sq = sqrt(4);
+---
+Params:
+    number = 平方根を計算する数。
+
+License: 任意の用途に自由に使ってください
+Throws: 何も投げません。
+Returns: 入力の平方根。
+*/
+T sqrt(T)(T number)
+  #+end_src
+
+** 補足
+
+とりあえず，コード書きながらツールを使って教えてもらうのが良いと思います．
+
+- https://github.com/dlang-community/D-Scanner : Linterなどの機能が入ったCUIツール．色んなエディタと連携できる
+- https://github.com/dlang-vscode/dlang-vscode : VS Codeで上記のツールを使うプラグイン．エディタの拡張機能から検索して，ほぼマウスでポチポチするだけなので一番導入が楽．デフォルトだとLinterうるさいです
+
+今回は関係ないですが，補完関係だと[[https://github.com/dlang-community/DCD][DCD]] が便利です．
+
+あとドキュメントの ~/**~ と ~/++~ ってどっちが多いのかなと思い，標準ライブラリ Phobos を調べたところ
+
+- ~grep "/\*\*" phobos/**/*.d | wc -l~: 3920
+- ~grep "/++" phobos/**/*.d | wc -l~: 788
+
+という感じでした．
+
 * 2018年05月19日 D言語で GEMM を高速化する                                :D:
 
 TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
@@ -173,6 +286,19 @@ in {
 
 Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 
+** 更なる話題
+
+本当にMKLやOpenBLASを超えたいのであれば，下記の文献が参考になるだろう．
+
+1. https://github.com/flame/blislab/blob/master/tutorial.pdf
+2. https://github.com/flame/how-to-optimize-gemm/wiki
+
+1コアのCPUでの高速化における基本的なアイデアは以下の２つだと思う
+
+- 行列積(GEMM)は，行列をブロックに分解した行列 = 「ブロック行列積を要素にもつ行列」の行列積である (文献1 3.2節を見よ)
+- 一般的なCPUではメモリはレジスタ，L1-3キャッシュなどDRAMメモリよりも高速なCPU固有の階層的な記憶領域があり，ブロック行列を階層的に配置することでCPUの性能を最大限使える(文献1図3を見よ)
+
+なので行う作業としてはCPU固有の非常にレジスタを同時に使う速い命令，例えばSSE/AVXなんかは16個とかのdoubleを同時に掛けて足す計算(FMA)できたりするので[[https://github.com/flame/how-to-optimize-gemm/wiki#computing-a-4-x-4-block-of-c-at-a-time][ 1命令で動く4x4とかのブロック行列積]] を書いて，大きな行列を各記憶領域におけるように分割した最小単位に4x4みたいな行列積を使う．
 
 * 2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ               :Linux:
 

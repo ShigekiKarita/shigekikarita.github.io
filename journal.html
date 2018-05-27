@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
 <head>
-<!-- 2018-05-19 土 00:44 -->
+<!-- 2018-05-28 月 02:57 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KARITECH</title>
@@ -68,7 +68,6 @@
   pre.src-fortran:before { content: 'Fortran'; }
   pre.src-gnuplot:before { content: 'gnuplot'; }
   pre.src-haskell:before { content: 'Haskell'; }
-  pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
   pre.src-js:before { content: 'Javascript'; }
   pre.src-latex:before { content: 'LaTeX'; }
@@ -186,7 +185,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2018 Free Software Foundation, Inc.
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -248,7 +247,7 @@ for the JavaScript code in this tag.
 });
 </script>
 <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content">
@@ -257,32 +256,44 @@ for the JavaScript code in this tag.
 <h2>&#30446;&#27425;</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org2099b9a">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#orgc7d3f8c">2018年05月28日 D言語のコーディングスタイル (抄訳)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#org6908428">準備</a></li>
-<li><a href="#org145da55">mir/numir を使う</a></li>
-<li><a href="#org812b623">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</a></li>
-<li><a href="#org892d3c8">std.parallelism.parallel でマルチスレッド化</a></li>
-<li><a href="#orgd24b900">static foreach でループを unroll する</a></li>
-<li><a href="#orgc630760">全体の結果 [ms/gemm]</a></li>
+<li><a href="#org0a2779d">公式のドキュメント</a>
+<ul>
+<li><a href="#org78925dd">D言語全般の推奨事項</a></li>
+<li><a href="#org902539a">標準ライブラリ特有の事項(任意)</a></li>
 </ul>
 </li>
-<li><a href="#orgf6d7c06">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
-<ul>
-<li><a href="#org2f598e3">IMEとしてibus-mozcを使う</a></li>
-<li><a href="#org96f3b7e">追加のテーマ</a></li>
-<li><a href="#orgdd5dd2e">Emacs が中華フォントになる問題</a></li>
+<li><a href="#orgfe08a7f">補足</a></li>
 </ul>
 </li>
-<li><a href="#org44a2617">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
-<li><a href="#org51dd131">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org8164e6c">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<li><a href="#org035588b">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
 <ul>
-<li><a href="#org9ac7e37">いままで記事</a></li>
+<li><a href="#org59179d9">準備</a></li>
+<li><a href="#org87f1a1d">mir/numir を使う</a></li>
+<li><a href="#org97153c5">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</a></li>
+<li><a href="#orgbb86f50">std.parallelism.parallel でマルチスレッド化</a></li>
+<li><a href="#org1145194">static foreach でループを unroll する</a></li>
+<li><a href="#orgcf3e03f">全体の結果 [ms/gemm]</a></li>
+<li><a href="#org8986c1d">更なる話題</a></li>
 </ul>
 </li>
-<li><a href="#orgec27f20">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
-<li><a href="#org20ff568">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
+<li><a href="#orge770397">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></a>
+<ul>
+<li><a href="#orgceecd51">IMEとしてibus-mozcを使う</a></li>
+<li><a href="#org87bbcbe">追加のテーマ</a></li>
+<li><a href="#org94b8b7a">Emacs が中華フォントになる問題</a></li>
+</ul>
+</li>
+<li><a href="#org1b88067">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></a></li>
+<li><a href="#org074ef3d">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org1eca2e8">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a>
+<ul>
+<li><a href="#orgd5c626a">いままで記事</a></li>
+</ul>
+</li>
+<li><a href="#org4e553e3">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></a></li>
+<li><a href="#org3142685">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></a></li>
 </ul>
 </div>
 </div>
@@ -297,9 +308,179 @@ Log(ja)
 <a href="index.html">index</a>
 </p>
 
-<div id="outline-container-org2099b9a" class="outline-2">
-<h2 id="org2099b9a">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org2099b9a">
+
+<div id="outline-container-orgc7d3f8c" class="outline-2">
+<h2 id="orgc7d3f8c">2018年05月28日 D言語のコーディングスタイル (抄訳)&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-orgc7d3f8c">
+<p>
+私がD言語で一番好きなところは，標準ライブラリやランタイムが結構読みやすいことです．
+残念ながら，あまり日本語の記事で解説がないので(これがD言語の唯一の欠点)，公式の英語ドキュメントを紹介したいと思います．
+</p>
+</div>
+
+<div id="outline-container-org0a2779d" class="outline-3">
+<h3 id="org0a2779d">公式のドキュメント</h3>
+<div class="outline-text-3" id="text-org0a2779d">
+<p>
+<a href="https://dlang.org/dstyle.html">The D Style</a>
+</p>
+
+<p>
+<a href="https://github.com/dlang/dlang.org/blob/a00a6699500ecfeba9e7a50da599e88b7feacc2f/images/style3.gif">おしゃれなD言語くん</a> が出迎えてくれるD言語公式のスタイルを説明したページです．D言語始めたばかりの人はぜひ一読ください．
+そこそこ長いので，常識的な部分を除いたD言語固有の部分を抜粋してまとめました．
+</p>
+</div>
+
+<div id="outline-container-org78925dd" class="outline-4">
+<h4 id="org78925dd">D言語全般の推奨事項</h4>
+<div class="outline-text-4" id="text-org78925dd">
+<ul class="org-ul">
+<li>字下げはタブではなく4スペースで行う</li>
+<li>命名規則：クラス/構造体/インタフェースは PascalCase を使う．モジュールは全て小文字．それ以外の識別子(変数/関数など)は camelCase を使う．aliasやtemplateは使い方次第</li>
+<li>関数: <a href="https://tour.dlang.org/tour/ja/gems/attributes">property</a> が使えるところは使う (getter/setterはさける)．関数名は動詞にすべきだが，propertyは名詞にする．</li>
+<li><p>
+ドキュメント: public な関数は <a href="https://tour.dlang.org/tour/ja/gems/documentation">Ddoc</a> 形式の少なくとも Params (引数) と Returns (返り値) が載ったドキュメントをつける 
+</p>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #2aa1ae; background-color: #ecf3ec;">/**</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Checks whether a number is positive.</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">`0` isn't considered as positive number.</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Params:</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">    number = number to be checked</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Returns: `true` if the number is positive, `0` otherwise.</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">See_Also: $(LREF isNegative)</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
+<span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #6c3163; font-weight: bold;">isPositive</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">int</span> <span style="color: #715ab1;">number</span><span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> number &gt; <span style="color: #4e3163;">0</span>;
+<span style="color: #3a81c3;">}</span>
+</pre>
+</div></li>
+<li>単体テスト: 出来る限り実用的に，全ての関数はすぐそばに unittest ブロックで動作例を示す．コードは網羅的に一度は検証し<a href="https://dlang.org/articles/code_coverage.html">カバレッジ計測する</a></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org902539a" class="outline-4">
+<h4 id="org902539a">標準ライブラリ特有の事項(任意)</h4>
+<div class="outline-text-4" id="text-org902539a">
+<p>
+以下は，標準ライブラリ特有の部分です．好みの問題で，私はあまり従っていません．
+</p>
+
+<ul class="org-ul">
+<li>中括弧またはブレース <code>{...}</code>  は1行にそれ単体で記述する (<a href="https://ja.wikipedia.org/wiki/%E5%AD%97%E4%B8%8B%E3%81%92%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB#BSD/%E3%82%AA%E3%83%BC%E3%83%AB%E3%83%9E%E3%83%B3%E3%81%AE%E3%82%B9%E3%82%BF%E3%82%A4%E3%83%AB">Allman style</a>)</li>
+<li>不要な括弧 (例: <code>(a == b) ? "foo" : "bar"</code>) は避ける</li>
+<li>各行は80文字以下を推奨．いかなるときも120文字は超えてはいけない</li>
+<li>import 文:
+<ul class="org-ul">
+<li>グローバルなimportは避け，ローカルなimportにすべき</li>
+<li>import 順は辞書順にソートすべき</li>
+</ul></li>
+<li>返り値型は <code>auto</code> 等ではなく，可読性を高められる場合は明示すべき</li>
+<li>構造体を返すとき，public な構造体より，<a href="https://dlang.org/spec/struct.html#nested">ネスト構造体</a>を推奨</li>
+<li>属性:
+<ul class="org-ul">
+<li>非テンプレート関数は属性 (@nogc, @safe, pure, nothrow) の適用可能なものは明記すべき</li>
+<li>テンプレート関数はコンパイラが推論するため，属性を明記すべきでは <b>ない</b></li>
+<li>複数の属性は@を除いたアルファベット順に記述すべき (例 <code>const @nogc nothrow pure @safe</code>)</li>
+<li><b>全ての</b> unittest ブロックは属性を明記し，推論されたテンプレート関数の属性を保証すべき</li>
+</ul></li>
+<li>テンプレートの中に unittest を書いてはいけない．実体化のたびに重複して生成される．外に書くべき．</li>
+<li><p>
+テンプレートの制約は字下げしてはいけない (<a href="https://dlang.org/concepts.html">制約の公式ページ</a> は違反している?)
+</p>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #ba2f59; font-weight: bold;">void</span> <span style="color: #6c3163; font-weight: bold;">foo</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">R</span><span style="color: #3a81c3;">)(</span><span style="color: #ba2f59; font-weight: bold;">R</span> <span style="color: #715ab1;">r</span><span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>R == <span style="color: #4e3163;">1</span><span style="color: #3a81c3;">)</span>
+</pre>
+</div></li>
+<li><p>
+ドキュメント (DDoc)
+</p>
+<ul class="org-ul">
+<li>全ての public なシンボルはドキュメント化すべき</li>
+<li>Params:, Returns:, See_Also: 中のテキストは1行に収まらない場合，一段字下げする</li>
+<li>ドキュメントの開始 <code>/**</code> や <code>/++</code> は2つ以上の+や*を使ってはいけない</li>
+<li>ditto (同上) というドキュメント (<code>/// ditto</code>) 以外は，一行コメントではなくブロックコメントを使う．</li>
+<li>ドキュメントコメントで各行に*をつけてはいけない</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #2aa1ae; background-color: #ecf3ec;">/**</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> * &#12371;&#12428;&#12399;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> * &#25512;&#22888;&#12373;&#12428;&#12394;&#12356;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> */</span>
+</pre>
+</div>
+<ul class="org-ul">
+<li>Examples セクションは3つのダッシュ <code>---</code> のみを使う</li>
+</ul>
+<div class="org-src-container">
+<pre class="src src-d"><span style="color: #2aa1ae; background-color: #ecf3ec;">/**</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">&#25968;&#12398;&#24179;&#26041;&#26681;&#12434;&#35336;&#31639;&#12375;&#12414;&#12377;&#12290;</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">&#12371;&#12371;&#12395;&#12399;&#23455;&#38555;&#12395;&#19982;&#12360;&#12425;&#12428;&#12383;&#25968;&#12398;&#24179;&#26041;&#26681;&#12434;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">&#27714;&#12417;&#12427;&#38306;&#25968;&#12398;&#31038;&#20250;&#30340;&#12394;&#20385;&#20516;&#12395;&#12388;&#12356;&#12390;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">&#32048;&#12363;&#12367;&#35500;&#26126;&#12377;&#12427;&#38263;&#12356;&#12497;&#12521;&#12464;&#12521;&#12501;&#12364;&#20837;&#12426;&#12414;&#12377;&#12290;</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Example:</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">---</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">double sq = sqrt(4);</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">---</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Params:</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">    number = &#24179;&#26041;&#26681;&#12434;&#35336;&#31639;&#12377;&#12427;&#25968;&#12290;</span>
+
+<span style="color: #2aa1ae; background-color: #ecf3ec;">License: &#20219;&#24847;&#12398;&#29992;&#36884;&#12395;&#33258;&#30001;&#12395;&#20351;&#12387;&#12390;&#12367;&#12384;&#12373;&#12356;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Throws: &#20309;&#12418;&#25237;&#12370;&#12414;&#12379;&#12435;&#12290;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">Returns: &#20837;&#21147;&#12398;&#24179;&#26041;&#26681;&#12290;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
+<span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #6c3163; font-weight: bold;">sqrt</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #3a81c3;">)(</span><span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">number</span><span style="color: #3a81c3;">)</span>
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgfe08a7f" class="outline-3">
+<h3 id="orgfe08a7f">補足</h3>
+<div class="outline-text-3" id="text-orgfe08a7f">
+<p>
+とりあえず，コード書きながらツールを使って教えてもらうのが良いと思います．
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/dlang-community/D-Scanner">https://github.com/dlang-community/D-Scanner</a> : Linterなどの機能が入ったCUIツール．色んなエディタと連携できる</li>
+<li><a href="https://github.com/dlang-vscode/dlang-vscode">https://github.com/dlang-vscode/dlang-vscode</a> : VS Codeで上記のツールを使うプラグイン．エディタの拡張機能から検索して，ほぼマウスでポチポチするだけなので一番導入が楽．デフォルトだとLinterうるさいです</li>
+</ul>
+
+<p>
+今回は関係ないですが，補完関係だと<a href="https://github.com/dlang-community/DCD">DCD</a> が便利です．
+</p>
+
+<p>
+あとドキュメントの <code>/**</code> と <code>/++</code> ってどっちが多いのかなと思い，標準ライブラリ Phobos を調べたところ
+</p>
+
+<ul class="org-ul">
+<li><code>grep "/\*\*" phobos/**/*.d | wc -l</code>: 3920</li>
+<li><code>grep "/++" phobos/**/*.d | wc -l</code>: 788</li>
+</ul>
+
+<p>
+という感じでした．
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org035588b" class="outline-2">
+<h2 id="org035588b">2018年05月19日 D言語で GEMM を高速化する&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org035588b">
 <p>
 TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
 </p>
@@ -309,12 +490,12 @@ TL;DR : MKL には勝てなかったが，OpenBLAS/GLASには割と勝てた．
 </p>
 </div>
 
-<div id="outline-container-org6908428" class="outline-3">
-<h3 id="org6908428">準備</h3>
-<div class="outline-text-3" id="text-org6908428">
+<div id="outline-container-org59179d9" class="outline-3">
+<h3 id="org59179d9">準備</h3>
+<div class="outline-text-3" id="text-org59179d9">
 <div class="org-src-container">
 <pre class="src src-bash">git clone https://github.com/ShigekiKarita/d-gemm
-<span style="color: #4f97d7;">cd</span> d-gemm
+<span style="color: #3a81c3;">cd</span> d-gemm
 curl https://dlang.org/install.sh | bash -s ldc-1.7.0
 sudo apt-get install libopenblas-dev
 dub run --compiler=ldc2 --build=release-nobounds
@@ -331,34 +512,34 @@ dub run --compiler=ldc2 --build=release-nobounds
 </div>
 </div>
 
-<div id="outline-container-org145da55" class="outline-3">
-<h3 id="org145da55">mir/numir を使う</h3>
-<div class="outline-text-3" id="text-org145da55">
+<div id="outline-container-org87f1a1d" class="outline-3">
+<h3 id="org87f1a1d">mir/numir を使う</h3>
+<div class="outline-text-3" id="text-org87f1a1d">
 <p>
 D言語の行列演算ライブラリといえば，とりあえずBLASが使える <a href="https://github.com/libmir/mir-algorithm">mir</a> を使うのがおすすめです．さらに補助ライブラリ <a href="https://github.com/libmir/numir">numir</a> を使うことで，numpyライクなAPIも追加できます．とりあえず適当にfor-loopでリファレンス実装を作る．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">import</span> mir.<span style="color: #ce537a; font-weight: bold;">ndslice</span>;
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">import</span> mir.<span style="color: #ba2f59; font-weight: bold;">ndslice</span>;
 
-<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">naiveGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
-    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
-    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #a45bad;">0</span> .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
-            <span style="color: #ce537a; font-weight: bold;">E</span> <span style="color: #7590db;">ab</span> = <span style="color: #a45bad;">0</span>;
-            <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>k; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
+<span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">naiveGemm</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)(</span>
+    <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">alpha</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">a</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">b</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">beta</span>, <span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">c</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isSlice<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span> == a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span> <span style="color: #3a81c3; font-weight: bold;">do</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">E</span> = DeepElementType<span style="color: #4e3163;">!</span>S;
+    <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #6c3163;">(</span>i; <span style="color: #4e3163;">0</span> .. a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #4e3163;">0</span> .. b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #ba2f59; font-weight: bold;">E</span> <span style="color: #715ab1;">ab</span> = <span style="color: #4e3163;">0</span>;
+            <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>k; <span style="color: #4e3163;">0</span> .. a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
                 ab += a<span style="color: #b1951d;">[</span>i, k<span style="color: #b1951d;">]</span> * b<span style="color: #b1951d;">[</span>k, j<span style="color: #b1951d;">]</span>;
             <span style="color: #67b11d;">}</span>
             c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * ab + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
         <span style="color: #2d9574;">}</span>
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 
@@ -368,9 +549,9 @@ D言語の行列演算ライブラリといえば，とりあえずBLASが使え
 </div>
 </div>
 
-<div id="outline-container-org812b623" class="outline-3">
-<h3 id="org812b623">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</h3>
-<div class="outline-text-3" id="text-org812b623">
+<div id="outline-container-org97153c5" class="outline-3">
+<h3 id="org97153c5">std.numeric.dotProduct よりも mir-algorithm の map と sum を使う</h3>
+<div class="outline-text-3" id="text-org97153c5">
 <p>
 まず思いつくのは，一番内側のループを標準ライブラリstd.numericにある内積の実装dotProductを使うことである．dotProductを使う注意点として，<a href="https://github.com/dlang/phobos/blob/27a875709dbbb607795a562b4c20bebe3d38f81e/std/numeric.d#L1713">配列に対するオーバーロード</a> <code>dotProduct(F1, F2)(in F1[] avector, in F2[] bvector)</code> 以外はforループになっているので遅い．内積の引数を連続した配列にするにはgemmの右行列を転置する必要がありメモリーのコピーが発生するが，実際に計測すると倍くらい速くなる．この実装では 0.412秒と最初の実装から5倍近く速くなった．
 </p>
@@ -380,28 +561,28 @@ D言語の行列演算ライブラリといえば，とりあえずBLASが使え
 </p>
 
 <div class="org-src-container">
-<pre class="src src-d">pragma<span style="color: #4f97d7;">(</span>inline, <span style="color: #a45bad;">true</span><span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">nothrow</span> <span style="color: #a45bad;">@nogc</span>
-<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">mapDot</span><span style="color: #4f97d7;">(</span>S<span style="color: #4f97d7;">)(</span><span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">import</span> mir.<span style="color: #ce537a; font-weight: bold;">math</span> : sum;
-    <span style="color: #4f97d7; font-weight: bold;">return</span> sum<span style="color: #a45bad;">!</span><span style="color: #2d9574;">"fast"</span><span style="color: #bc6ec5;">(</span>a<span style="color: #2d9574;">[]</span> * b<span style="color: #2d9574;">[]</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span>
+<pre class="src src-d">pragma<span style="color: #3a81c3;">(</span>inline, <span style="color: #4e3163;">true</span><span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">nothrow</span> <span style="color: #4e3163;">@nogc</span>
+<span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">mapDot</span><span style="color: #3a81c3;">(</span>S<span style="color: #3a81c3;">)(</span><span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">a</span>, <span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">b</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isSlice<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> mir.<span style="color: #ba2f59; font-weight: bold;">math</span> : sum;
+    <span style="color: #3a81c3; font-weight: bold;">return</span> sum<span style="color: #4e3163;">!</span><span style="color: #2d9574;">"fast"</span><span style="color: #6c3163;">(</span>a<span style="color: #2d9574;">[]</span> * b<span style="color: #2d9574;">[]</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span>
 
-<span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">mapGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
-    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
-    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
-    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; <span style="color: #a45bad;">0</span> .. a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #a45bad;">0</span> .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+<span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">mapGemm</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)(</span>
+    <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">alpha</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">a</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">b</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">beta</span>, <span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">c</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isSlice<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span> == a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span> <span style="color: #3a81c3; font-weight: bold;">do</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">E</span> = DeepElementType<span style="color: #4e3163;">!</span>S;
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">bt</span> = b.transposed.slice;
+    <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #6c3163;">(</span>i; <span style="color: #4e3163;">0</span> .. a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; <span style="color: #4e3163;">0</span> .. b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
             c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
         <span style="color: #2d9574;">}</span>
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 
@@ -411,77 +592,77 @@ D言語の行列演算ライブラリといえば，とりあえずBLASが使え
 </div>
 </div>
 
-<div id="outline-container-org892d3c8" class="outline-3">
-<h3 id="org892d3c8">std.parallelism.parallel でマルチスレッド化</h3>
-<div class="outline-text-3" id="text-org892d3c8">
+<div id="outline-container-orgbb86f50" class="outline-3">
+<h3 id="orgbb86f50">std.parallelism.parallel でマルチスレッド化</h3>
+<div class="outline-text-3" id="text-orgbb86f50">
 <p>
 GLASはシングルスレッドで動いているようなので，ほぼ禁じ手になるが，D言語では <code>std.parallelism.parallel</code> を使うと for ループを簡単にマルチスレッド化できる．これは凄まじい速さで，最初の実装から40.5倍も高速になった．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">dotParallelGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
-    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">import</span> std.<span style="color: #ce537a; font-weight: bold;">parallelism</span>;
-    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
-    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
-    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span>.iota.parallel<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span>.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">dotParallelGemm</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)(</span>
+    <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">alpha</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">a</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">b</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">beta</span>, <span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">c</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isSlice<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span> == a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span> <span style="color: #3a81c3; font-weight: bold;">do</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> std.<span style="color: #ba2f59; font-weight: bold;">parallelism</span>;
+    <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">E</span> = DeepElementType<span style="color: #4e3163;">!</span>S;
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">bt</span> = b.transposed.slice;
+    <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #6c3163;">(</span>i; a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span>.iota.parallel<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span>.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
             c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
         <span style="color: #2d9574;">}</span>
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgd24b900" class="outline-3">
-<h3 id="orgd24b900">static foreach でループを unroll する</h3>
-<div class="outline-text-3" id="text-orgd24b900">
+<div id="outline-container-org1145194" class="outline-3">
+<h3 id="org1145194">static foreach でループを unroll する</h3>
+<div class="outline-text-3" id="text-org1145194">
 <p>
 各イテレーションの処理が軽すぎると，条件の判定やスレッドの切り替えなどが頻繁におこり遅くなってしまう．そこで単純に本来は複数イテレーションを展開(unroll)して1イテレーションで実行すると少しだけ速くなる(ことがある).実際には上記のマルチスレッド化ほどは速くならなかったが，41.5倍も高速になった．ちなみに外側のループも unroll してみたが効果はなかった．コードの抽象化を少し妨げるので，適材適所に使いたい．
 </p>
 
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">dotParallelUnrollGemm</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">size_t</span> <span style="color: #7590db;">unroll</span>, <span style="color: #ce537a; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)(</span>
-    <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">alpha</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">a</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">b</span>, <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #ce537a; font-weight: bold;">T</span> <span style="color: #7590db;">beta</span>, <span style="color: #4f97d7; font-weight: bold;">ref</span> <span style="color: #ce537a; font-weight: bold;">S</span> <span style="color: #7590db;">c</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #4f97d7;">(</span>isSlice<span style="color: #a45bad;">!</span>S<span style="color: #4f97d7;">)</span>
-<span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span> == a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">)</span>;
-    <span style="color: #4f97d7; font-weight: bold;">assert</span><span style="color: #bc6ec5;">(</span>c.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> == b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span> <span style="color: #4f97d7; font-weight: bold;">do</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">import</span> std.<span style="color: #ce537a; font-weight: bold;">parallelism</span>;
-    <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">E</span> = DeepElementType<span style="color: #a45bad;">!</span>S;
-    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">bt</span> = b.transposed.slice;
-    <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #bc6ec5;">(</span>i; a.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">0</span>.iota.parallel<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">immutable</span> <span style="color: #7590db;">bsteps</span> = b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> / unroll;
-        <span style="color: #4f97d7; font-weight: bold;">immutable</span> <span style="color: #7590db;">bremain</span> = b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> % unroll;
-        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>bs; bsteps.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
-            <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">c_</span> = c<span style="color: #67b11d;">[</span>i, bs * unroll .. <span style="color: #b1951d;">(</span>bs + <span style="color: #a45bad;">1</span><span style="color: #b1951d;">)</span> * unroll + <span style="color: #a45bad;">1</span><span style="color: #67b11d;">]</span>;
-            <span style="color: #4f97d7; font-weight: bold;">const</span> <span style="color: #7590db;">b_</span> = bt<span style="color: #67b11d;">[</span>bs * unroll .. $, <span style="color: #a45bad;">0</span> .. $<span style="color: #67b11d;">]</span>;
-            <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">LOOP UNROLL</span>
-            <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>j; <span style="color: #a45bad;">0</span> .. unroll<span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
-                c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span> = alpha * mapDot<span style="color: #b1951d;">(</span>a<span style="color: #4f97d7;">[</span>i<span style="color: #4f97d7;">]</span>, b_<span style="color: #4f97d7;">[</span>j<span style="color: #4f97d7;">]</span><span style="color: #b1951d;">)</span> + beta * c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span>;
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">dotParallelUnrollGemm</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">size_t</span> <span style="color: #715ab1;">unroll</span>, <span style="color: #ba2f59; font-weight: bold;">S</span>, T=DeepElementType<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)(</span>
+    <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">alpha</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">a</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">b</span>, <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #ba2f59; font-weight: bold;">T</span> <span style="color: #715ab1;">beta</span>, <span style="color: #3a81c3; font-weight: bold;">ref</span> <span style="color: #ba2f59; font-weight: bold;">S</span> <span style="color: #715ab1;">c</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #3a81c3;">(</span>isSlice<span style="color: #4e3163;">!</span>S<span style="color: #3a81c3;">)</span>
+<span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span> == a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span><span style="color: #6c3163;">)</span>;
+    <span style="color: #3a81c3; font-weight: bold;">assert</span><span style="color: #6c3163;">(</span>c.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> == b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span> <span style="color: #3a81c3; font-weight: bold;">do</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">import</span> std.<span style="color: #ba2f59; font-weight: bold;">parallelism</span>;
+    <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">E</span> = DeepElementType<span style="color: #4e3163;">!</span>S;
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">bt</span> = b.transposed.slice;
+    <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #6c3163;">(</span>i; a.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">0</span>.iota.parallel<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">immutable</span> <span style="color: #715ab1;">bsteps</span> = b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> / unroll;
+        <span style="color: #3a81c3; font-weight: bold;">immutable</span> <span style="color: #715ab1;">bremain</span> = b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> % unroll;
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>bs; bsteps.iota.parallel<span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+            <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">c_</span> = c<span style="color: #67b11d;">[</span>i, bs * unroll .. <span style="color: #b1951d;">(</span>bs + <span style="color: #4e3163;">1</span><span style="color: #b1951d;">)</span> * unroll + <span style="color: #4e3163;">1</span><span style="color: #67b11d;">]</span>;
+            <span style="color: #3a81c3; font-weight: bold;">const</span> <span style="color: #715ab1;">b_</span> = bt<span style="color: #67b11d;">[</span>bs * unroll .. $, <span style="color: #4e3163;">0</span> .. $<span style="color: #67b11d;">]</span>;
+            <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">LOOP UNROLL</span>
+            <span style="color: #3a81c3; font-weight: bold;">static</span> <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #67b11d;">(</span>j; <span style="color: #4e3163;">0</span> .. unroll<span style="color: #67b11d;">)</span> <span style="color: #67b11d;">{</span>
+                c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span> = alpha * mapDot<span style="color: #b1951d;">(</span>a<span style="color: #3a81c3;">[</span>i<span style="color: #3a81c3;">]</span>, b_<span style="color: #3a81c3;">[</span>j<span style="color: #3a81c3;">]</span><span style="color: #b1951d;">)</span> + beta * c_<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span>;
             <span style="color: #67b11d;">}</span>
         <span style="color: #2d9574;">}</span>
-        <span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span> - bremain .. b.length<span style="color: #a45bad;">!</span><span style="color: #a45bad;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #2d9574;">(</span>j; b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span> - bremain .. b.length<span style="color: #4e3163;">!</span><span style="color: #4e3163;">1</span><span style="color: #2d9574;">)</span> <span style="color: #2d9574;">{</span>
             c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span> = alpha * mapDot<span style="color: #67b11d;">(</span>a<span style="color: #b1951d;">[</span>i<span style="color: #b1951d;">]</span>, bt<span style="color: #b1951d;">[</span>j<span style="color: #b1951d;">]</span><span style="color: #67b11d;">)</span> + beta * c<span style="color: #67b11d;">[</span>i, j<span style="color: #67b11d;">]</span>;
         <span style="color: #2d9574;">}</span>
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgc630760" class="outline-3">
-<h3 id="orgc630760">全体の結果 [ms/gemm]</h3>
-<div class="outline-text-3" id="text-orgc630760">
+<div id="outline-container-orgcf3e03f" class="outline-3">
+<h3 id="orgcf3e03f">全体の結果 [ms/gemm]</h3>
+<div class="outline-text-3" id="text-orgcf3e03f">
 <p>
 結局MKLには勝てなかったが，GLASとOpenBLASには勝てそうなところまでいったと思う．GLASのマネをして <code>ldc.attributes</code> や <code>ldc.intrinsics</code> といった小細工も使ったが，全く速くならなかった．去年書いたときは全く勝てそうになかったが，来年は真面目にCoppersmith-Winogradあたりを実装すればMKLに勝てるんじゃないかと思う．
 </p>
@@ -603,12 +784,38 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 </p>
 </div>
 </div>
+
+<div id="outline-container-org8986c1d" class="outline-3">
+<h3 id="org8986c1d">更なる話題</h3>
+<div class="outline-text-3" id="text-org8986c1d">
+<p>
+本当にMKLやOpenBLASを超えたいのであれば，下記の文献が参考になるだろう．
+</p>
+
+<ol class="org-ol">
+<li><a href="https://github.com/flame/blislab/blob/master/tutorial.pdf">https://github.com/flame/blislab/blob/master/tutorial.pdf</a></li>
+<li><a href="https://github.com/flame/how-to-optimize-gemm/wiki">https://github.com/flame/how-to-optimize-gemm/wiki</a></li>
+</ol>
+
+<p>
+1コアのCPUでの高速化における基本的なアイデアは以下の２つだと思う
+</p>
+
+<ul class="org-ul">
+<li>行列積(GEMM)は，行列をブロックに分解した行列 = 「ブロック行列積を要素にもつ行列」の行列積である (文献1 3.2節を見よ)</li>
+<li>一般的なCPUではメモリはレジスタ，L1-3キャッシュなどDRAMメモリよりも高速なCPU固有の階層的な記憶領域があり，ブロック行列を階層的に配置することでCPUの性能を最大限使える(文献1図3を見よ)</li>
+</ul>
+
+<p>
+なので行う作業としてはCPU固有の非常にレジスタを同時に使う速い命令，例えばSSE/AVXなんかは16個とかのdoubleを同時に掛けて足す計算(FMA)できたりするので<a href="https://github.com/flame/how-to-optimize-gemm/wiki#computing-a-4-x-4-block-of-c-at-a-time"> 1命令で動く4x4とかのブロック行列積</a> を書いて，大きな行列を各記憶領域におけるように分割した最小単位に4x4みたいな行列積を使う．
+</p>
+</div>
+</div>
 </div>
 
-
-<div id="outline-container-orgf6d7c06" class="outline-2">
-<h2 id="orgf6d7c06">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
-<div class="outline-text-2" id="text-orgf6d7c06">
+<div id="outline-container-orge770397" class="outline-2">
+<h2 id="orge770397">2018年03月25日 Ubuntu 18.04 LTS (beta) のセットアップ&#xa0;&#xa0;&#xa0;<span class="tag"><span class="Linux">Linux</span></span></h2>
+<div class="outline-text-2" id="text-orge770397">
 <p>
 最近，新しいノートPCにUbuntu18を入れました．以前はGCCやらドライバが最新なのでFedoraをよく使ってたんですが，最近はUbuntuも頑張っています(なんと標準のGCCがC++17をサポートしている7)．さらに昔と違って<a href="http://www.g104robo.com/entry/ubuntu-dualboot-win10-uefi">デュアルブート</a>も死ぬほど簡単にできて，とても良いです．あと<a href="https://ubuntuapps.blog.fc2.com/blog-entry-1013.html">minimul install</a>が選択できるようになり，一度も使わないLibriOfficeなんかも入らないのも容量が少ないデュアルブート環境では嬉しいですね．
 </p>
@@ -618,9 +825,9 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 </p>
 </div>
 
-<div id="outline-container-org2f598e3" class="outline-3">
-<h3 id="org2f598e3">IMEとしてibus-mozcを使う</h3>
-<div class="outline-text-3" id="text-org2f598e3">
+<div id="outline-container-orgceecd51" class="outline-3">
+<h3 id="orgceecd51">IMEとしてibus-mozcを使う</h3>
+<div class="outline-text-3" id="text-orgceecd51">
 <p>
 おそらくOSインストール時に日本語を選択してOSインストールするとibusが標準として選ばれるのですが，私はフォルダ名が日本語になるので嫌で英語でOSインストールします．日本語環境をインストールするには， <code>Settings &gt; Regions &amp; Language &gt; Manage Installed Languages</code> から <code>Installed Languages &gt; Japanese</code> と <code>Keyboard input method system</code> からIBus選択すると良いです．次に <code>Regions &amp; Languages</code> に戻り， <code>Input Sources &gt; Japanese(Mozc)</code> を選択するとGoogle日本語入力のオープンソース版であるMozcが使えます．
 </p>
@@ -640,9 +847,9 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 </div>
 
 
-<div id="outline-container-org96f3b7e" class="outline-3">
-<h3 id="org96f3b7e">追加のテーマ</h3>
-<div class="outline-text-3" id="text-org96f3b7e">
+<div id="outline-container-org87bbcbe" class="outline-3">
+<h3 id="org87bbcbe">追加のテーマ</h3>
+<div class="outline-text-3" id="text-org87bbcbe">
 <p>
 私はシンプルなデザインが好きなのでnumixを入れます．今回はppa無しでも <code>sudo apt-get install numix-gtk-theme gnome-tweaks</code> で入る． <code>Tweaks &gt; Appearance &gt; Themes &gt; Applications</code> で <code>Numix</code> を選ぶと適用されます．
 </p>
@@ -651,8 +858,8 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 ついでにダークテーマにしたいのですが，現時点ではTweaksから選択できないです．なので <code>$HOME/.config/gtk-3.0/settings.ini</code> を編集して
 </p>
 <div class="org-src-container">
-<pre class="src src-conf">[<span style="color: #ce537a; font-weight: bold;">Settings</span>]
-<span style="color: #7590db;">gtk-application-prefer-dark-theme</span>=1
+<pre class="src src-conf">[<span style="color: #ba2f59; font-weight: bold;">Settings</span>]
+<span style="color: #715ab1;">gtk-application-prefer-dark-theme</span>=1
 </pre>
 </div>
 <p>
@@ -660,7 +867,7 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 </p>
 
 
-<div id="org8b18c42" class="figure">
+<div id="orgb2d5626" class="figure">
 <p><img src="./img/ubuntu18.png" alt="ubuntu18.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;1:  </span>Numix適用後のテーマ</p>
@@ -669,9 +876,9 @@ Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
 </div>
 
 
-<div id="outline-container-orgdd5dd2e" class="outline-3">
-<h3 id="orgdd5dd2e">Emacs が中華フォントになる問題</h3>
-<div class="outline-text-3" id="text-orgdd5dd2e">
+<div id="outline-container-org94b8b7a" class="outline-3">
+<h3 id="org94b8b7a">Emacs が中華フォントになる問題</h3>
+<div class="outline-text-3" id="text-org94b8b7a">
 <p>
 Emacsだけ漢字が中華フォントになってました．他のVSCodeやターミナル上でのEmacsは大丈夫なのでシステムの設定ファイルは関係なかったです．
 </p>
@@ -685,7 +892,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #4f97d7;">(</span>set-fontset-font t 'japanese-jisx0208 <span style="color: #2d9574;">"Noto Sans CJK JP"</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-elisp"><span style="color: #3a81c3;">(</span>set-fontset-font t 'japanese-jisx0208 <span style="color: #2d9574;">"Noto Sans CJK JP"</span><span style="color: #3a81c3;">)</span>
 </pre>
 </div>
 </div>
@@ -693,9 +900,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org44a2617" class="outline-2">
-<h2 id="org44a2617">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
-<div class="outline-text-2" id="text-org44a2617">
+<div id="outline-container-org1b88067" class="outline-2">
+<h2 id="org1b88067">2018年02月25日 ギターのコイルタップ配線&#xa0;&#xa0;&#xa0;<span class="tag"><span class="______">アナログ回路</span></span></h2>
+<div class="outline-text-2" id="text-org1b88067">
 <p>
 いつもプログラミングの話題ばかりするのもつまらないので，アナログ回路の話をしたいと思います．ちなみに大学時代に必修だった回路理論は一度落としました．全く専門的な部分はわかっていないのでご容赦ください．
 </p>
@@ -705,7 +912,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org34c8fc1" class="figure">
+<div id="orgf616479" class="figure">
 <p><img src="./img/tl.jpeg" alt="tl.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;2:  </span>テレキャスターの配線．白い線のハンダがとれている</p>
@@ -716,7 +923,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org66b87d8" class="figure">
+<div id="org81f2f19" class="figure">
 <p><img src="./img/rg1.jpeg" alt="rg1.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;3:  </span>元のポット(左)と，コイルタップ付きのポット(右)</p>
@@ -727,7 +934,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="org86d5b96" class="figure">
+<div id="org0c7037f" class="figure">
 <p><img src="http://www.ibanez.com/products/images/eg2017/pickup/3.png" alt="3.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;4:  </span>RGのPUセレクタ構成</p>
@@ -738,7 +945,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orgd638e4f" class="figure">
+<div id="orge8d9b90" class="figure">
 <p><img src="./img/pu.png" alt="pu.png" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;5:  </span>RGのPUセレクタ構成(コイルタップ時)</p>
@@ -746,11 +953,11 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 
 <p>
 つまり灰色の部分のフロントPUの片側をコイルタップポットでオン・オフできるようになれば良い．
-問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org86d5b96">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
+問題は，どのケーブルが灰色の部分の通電に関係しているのか見つける必要があります．さすがにフロントかブリッジのPUかはケーブルがきてる方向からわかりました．しかし，最初のPU構成の図 <a href="#org0c7037f">4</a> によると右から2番目の状態ではタップになっているので，さきほどのテレキャスターで培った人力通電テスターの技術で，大まかな当たりをつけました．
 </p>
 
 
-<div id="org68f2f0c" class="figure">
+<div id="orgb7ce246" class="figure">
 <p><img src="./img/rg2.jpeg" alt="rg2.jpeg" width="600px" />
 </p>
 <p><span class="figure-number">&#22259;6:  </span>PUセレクタとの配線後</p>
@@ -761,7 +968,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 <p>
-最後に以上の方法で配線した6状態(タップなしの図<a href="#org86d5b96">4</a> とタップあり図<a href="#orgd638e4f">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
+最後に以上の方法で配線した6状態(タップなしの図<a href="#org0c7037f">4</a> とタップあり図<a href="#orge8d9b90">5</a> の左から2-4番目の状態を交互に)を録音してみました．久々にギターを触ったので演奏はお粗末さまだですが，音の違いはハッキリわかると思います．とくに5番目(ネックtap-ブリッジtap)と，その上で灰色PUを無効化した6番目(ブリッジtapのみ)なんかはかなり違うと思いました．
 </p>
 
 <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/404887164&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
@@ -772,9 +979,9 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 </div>
 
-<div id="outline-container-org51dd131" class="outline-2">
-<h2 id="org51dd131">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org51dd131">
+<div id="outline-container-org074ef3d" class="outline-2">
+<h2 id="org074ef3d">2018年02月25日 幾何平均・総乗の計算の小技&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org074ef3d">
 <p>
 幾何平均の計算
 </p>
@@ -845,17 +1052,17 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-org8164e6c" class="outline-2">
-<h2 id="org8164e6c">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-org8164e6c">
+<div id="outline-container-org1eca2e8" class="outline-2">
+<h2 id="org1eca2e8">2018年02月24日 D言語でnumpyっぽいコードを書く&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org1eca2e8">
 <p>
 今まで何度か取り上げてきた mir というD言語で便利な多次元配列(ndslice)のライブラリについての話です．
 </p>
 </div>
 
-<div id="outline-container-org9ac7e37" class="outline-3">
-<h3 id="org9ac7e37">いままで記事</h3>
-<div class="outline-text-3" id="text-org9ac7e37">
+<div id="outline-container-orgd5c626a" class="outline-3">
+<h3 id="orgd5c626a">いままで記事</h3>
+<div class="outline-text-3" id="text-orgd5c626a">
 <ul class="org-ul">
 <li><a href="https://shigekikarita.github.io/blog/2017/09/22/026.html">D言語で数値計算 mir-algorithm</a></li>
 <li><a href="https://shigekikarita.github.io/blog/2017/09/30/027.html">numir が libmir 入りしました</a></li>
@@ -877,7 +1084,7 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </p>
 
 
-<div id="orge0224ef" class="figure">
+<div id="org8c2c1dd" class="figure">
 <p><img src="https://github.com/libmir/numir/raw/master/example/audio_separation/mixed-stft.png" alt="mixed-stft.png" />
 </p>
 <p><span class="figure-number">&#22259;7:  </span>例：<a href="https://github.com/libmir/numir/tree/master/example/audio_separation">numirでSTFTしたスペクトログラムのプロット</a></p>
@@ -888,34 +1095,34 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 3に関しては，numpy や julia と同様な簡潔で小さいコードでも3-4倍は高速になるような例を書いています．上記の文字RNNの例ですと，
 </p>
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">numpy &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
-<span style="color: #4f97d7; font-weight: bold;">for</span> t <span style="color: #4f97d7; font-weight: bold;">in</span> <span style="color: #4f97d7;">range</span><span style="color: #4f97d7;">(</span><span style="color: #4f97d7;">len</span><span style="color: #bc6ec5;">(</span>inputs<span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>:
-    <span style="color: #7590db;">xs</span><span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">]</span> = np.zeros<span style="color: #4f97d7;">(</span><span style="color: #bc6ec5;">(</span>vocab_size,<span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">encode in 1-of-k representation</span>
-    xs<span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">][</span>inputs<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">]</span> = <span style="color: #a45bad;">1</span>
-    <span style="color: #7590db;">hs</span><span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">]</span> = np.tanh<span style="color: #4f97d7;">(</span>np.dot<span style="color: #bc6ec5;">(</span>Wxh, xs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span> + np.dot<span style="color: #bc6ec5;">(</span>Whh, hs<span style="color: #2d9574;">[</span>t-<span style="color: #a45bad;">1</span><span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span> + bh<span style="color: #4f97d7;">)</span> <span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">hidden state</span>
-    <span style="color: #7590db;">ys</span><span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">]</span> = np.dot<span style="color: #4f97d7;">(</span>Why, hs<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> + by <span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">unnormalized log probabilities for next chars</span>
-    <span style="color: #7590db;">ps</span><span style="color: #4f97d7;">[</span>t<span style="color: #4f97d7;">]</span> = np.exp<span style="color: #4f97d7;">(</span>ys<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> / np.<span style="color: #4f97d7;">sum</span><span style="color: #4f97d7;">(</span>np.exp<span style="color: #bc6ec5;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span> <span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">probabilities for next chars</span>
-    <span style="color: #7590db;">loss</span> += -np.log<span style="color: #4f97d7;">(</span>ps<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][</span>targets<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span>,<span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">]</span><span style="color: #4f97d7;">)</span> <span style="color: #2aa1ae; background-color: #292e34;"># </span><span style="color: #2aa1ae; background-color: #292e34;">softmax (cross-entropy loss)</span>
+<pre class="src src-python"><span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">numpy &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
+<span style="color: #3a81c3; font-weight: bold;">for</span> t <span style="color: #3a81c3; font-weight: bold;">in</span> <span style="color: #3a81c3;">range</span><span style="color: #3a81c3;">(</span><span style="color: #3a81c3;">len</span><span style="color: #6c3163;">(</span>inputs<span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>:
+    <span style="color: #715ab1;">xs</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.zeros<span style="color: #3a81c3;">(</span><span style="color: #6c3163;">(</span>vocab_size,<span style="color: #4e3163;">1</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">encode in 1-of-k representation</span>
+    xs<span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">][</span>inputs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">]</span> = <span style="color: #4e3163;">1</span>
+    <span style="color: #715ab1;">hs</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.tanh<span style="color: #3a81c3;">(</span>np.dot<span style="color: #6c3163;">(</span>Wxh, xs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + np.dot<span style="color: #6c3163;">(</span>Whh, hs<span style="color: #2d9574;">[</span>t-<span style="color: #4e3163;">1</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + bh<span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">hidden state</span>
+    <span style="color: #715ab1;">ys</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.dot<span style="color: #3a81c3;">(</span>Why, hs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> + by <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">unnormalized log probabilities for next chars</span>
+    <span style="color: #715ab1;">ps</span><span style="color: #3a81c3;">[</span>t<span style="color: #3a81c3;">]</span> = np.exp<span style="color: #3a81c3;">(</span>ys<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> / np.<span style="color: #3a81c3;">sum</span><span style="color: #3a81c3;">(</span>np.exp<span style="color: #6c3163;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">probabilities for next chars</span>
+    <span style="color: #715ab1;">loss</span> += -np.log<span style="color: #3a81c3;">(</span>ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][</span>targets<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span>,<span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span><span style="color: #3a81c3;">)</span> <span style="color: #2aa1ae; background-color: #ecf3ec;"># </span><span style="color: #2aa1ae; background-color: #ecf3ec;">softmax (cross-entropy loss)</span>
 </pre>
 </div>
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">numir &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
-<span style="color: #4f97d7; font-weight: bold;">foreach</span> <span style="color: #4f97d7;">(</span>t, i; inputs<span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    xs<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][</span>i, <span style="color: #a45bad;">0</span><span style="color: #bc6ec5;">]</span> = <span style="color: #a45bad;">1</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">encode in 1-of-k reps</span>
-    <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #7590db;">hp</span> = t == <span style="color: #a45bad;">0</span> ? hprev : hs<span style="color: #bc6ec5;">[</span>t-<span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">]</span>;
-    hs<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][]</span> = map<span style="color: #a45bad;">!</span>tanh<span style="color: #bc6ec5;">(</span>mtimes<span style="color: #2d9574;">(</span>Wxh, xs<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span><span style="color: #2d9574;">)</span> + mtimes<span style="color: #2d9574;">(</span>Whh, hp<span style="color: #2d9574;">)</span> + bh<span style="color: #bc6ec5;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">hidden state</span>
-    ys<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][]</span> = mtimes<span style="color: #bc6ec5;">(</span>Why, hs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span> + by; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">unnormalized log probabilities for next chars</span>
-    ps<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][]</span> = map<span style="color: #a45bad;">!</span>exp<span style="color: #bc6ec5;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span>;
-    ps<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">][]</span> /= ps<span style="color: #bc6ec5;">[</span>t<span style="color: #bc6ec5;">]</span>.sum<span style="color: #a45bad;">!</span><span style="color: #2d9574;">"fast"</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">probabilities for next chars</span>
-    loss += -log<span style="color: #bc6ec5;">(</span>ps<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">][</span>targets<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span>, <span style="color: #a45bad;">0</span><span style="color: #2d9574;">]</span><span style="color: #bc6ec5;">)</span>; <span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">softmax (cross-entropy loss)</span>
-<span style="color: #4f97d7;">}</span>
+<pre class="src src-d"><span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">numir &#12391; RNN &#12398;&#38918;&#20253;&#25644;</span>
+<span style="color: #3a81c3; font-weight: bold;">foreach</span> <span style="color: #3a81c3;">(</span>t, i; inputs<span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    xs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][</span>i, <span style="color: #4e3163;">0</span><span style="color: #6c3163;">]</span> = <span style="color: #4e3163;">1</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">encode in 1-of-k reps</span>
+    <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #715ab1;">hp</span> = t == <span style="color: #4e3163;">0</span> ? hprev : hs<span style="color: #6c3163;">[</span>t-<span style="color: #4e3163;">1</span><span style="color: #6c3163;">]</span>;
+    hs<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = map<span style="color: #4e3163;">!</span>tanh<span style="color: #6c3163;">(</span>mtimes<span style="color: #2d9574;">(</span>Wxh, xs<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span><span style="color: #2d9574;">)</span> + mtimes<span style="color: #2d9574;">(</span>Whh, hp<span style="color: #2d9574;">)</span> + bh<span style="color: #6c3163;">)</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">hidden state</span>
+    ys<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = mtimes<span style="color: #6c3163;">(</span>Why, hs<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span> + by; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">unnormalized log probabilities for next chars</span>
+    ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> = map<span style="color: #4e3163;">!</span>exp<span style="color: #6c3163;">(</span>ys<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span>;
+    ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">][]</span> /= ps<span style="color: #6c3163;">[</span>t<span style="color: #6c3163;">]</span>.sum<span style="color: #4e3163;">!</span><span style="color: #2d9574;">"fast"</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">probabilities for next chars</span>
+    loss += -log<span style="color: #6c3163;">(</span>ps<span style="color: #2d9574;">[</span>t<span style="color: #2d9574;">][</span>targets<span style="color: #67b11d;">[</span>t<span style="color: #67b11d;">]</span>, <span style="color: #4e3163;">0</span><span style="color: #2d9574;">]</span><span style="color: #6c3163;">)</span>; <span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">softmax (cross-entropy loss)</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 <p>
 どうでしょうか，ほとんど同じように直感的にかけていると思います．型のdeductionが強力なD言語ではnumpy/julia同様に型を書く必要をありません．というより，式テンプレートとして型を保持するため手作業で型を書くことはほぼ不可能です．例えばnumir.signalにある blackman 窓を作る関数の返り値なんかは，こんな感じの長い型になってしまいます．
 </p>
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">slice</span>.Slice<span style="color: #a45bad;">!</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">2</span>,<span style="color: #bc6ec5;">[</span><span style="color: #a45bad;">1</span><span style="color: #bc6ec5;">]</span>,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.MapIterator<span style="color: #a45bad;">!</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.ZipIterator<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.VmapIterator<span style="color: #a45bad;">!</span><span style="color: #67b11d;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.VmapIterator<span style="color: #a45bad;">!</span><span style="color: #b1951d;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.MapIterator<span style="color: #a45bad;">!</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.VmapIterator<span style="color: #a45bad;">!</span><span style="color: #bc6ec5;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.IotaIterator<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span><span style="color: #ce537a; font-weight: bold;">long</span><span style="color: #2d9574;">)</span>.IotaIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">internal</span>.RightOp<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ce537a; font-weight: bold;">real</span><span style="color: #2d9574;">)</span>.RightOp<span style="color: #bc6ec5;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #4f97d7;">)</span>.MapIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">internal</span>.RightOp<span style="color: #a45bad;">!</span><span style="color: #4f97d7;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #4f97d7;">)</span>.RightOp<span style="color: #b1951d;">)</span>.VmapIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">internal</span>.RightOp<span style="color: #a45bad;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"-"</span>,<span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.VmapIterator<span style="color: #a45bad;">!</span><span style="color: #67b11d;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.MapIterator<span style="color: #a45bad;">!</span><span style="color: #b1951d;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.VmapIterator<span style="color: #a45bad;">!</span><span style="color: #4f97d7;">(</span><span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">iterator</span>.IotaIterator<span style="color: #a45bad;">!</span><span style="color: #bc6ec5;">(</span><span style="color: #ce537a; font-weight: bold;">long</span><span style="color: #bc6ec5;">)</span>.IotaIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">internal</span>.RightOp<span style="color: #a45bad;">!</span><span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ce537a; font-weight: bold;">real</span><span style="color: #bc6ec5;">)</span>.RightOp<span style="color: #4f97d7;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #b1951d;">)</span>.MapIterator,<span style="color: #a45bad;">mir</span>.<span style="color: #a45bad;">ndslice</span>.<span style="color: #a45bad;">internal</span>.RightOp<span style="color: #a45bad;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ce537a; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator<span style="color: #2d9574;">)</span>.ZipIterator,mir.functional.naryFun<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"a + b"</span><span style="color: #2d9574;">)</span>.naryFun<span style="color: #bc6ec5;">)</span>.MapIterator<span style="color: #4f97d7;">)</span> blackman
+<pre class="src src-d"><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">slice</span>.Slice<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">2</span>,<span style="color: #6c3163;">[</span><span style="color: #4e3163;">1</span><span style="color: #6c3163;">]</span>,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.ZipIterator<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.IotaIterator<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #ba2f59; font-weight: bold;">long</span><span style="color: #2d9574;">)</span>.IotaIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">real</span><span style="color: #2d9574;">)</span>.RightOp<span style="color: #6c3163;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #3a81c3;">)</span>.MapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #3a81c3;">)</span>.RightOp<span style="color: #b1951d;">)</span>.VmapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"-"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #67b11d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.MapIterator<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.VmapIterator<span style="color: #4e3163;">!</span><span style="color: #3a81c3;">(</span><span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">iterator</span>.IotaIterator<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #ba2f59; font-weight: bold;">long</span><span style="color: #6c3163;">)</span>.IotaIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #6c3163;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">real</span><span style="color: #6c3163;">)</span>.RightOp<span style="color: #3a81c3;">)</span>.VmapIterator,mir.math.common.cos<span style="color: #b1951d;">)</span>.MapIterator,<span style="color: #4e3163;">mir</span>.<span style="color: #4e3163;">ndslice</span>.<span style="color: #4e3163;">internal</span>.RightOp<span style="color: #4e3163;">!</span><span style="color: #b1951d;">(</span><span style="color: #2d9574;">"*"</span>,<span style="color: #ba2f59; font-weight: bold;">double</span><span style="color: #b1951d;">)</span>.RightOp<span style="color: #67b11d;">)</span>.VmapIterator<span style="color: #2d9574;">)</span>.ZipIterator,mir.functional.naryFun<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"a + b"</span><span style="color: #2d9574;">)</span>.naryFun<span style="color: #6c3163;">)</span>.MapIterator<span style="color: #3a81c3;">)</span> blackman
 </pre>
 </div>
 <p>
@@ -934,15 +1141,15 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 </div>
 
 
-<div id="outline-container-orgec27f20" class="outline-2">
-<h2 id="orgec27f20">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
-<div class="outline-text-2" id="text-orgec27f20">
+<div id="outline-container-org4e553e3" class="outline-2">
+<h2 id="org4e553e3">2018年01月16日 C++でネストした要素型の取得                            :cpp:&#xa0;&#xa0;&#xa0;<span class="tag"><span class="D">D</span></span></h2>
+<div class="outline-text-2" id="text-org4e553e3">
 <p>
 ごくまれにC++で 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-c++"><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">vv</span>;
+<pre class="src src-c++"><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #715ab1;">vv</span>;
 </pre>
 </div>
 <p>
@@ -950,52 +1157,51 @@ Emacsだけ漢字が中華フォントになってました．他のVSCodeやタ
 D言語のように後方参照可能な型システムでは， <a href="https://github.com/libmir/numir/blob/83dbfe883b5421ba5dcf782cef272f8d205907a6/source/numir/core.d#L195-L205">再帰的に型を辿れば簡単</a> だが，
 </p>
 <div class="org-src-container">
-<pre class="src src-d"><span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">T</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">static</span> <span style="color: #4f97d7; font-weight: bold;">if</span> <span style="color: #bc6ec5;">(</span>isArray<span style="color: #a45bad;">!</span>T<span style="color: #bc6ec5;">)</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span> = NestedElementType<span style="color: #a45bad;">!</span><span style="color: #2d9574;">(</span>ElementType<span style="color: #a45bad;">!</span>T<span style="color: #2d9574;">)</span>;
-    <span style="color: #bc6ec5;">}</span> <span style="color: #4f97d7; font-weight: bold;">else</span> <span style="color: #bc6ec5;">{</span>
-        <span style="color: #4f97d7; font-weight: bold;">alias</span> <span style="color: #ce537a; font-weight: bold;">NestedElementType</span> = T;
-    <span style="color: #bc6ec5;">}</span>
-<span style="color: #4f97d7;">}</span>
+<pre class="src src-d"><span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">T</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">static</span> <span style="color: #3a81c3; font-weight: bold;">if</span> <span style="color: #6c3163;">(</span>isArray<span style="color: #4e3163;">!</span>T<span style="color: #6c3163;">)</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = NestedElementType<span style="color: #4e3163;">!</span><span style="color: #2d9574;">(</span>ElementType<span style="color: #4e3163;">!</span>T<span style="color: #2d9574;">)</span>;
+    <span style="color: #6c3163;">}</span> <span style="color: #3a81c3; font-weight: bold;">else</span> <span style="color: #6c3163;">{</span>
+        <span style="color: #3a81c3; font-weight: bold;">alias</span> <span style="color: #ba2f59; font-weight: bold;">NestedElementType</span> = T;
+    <span style="color: #6c3163;">}</span>
+<span style="color: #3a81c3;">}</span>
 </pre>
 </div>
 <p>
 C++ではそうはいかない．しかし， <code>constexpr</code> を使えば間接的に型の再帰的な操作が可能になる．
 </p>
 <div class="org-src-container">
-<pre class="src src-C++">
-<span style="color: #2aa1ae; background-color: #292e34;">/* </span><span style="color: #2aa1ae; background-color: #292e34;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
+<pre class="src src-C++"><span style="color: #2aa1ae; background-color: #ecf3ec;">/* </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#23550;&#35937;&#12398;Container&#22411;&#12399; .begin() &#12513;&#12477;&#12483;&#12489;&#12391;&#26368;&#21021;&#12398;&#35201;&#32032;&#12434;&#36820;&#12377;&#12392;&#12377;&#12427;</span>
 
-<span style="color: #2aa1ae; background-color: #292e34;">   &#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
-<span style="color: #2aa1ae; background-color: #292e34;"> template &lt;typename E&gt;</span>
-<span style="color: #2aa1ae; background-color: #292e34;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
-<span style="color: #2aa1ae; background-color: #292e34;">     E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
-<span style="color: #2aa1ae; background-color: #292e34;">*/</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">   &#36890;&#24120;&#65292;&#22411;&#12399;&#20877;&#24112;&#12391;&#12365;&#12394;&#12356;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> template &lt;typename E&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;"> using DeepElementTypeof = std::conditional_t&lt;std::is_fundamental&lt;E&gt;::value,</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">     E, DeepElementTypeof&lt;decltype(*std::declval&lt;E&gt;().begin())&gt;&gt;;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">*/</span>
 
-<span style="color: #2aa1ae; background-color: #292e34;">// </span><span style="color: #2aa1ae; background-color: #292e34;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
-<span style="color: #bc6ec5;">#include</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #2d9574;">type_traits</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #bc6ec5;">#include</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #2d9574;">vector</span><span style="color: #4f97d7;">&gt;</span>
+<span style="color: #2aa1ae; background-color: #ecf3ec;">// </span><span style="color: #2aa1ae; background-color: #ecf3ec;">SFINAE&#12392;costexpr&#12394;&#12425;&#12391;&#12365;&#12427;</span>
+<span style="color: #6c3163;">#include</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #2d9574;">type_traits</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #6c3163;">#include</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #2d9574;">vector</span><span style="color: #3a81c3;">&gt;</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #ce537a; font-weight: bold;">bool</span> <span style="color: #7590db;">is_element</span> = <span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">is_fundamental</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>::value;
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #ba2f59; font-weight: bold;">bool</span> <span style="color: #715ab1;">is_element</span> = <span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_fundamental</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>::value;
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">enable_if_t</span><span style="color: #4f97d7;">&lt;</span><span style="color: #ce537a; font-weight: bold;">is_element</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #bc6ec5;">&gt;</span>, <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #bc6ec5; font-weight: bold;">deep_elem</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">return</span> E<span style="color: #bc6ec5;">{}</span>;
-<span style="color: #4f97d7;">}</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #6c3163;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> E<span style="color: #6c3163;">{}</span>;
+<span style="color: #3a81c3;">}</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">Container</span>, <span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">_</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">enable_if_t</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #a45bad;">!</span><span style="color: #ce537a; font-weight: bold;">is_element</span><span style="color: #2d9574;">&lt;</span><span style="color: #ce537a; font-weight: bold;">Container</span><span style="color: #2d9574;">&gt;</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">constexpr</span> <span style="color: #4f97d7; font-weight: bold;">auto</span> <span style="color: #bc6ec5; font-weight: bold;">deep_elem</span><span style="color: #4f97d7;">(</span><span style="color: #ce537a; font-weight: bold;">Container</span> <span style="color: #7590db;">il</span><span style="color: #4f97d7;">)</span> <span style="color: #4f97d7;">{</span>
-    <span style="color: #4f97d7; font-weight: bold;">return</span> deep_elem<span style="color: #bc6ec5;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #bc6ec5;">)</span>;
-<span style="color: #4f97d7;">}</span>
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">Container</span>, <span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">_</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">enable_if_t</span><span style="color: #6c3163;">&lt;</span><span style="color: #4e3163;">!</span><span style="color: #ba2f59; font-weight: bold;">is_element</span><span style="color: #2d9574;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">Container</span><span style="color: #2d9574;">&gt;</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">constexpr</span> <span style="color: #3a81c3; font-weight: bold;">auto</span> <span style="color: #6c3163; font-weight: bold;">deep_elem</span><span style="color: #3a81c3;">(</span><span style="color: #ba2f59; font-weight: bold;">Container</span> <span style="color: #715ab1;">il</span><span style="color: #3a81c3;">)</span> <span style="color: #3a81c3;">{</span>
+    <span style="color: #3a81c3; font-weight: bold;">return</span> deep_elem<span style="color: #6c3163;">(</span>*il.begin<span style="color: #2d9574;">()</span><span style="color: #6c3163;">)</span>;
+<span style="color: #3a81c3;">}</span>
 
-<span style="color: #4f97d7; font-weight: bold;">template</span> <span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">typename</span> <span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #4f97d7;">&gt;</span>
-<span style="color: #4f97d7; font-weight: bold;">using</span> <span style="color: #ce537a; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">remove_cv_t</span><span style="color: #4f97d7;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #bc6ec5;">(</span>deep_elem<span style="color: #2d9574;">(</span><span style="color: #a45bad;">std</span>::declval<span style="color: #67b11d;">&lt;</span><span style="color: #ce537a; font-weight: bold;">E</span><span style="color: #67b11d;">&gt;()</span><span style="color: #2d9574;">)</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">&gt;</span>;
+<span style="color: #3a81c3; font-weight: bold;">template</span> <span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">typename</span> <span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #3a81c3;">&gt;</span>
+<span style="color: #3a81c3; font-weight: bold;">using</span> <span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span> = <span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">remove_cv_t</span><span style="color: #3a81c3;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #6c3163;">(</span>deep_elem<span style="color: #2d9574;">(</span><span style="color: #4e3163;">std</span>::declval<span style="color: #67b11d;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">E</span><span style="color: #67b11d;">&gt;()</span><span style="color: #2d9574;">)</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">&gt;</span>;
 
-<span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #4f97d7;">&lt;</span><span style="color: #a45bad;">std</span>::<span style="color: #ce537a; font-weight: bold;">vector</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span><span style="color: #4f97d7;">&gt;</span> <span style="color: #7590db;">c</span>;
-static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;">std</span>::<span style="color: #a45bad;">is_same</span><span style="color: #bc6ec5;">&lt;</span><span style="color: #ce537a; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span><span style="color: #4f97d7; font-weight: bold;">decltype</span><span style="color: #67b11d;">(</span>c<span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>, <span style="color: #ce537a; font-weight: bold;">float</span><span style="color: #bc6ec5;">&gt;</span>::value<span style="color: #4f97d7;">)</span>;
+<span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #3a81c3;">&lt;</span><span style="color: #4e3163;">std</span>::<span style="color: #ba2f59; font-weight: bold;">vector</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span><span style="color: #3a81c3;">&gt;</span> <span style="color: #715ab1;">c</span>;
+static_assert<span style="color: #3a81c3;">(</span><span style="color: #4e3163;">std</span>::<span style="color: #4e3163;">is_same</span><span style="color: #6c3163;">&lt;</span><span style="color: #ba2f59; font-weight: bold;">DeepElementTypeof</span><span style="color: #2d9574;">&lt;</span><span style="color: #3a81c3; font-weight: bold;">decltype</span><span style="color: #67b11d;">(</span>c<span style="color: #67b11d;">)</span><span style="color: #2d9574;">&gt;</span>, <span style="color: #ba2f59; font-weight: bold;">float</span><span style="color: #6c3163;">&gt;</span>::value<span style="color: #3a81c3;">)</span>;
 
-<span style="color: #ce537a; font-weight: bold;">int</span> <span style="color: #bc6ec5; font-weight: bold;">main</span><span style="color: #4f97d7;">()</span> <span style="color: #4f97d7;">{}</span>
+<span style="color: #ba2f59; font-weight: bold;">int</span> <span style="color: #6c3163; font-weight: bold;">main</span><span style="color: #3a81c3;">()</span> <span style="color: #3a81c3;">{}</span>
 </pre>
 </div>
 <p>
@@ -1005,9 +1211,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 </div>
 
-<div id="outline-container-org20ff568" class="outline-2">
-<h2 id="org20ff568">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
-<div class="outline-text-2" id="text-org20ff568">
+<div id="outline-container-org3142685" class="outline-2">
+<h2 id="org3142685">2018年01月02日 おけましておめでとうございます.&#xa0;&#xa0;&#xa0;<span class="tag"><span class="emacs">emacs</span></span></h2>
+<div class="outline-text-2" id="text-org3142685">
 <p>
 どうもここ二年は殆ど技術ブログを更新できませんでした。幾つか原因を考えたところ
 </p>
@@ -1049,23 +1255,23 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 その他の細かい設定としてはこんな事をしてます。
 </p>
 <div class="org-src-container">
-<pre class="src src-elisp">  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-journal &#12434;&#12502;&#12525;&#12464;&#29992;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12395;1&#12501;&#12449;&#12452;&#12523;&#12391;&#12414;&#12392;&#12417;&#12427;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-date-format <span style="color: #2d9574;">"%x"</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-time-format <span style="color: #2d9574;">"&lt;%Y-%m-%d %R&gt; "</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-file-format <span style="color: #2d9574;">"journal.org"</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-journal-dir <span style="color: #2d9574;">"~/Documents/repos/shigekikarita.github.io/"</span><span style="color: #4f97d7;">)</span>
+<pre class="src src-elisp">  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-journal &#12434;&#12502;&#12525;&#12464;&#29992;&#12398;&#12522;&#12509;&#12472;&#12488;&#12522;&#12395;1&#12501;&#12449;&#12452;&#12523;&#12391;&#12414;&#12392;&#12417;&#12427;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-date-format <span style="color: #2d9574;">"%x"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-time-format <span style="color: #2d9574;">"&lt;%Y-%m-%d %R&gt; "</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-file-format <span style="color: #2d9574;">"journal.org"</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-journal-dir <span style="color: #2d9574;">"~/Documents/repos/shigekikarita.github.io/"</span><span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-mode &#12363;&#12425;&#12496;&#12483;&#12501;&#12449;&#31227;&#21205;&#12398;&#12467;&#12510;&#12531;&#12489;&#12434;&#21462;&#12426;&#25147;&#12377;</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftup-final-hook 'windmove-up<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftleft-final-hook 'windmove-left<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftdown-final-hook 'windmove-down<span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span>add-hook 'org-shiftright-final-hook 'windmove-right<span style="color: #4f97d7;">)</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12363;&#12425;&#12496;&#12483;&#12501;&#12449;&#31227;&#21205;&#12398;&#12467;&#12510;&#12531;&#12489;&#12434;&#21462;&#12426;&#25147;&#12377;</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftup-final-hook 'windmove-up<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftleft-final-hook 'windmove-left<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftdown-final-hook 'windmove-down<span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span>add-hook 'org-shiftright-final-hook 'windmove-right<span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">org-mode &#12399;&#34892;&#12398;&#25240;&#12426;&#36820;&#12375;&#12394;&#12375;&#12514;&#12540;&#12489;&#12395;&#12394;&#12427;&#12398;&#12391;&#12289;&#28961;&#21177;&#12395;&#12377;&#12427;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-startup-truncated nil<span style="color: #4f97d7;">)</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">org-mode &#12399;&#34892;&#12398;&#25240;&#12426;&#36820;&#12375;&#12394;&#12375;&#12514;&#12540;&#12489;&#12395;&#12394;&#12427;&#12398;&#12391;&#12289;&#28961;&#21177;&#12395;&#12377;&#12427;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-startup-truncated nil<span style="color: #3a81c3;">)</span>
 
-  <span style="color: #2aa1ae; background-color: #292e34;">;; </span><span style="color: #2aa1ae; background-color: #292e34;">&#26085;&#26412;&#35486;PDF&#12398;&#12383;&#12417;&#12395;lualatex&#20182;&#12289;&#20415;&#21033;TeX&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#20351;&#12358;</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-classes '<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"ltjsarticle"</span>
+  <span style="color: #2aa1ae; background-color: #ecf3ec;">;; </span><span style="color: #2aa1ae; background-color: #ecf3ec;">&#26085;&#26412;&#35486;PDF&#12398;&#12383;&#12417;&#12395;lualatex&#20182;&#12289;&#20415;&#21033;TeX&#12497;&#12483;&#12465;&#12540;&#12472;&#12434;&#20351;&#12358;</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-classes '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">(</span><span style="color: #2d9574;">"ltjsarticle"</span>
 <span style="color: #2d9574;">"\\documentclass{ltjsarticle}</span>
 <span style="color: #2d9574;">\\usepackage{url}</span>
 <span style="color: #2d9574;">\\usepackage{amsmath}</span>
@@ -1081,9 +1287,9 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subsubsection{%s}"</span> . <span style="color: #2d9574;">"\\subsubsection*{%s}"</span><span style="color: #67b11d;">)</span>
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\paragraph{%s}"</span> . <span style="color: #2d9574;">"\\paragraph*{%s}"</span><span style="color: #67b11d;">)</span>
             <span style="color: #67b11d;">(</span><span style="color: #2d9574;">"\\subparagraph{%s}"</span> . <span style="color: #2d9574;">"\\subparagraph*{%s}"</span><span style="color: #67b11d;">)</span><span style="color: #2d9574;">)</span>
-               <span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-pdf-process '<span style="color: #bc6ec5;">(</span><span style="color: #2d9574;">"latexmk -gg -lualatex %f"</span><span style="color: #bc6ec5;">)</span><span style="color: #4f97d7;">)</span>
-  <span style="color: #4f97d7;">(</span><span style="color: #4f97d7; font-weight: bold;">setq</span> org-latex-default-class <span style="color: #2d9574;">"ltjsarticle"</span><span style="color: #4f97d7;">)</span>
+               <span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-pdf-process '<span style="color: #6c3163;">(</span><span style="color: #2d9574;">"latexmk -gg -lualatex %f"</span><span style="color: #6c3163;">)</span><span style="color: #3a81c3;">)</span>
+  <span style="color: #3a81c3;">(</span><span style="color: #3a81c3; font-weight: bold;">setq</span> org-latex-default-class <span style="color: #2d9574;">"ltjsarticle"</span><span style="color: #3a81c3;">)</span>
 </pre>
 </div>
 
@@ -1101,8 +1307,8 @@ static_assert<span style="color: #4f97d7;">(</span><span style="color: #a45bad;"
 </div>
 <div id="postamble" class="status">
 <p class="author">&#33879;&#32773;: Shigeki Karita</p>
-<p class="date">Created: 2018-05-19 土 00:44</p>
-<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 25.2.2 (<a href="https://orgmode.org">Org</a> mode 9.1.8)</p>
+<p class="date">Created: 2018-05-28 月 02:57</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 25.3.2 (<a href="http://orgmode.org">Org</a> mode 9.0.3)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
