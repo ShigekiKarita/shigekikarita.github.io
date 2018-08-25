@@ -18,6 +18,128 @@ Log(ja)
 
 [[file:index.html][index]]
 
+* 2018年08月25日 D言語のヤバい規格：with文が予想以上に強い                :D:
+
+最近 [[https://github.com/ShigekiKarita/grain][grain]] を書いていて，オーバーロードやUFCSを駆使して重箱の隅をつついてしまったので，一度関数呼び出しの探索について整理してみようと思いました．
+
+** 言語規格
+
+- 後方参照のあるD言語ではimport順は影響しない https://docarchives.dlang.io/v2.081.0/spec/module.html
+- オーバーロード解決のルール https://docarchives.dlang.io/v2.081.0/spec/function.html#partial-ordering
+- UFCS解決のルール https://docarchives.dlang.io/v2.081.0/spec/function.html#pseudo-member
+- with 文 https://docarchives.dlang.io/v2.081.0/spec/statement.html#with-statement
+
+** 動作確認例
+
+ちょっとややこしいのですが，我慢してください
+
+#+begin_src d
+module a;
+
+string f(T)(T) {
+    return "a";
+}
+
+auto f()(string) { // string に特殊化
+    return "a";
+}
+#+end_src
+
+#+begin_src d
+module b;
+
+auto f(T)(T) if (!is(T : string)) { // string 以外の型に制約
+    return "b";
+}
+#+end_src
+
+#+begin_src d
+module c;
+
+struct C(T) {
+    static f() {
+        return "c";
+    }
+}
+#+end_src
+
+#+begin_src d
+import a;
+import b;
+import c;
+import std.stdio;
+
+void main() {
+    // 多くの引数ではaとbが競合するのでコンパイルできない
+    {
+        // 0.f; // error
+    }
+    // 特殊化された引数型で解決可能な関数がaのみにあれば、限定される
+    {
+        assert("hi".f == "a");
+    }
+    // メソッドは常に優先される
+    {
+        C!int c;
+        assert(c.f == "c");
+    }
+    // より近いスコープにimportされていれば優先される
+    {   
+        import a;
+        assert(1.f == "a");
+    }
+    {
+        import b;
+        assert(2.f == "b");
+    }
+    // より近いwith文が優先される
+    {
+        with (a) {
+            assert(3.f == "a");
+            with (b) {
+                assert(4.f == "b");
+                {
+                    import a;
+                    assert(5.f == "b"); // "a"ではなく?
+                    // assert("hi".f == "a"); // a でなく b が優先されるので解決できずコンパイルエラー
+                    C!int c;
+                    assert(c.f == "c"); // さすがにメソッドの書き換えはしない
+                }
+            }
+        }
+    }
+    // モジュールを明示すれば限定される。UFCSは使えない
+    {
+        assert(a.f(6) == "a");
+        assert(b.f(7) == "b");
+    }
+}
+#+end_src
+
+** 本題：with文が強すぎる
+
+冒頭に挙げた言語規格のうち，競合というか微妙になる箇所があります．
+
+> UFCS書き換えは最も近い順のスコープから探索する
+#+begin_quote
+19.26.5 When UFCS rewrite is necessary, compiler searches the name on accessible module level scope, in order from the innermost scope.
+https://docarchives.dlang.io/v2.081.0/spec/function.html#pseudo-member
+#+end_quote
+> with (symbol) { body } の body で参照されたオブジェクトは symbol を第一に探索する
+#+begin_quote
+11.19.1 Within the with body the referenced object is searched first for identifier symbols. 
+https://docarchives.dlang.io/v2.081.0/spec/statement.html#with-statement
+#+end_quote
+
+ここで生じる疑問は ~with (b) { { import a; 5.f; } }~ のようなコードは a.f, b.f どちらの関数が呼ばれるのかというところです．
+
+- 当初の予想： aに解決可能なシンボルfがあるか探し，なければbに解決可能なシンボルがあるか探し，さらに外側のスコープを探す．
+
+- 実際の動作 (dmd 2.082.0) ： *bに解決可能なシンボルfがあるか探し，なければコンパイルエラーにする*
+
+
+何も直感に沿っていなかったです．bが優先されることは「11.19.1 が 19.26.5 より強い」とどこかに書かれていれば納得できるのですが，コンパイルエラーになるのは19.26.5に違反していますし，例外的にコンパイルエラーとする条件が複雑になるのでやめてほしいです．今日明日にでもD言語フォーラムにでも投げてみようかと思います．
+
 
 * 2018年05月28日 D言語のコーディングスタイル (抄訳)                       :D:
 
