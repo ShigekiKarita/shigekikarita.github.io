@@ -1,4 +1,4 @@
-#+TITLE: D for Deep Learning
+#+TITLE: 1ヶ月で1から作るD言語のDeep Learningライブラリ
 #+AUTHOR: Shigeki Karita
 #+LANGUAGE: ja
 
@@ -6,21 +6,21 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
 
 #+BEGIN_abstract
-いまD言語が熱い．D言語はC++の後継となるべく，Digital Mars C++コンパイラの作者Walter Brightや，Modern C++ Designの作者Andrei Alexandrescuらが日々改良を重ねて，テンプレートやモジュール，ガベージコレクション(GC)などのリッチな言語機能と，C/C++との互換性・同等の速さ・フットプリントの小ささを両立している．最近ではCUDAライブラリのラッパーが充実し，LDCコンパイラではCUDA kernelが書けるようになった．さらにnumpyのように多次元配列を自在に扱えるMirも登場した．こんなに充実した言語でディープラーニング用のライブラリを書きたくなるのは当然だ．
+いまD言語が熱い．D言語はC, C++やRustの代替となるべく，日々改良が重ねられテンプレートやモジュール，ガベージコレクション(GC)などのリッチな言語機能と，C/C++との互換性・同等の速さ・フットプリントの小ささを両立しています．最近ではCUDAライブラリのラッパーが充実し，LDCコンパイラではCUDA kernelが書けるようになりました．さらにnumpyのように多次元配列を自在に扱えるMirも登場しました．というわけでディープラーニング用のライブラリを書こうと思いました．
 #+END_abstract
 
 * 背景とD言語 (1日目, 5/7)
 
-私は勤務先で日頃からC++でクローズドなDeep Learningライブラリを自作していてた．CPUホストコードではC++17をCUDAデバイスコードではC++14を使っていたので，型安全にジェネリックなコードを書き，shared_ptrを使って安全にコードを書いていたが，ときどき循環参照を起こしてメモリリークを起こしてGCが欲しくなったり，SFINAEに頼ってジェネリックなコードを書くのに辛くなってきました(だが，Rustのような型クラスは嫌だった)．そんな中でGCがあり，SFINAEに頼らない簡単なメタプログラミング機能を使えるD言語を使いたい気持ちは日に日に高まっていった．
+私は勤務先で日頃からC++でクローズドなDeep Learningライブラリを一人で作っていました．CPUホストコードではC++17をCUDAデバイスコードではC++14を使っていたので，型安全にジェネリックなコードを書き，shared_ptrを使って安全にコードを書いていましたが，ときどき循環参照を起こしてメモリリークを起こしてGCが欲しくなったり，SFINAEに頼ってジェネリックなコードを書くのに辛くなってきました．そんな中でGCがあり，SFINAEに頼らない簡単・自然なメタプログラミング機能を使えるD言語を使いたい気持ちは日に日に高まっていきました．
 
-そんな中で10連休に及ぶGWは仕事のことは忘れて虚無に過ごしたのですが，最終日に突如として[[https://github.com/libmir/dcompute][dcompute]]というD言語でCUDAカーネルを書く謎の技術を思い出し，触ってみた．結果から言うとコンパイルすらできなかった．デバイス側のポインタの扱いやカーネル生成など大部分はすでにLDC本家にマージされており，若干の便利機能が残ったdcomputeライブラリは清く捨てた．実際には以下のページ
+そんな中，10連休に及ぶGWは仕事のことは忘れて虚無に過ごしたのですが，最終日に突如として[[https://github.com/libmir/dcompute][dcompute]]というD言語でCUDAカーネルを書く謎の技術を思い出し，触ってみました．結果から言うとコンパイルすらできなかったのですが...．いろいろ調べるとデバイス側のポインタの扱いやカーネル生成など大部分はすでにLDC本家にマージされており，若干の便利機能が残った部分がdcomputeライブラリとして残っていました．少し古いですが以下のページ
 
 - CUDA Driver APIのD言語ラッパー [[https://github.com/DerelictOrg/DerelictCUDA/blob/master/source/derelict/cuda/driverapi.d][DerelictCUDA]]
 - [[https://github.com/ldc-developers/ldc/blob/085d9a69db42a608759aea638b388f2149dd629a/tests/codegen/dcompute_cu_addrspaces.d#L3][LDCのCUDAカーネルからのPTX生成のテストコード]]
 - [[https://llvm.org/docs/NVPTXUsage.html#llvm-nvvm-ptr-to-gen-intrinsics][LLVMのPTXコード生成の仕組み]]
 - [[https://llvm.org/docs/CompileCudaWithLLVM.html][ClangでCUDAバイナリをコンパイルする方法]]
 
-を参考にしてMakefileからldc2コマンドを直に叩いてD言語からCUDAの中間コードであるPTXを生成し，CUDA Driver APIで呼び出すことにした．
+を参考にしてMakefileからldc2コマンドを直に叩いてD言語からCUDAの中間コードであるPTXを生成し，dcomputeのexampleはよくわからないのでCUDA Driver APIで呼び出すことにしました．
 
 #+begin_src makefile
 kernel/%.ptx: kernel/%.d tool/compute_capability.out
@@ -28,9 +28,9 @@ kernel/%.ptx: kernel/%.d tool/compute_capability.out
     mv $(shell basename -s .d $<)_cuda$(CUDA_COMPUTE_CAPABILITY)0_$(CUDA_BIT).ptx $@
 #+end_src
 
-上記のコマンドでは，PTXファイル ~(モジュール名).ptx~ だけでなく，D言語のヘッダー定義 ~(モジュール名).di~ を生成して，PTXのJITコンパイル後の関数呼び出しにおける静的型検査に使おうと考えた(これは最後まで実装していないが，[[https://github.com/ShigekiKarita/d-nv/blob/master/source/dnv/typechecker.d][NVRTCラッパーを作ったときに同じことを]]以前やったので，そんなに難しくない．)．
+上記のコマンドでは，PTXファイル ~(モジュール名).ptx~ だけでなく，D言語のヘッダー定義 ~(モジュール名).di~ を生成して，PTXのJITコンパイル後の関数呼び出しにおける静的型検査に使おうと考えました(これは最後まで実装していないが，[[https://github.com/ShigekiKarita/d-nv/blob/master/source/dnv/typechecker.d][NVRTCラッパーを作ったときに同じことを]]以前やったので，そんなに難しくないと思います)．
 
-この日はCUDA入門で最初にやるベクトル加算(axpy)の実装と実行まで動いている．困った点として，CUDA Driver APIにあるコンテキスト ~cuContext~ を破棄するタイミングが，GCより前に起こってしまい，いくつかのCUDA関係のオブジェクトのデストラクタがGCによってCUDA関係のDestroy/Free系関数を呼んでうまく開放できなかった．簡単な解決策として， ~cuContext~ の破棄の前に明示的にGCを呼ぶことで回避した．
+この日はCUDA入門で最初にやるベクトル加算(axpy)の実装と実行まで動いています．困った点として，CUDA Driver APIにあるコンテキスト ~cuContext~ を破棄するタイミングが，GCより前に起こってしまい，いくつかのCUDA関係のオブジェクトのデストラクタがGCによってCUDA関係のDestroy/Free系関数を呼んでうまく開放できませんでした．簡単な解決策として， ~cuContext~ の破棄の前に明示的にGCを呼ぶことで回避しました．
 
 #+begin_src d
 module grain.cuda;
@@ -44,13 +44,13 @@ shared static ~this() {
 }
 #+end_src
 
-3日目くらいで作業メモを残そうと思い，この文書を書き始めてタイトルには1週間と書いてみたが，この期間は普通に働いているので一日2-5時間程度の作業時間だった．なおリポジトリは下記の通りで，git cloneしてmakeを叩けばテストまで走る，動作していたDコンパイラは[[https://github.com/ldc-developers/ldc/releases/tag/v1.9.0][LDC1.9.0]](Linux X64)．
+3日目くらいで作業メモを残そうと思い，この文書を書き始めてタイトルには1週間と書いてみましたが，この期間は普通に働いているので一日2-5時間程度の作業時間でした．なおリポジトリは下記の通りで，git cloneしてmakeを叩けばテストまで走ります，動作していたDコンパイラは[[https://github.com/ldc-developers/ldc/releases/tag/v1.9.0][LDC1.9.0]](Linux X64)です．
 
 - この日の最終 commit  https://github.com/ShigekiKarita/grain/tree/54c0c6b390c3258dcb80c5868cd3304387c6abdc
 
 * CPUホスト・CUDAデバイスそれぞれのメモリ管理 (2日目, 5/8)
 
-とりあえずCUDAは ~CuPtr(T)~ というホストだと ~T[]~ に相当するCUDA配列の構造体を作った．この構造体はデバイス上のアドレス ~cuDeviceptr ptr~ と長さ ~size_t length~ のペア．メソッドとしてはCPUメモリからのコピーコンストラクタ ~this(T[] host)~ と，デバイスメモリをコピーする ~CuPtr!T dup()~ を作った．(参照の)コピーコンストラクタは ~@disable this(this);~ として無効化した，これは経験上GCによるCUDAデバイスメモリの管理は悲惨なことになるからだ．実際にはGCの代わりに標準ライブラリにある参照カウンタ ~RefCounted(T)~ を使うことで管理する．[[https://www.cs.virginia.edu/~mwb7w/cuda_support/memory_management_overhead.html][CUDAはmalloc/freeのコストが高い]]ので，いずれはメモリプールなどを実装したい．
+とりあえずCUDAは ~CuPtr(T)~ というホストだと ~T[]~ に相当するCUDA配列の構造体を作りました．この構造体はデバイス上のアドレス ~cuDeviceptr ptr~ と長さ ~size_t length~ のペアです．メソッドとしてはCPUメモリからのコピーコンストラクタ ~this(T[] host)~ と，デバイスメモリをコピーする ~CuPtr!T dup()~ を追加．(参照の)コピーコンストラクタは ~@disable this(this);~ として無効化しました，これは経験上GCによるCUDAデバイスメモリの管理は悲惨なことになるので...．実際にはGCの代わりに標準ライブラリにある参照カウンタ ~RefCounted(T)~ を使うことで管理する方針．[[https://www.cs.virginia.edu/~mwb7w/cuda_support/memory_management_overhead.html][CUDAはmalloc/freeのコストが高い]]ので，いずれはメモリプールなどを実装したいですね．
 
 #+begin_src d
 struct CuPtr(T) {
@@ -100,13 +100,13 @@ struct CuPtr(T) {
 }
 #+end_src
 
-本当はGCが管理する動的配列 ~T[]~ ではなく，malloc/freeで自前で管理した配列を使いたいのだが，どうせ後でMirを使うことになるので，自作はやめてGCの動的配列を使うことにした．いずれ参照カウンタ付のmalloc/freeで確保・開放するMir配列([[http://mir.dlang.io/mir_ndslice_allocation.html#stdcSlice][stdcSlice]])を使うことにする．
+ゆくゆくはGCが管理する動的配列 ~T[]~ ではなく，malloc/freeで自前で管理した配列を使いたいのですが，どうせ後でMirを使うことになるので，自作はやめてGCの動的配列を使うことにしました．いずれ参照カウンタ付のmalloc/freeで確保・開放するMir配列([[http://mir.dlang.io/mir_ndslice_allocation.html#stdcSlice][stdcSlice]])を使うことにします．
 
 - この日の最終 commit https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b
 
 * 虚無 (3日目, 5/9)
 
-この日は泊りがけの出張で新幹線の中で少しだけ作業した...気がしていたが，変数名を変えたくらいだった．ノートPCにはCUDA対応デバイスがなく，ましてOpenCLも動かす気にはならなかったので，D言語の[[https://dlang.org/spec/version.html][条件コンパイル]]機能でCUDAが必要な部分を以下のように指定したいなと思った．
+この日は泊りがけの出張で新幹線の中で少しだけ作業した...気がしていたが，変数名を変えたくらいでした．ノートPCにはCUDA対応デバイスがなく，ましてOpenCLも動かす気にはならなかったので，D言語の[[https://dlang.org/spec/version.html][条件コンパイル]]機能でCUDAが必要な部分を以下のように指定したいなと思った．
 
 #+begin_src d
 version (grain_cuda) {
@@ -127,7 +127,7 @@ version (grain_cuda) {
 ...
 #+end_src
 
-という記述があり，この例では ~mir_test~ というversionをunittestのとき (~dub --build=unittest~でビルドしたとき) に有効になるという具合だった．なお，この機能を実装したのは5日目である．
+という記述があり，この例では ~mir_test~ というversionをunittestのとき (~dub --build=unittest~でビルドしたとき) に有効になるという具合でした．なのでCUDAを使う部分だけ ~grain_cuda~ のようなバージョン指定子で隔離すればCUDAのない環境でもCPU動作の部分だけ動かせると思いました．なお，その機能を実装したのは5日目．
 
 - この日の最終 commit https://github.com/ShigekiKarita/grain/tree/e58940b2b18b921e0cc22f86511e67e245e0b13b
 
@@ -137,7 +137,7 @@ version (grain_cuda) {
 
 ** Function 関数オブジェクト
 
-4日目にしてようやくDeep learningっぽいことを始めるのですが，自動微分可能な関数の設計を考えました．思えば私が一番設計がシンプルで好きな(=私が理解できた)既存のフレームワークはChainerのversion 1でした．今のChainerは色々なトレードオフで，v1ほどは綺麗ではないと思います(例えばPytorchもChainer v1を参考に作られています)．Chainer v1の素晴らしかったことは
+4日目にしてようやくDeep learningっぽいことを考え始めるのですが，自動微分可能な関数の設計を考えました．思えば私が一番設計がシンプルで好きな(=私が理解できた)既存のフレームワークはChainerのversion 1でした．今のChainerは色々なトレードオフで，v1ほどは綺麗ではないと思います(例えばPytorchもChainer v1を参考に作られています)．Chainer v1の素晴らしかったことは
 
 1. 動的な計算グラフ(define by run)を考案した
 2. ユーザ定義のFuncitonが簡単にかけた
@@ -236,7 +236,7 @@ class ReLU(T, size_t dim) : Function if (isFloatingPoint!T) {
 }
 #+end_src
 
-ここで， ~struct Variable(T, size_t dim, alias Storage)~ という構造体は自動微分可能な多次元配列で，要素型(float, intなど) ~T~ と多次元配列の次元数(スカラ=0, ベクトル=1, 行列=2, ...), メモリの種類(CPUメモリ=HostStorage, CUDAメモリ=DeviceStorage)という型変数を持っています．Pythonと違って次元が合わないといった実行時エラーはおきません．ただし経験上，行や列などのサイズまで静的に指定するのは使いにくいのでやめました．もしかするとMirのndsliceのようにContiguousかどうかは静的に決まるので型に入れた方がパフォーマンス的に良いかもしれない．
+ここで， ~struct Variable(T, size_t dim, alias Storage)~ という構造体は自動微分可能な多次元配列で，要素型(float, intなど) ~T~ と多次元配列の次元数(スカラ=0, ベクトル=1, 行列=2, ...), メモリの種類(CPUメモリ=HostStorage, CUDAメモリ=DeviceStorage)という型変数を持っています．Pythonと違って次元が合わないといった実行時エラーはおきません．ただし経験上，行や列などのサイズまで静的に指定するのは使いにくいのでやめました．もしかするとMirのndsliceのようにContiguousかどうかは静的に決まるので型に入れた方がパフォーマンス的に良いかもしれないですね．
 
 あと ~import grain.kernel : relu;~ はD言語で書かれたカーネルのヘッダー定義で，元のコードはこんな感じで[[https://github.com/ShigekiKarita/grain/blob/8825341f9a1986d1916d6433ec4dd26562f2d977/kernel/kernel.d][kernel/kernel.d]]に定義されています．
 
@@ -248,7 +248,7 @@ class ReLU(T, size_t dim) : Function if (isFloatingPoint!T) {
 }
 #+end_src
 
-ポイントとしては，デバイスのカーネル実装含めてD言語で全部シンプルに書かれている点と，きちんと引数の型が静的にチェックされるという点です．Deep learningのように何日も掛かる処理で実行時の型エラーに悩まされたくないのです...．
+メリットとしては，デバイスのカーネル実装含めてD言語で全部シンプルに書かれている点と，きちんと引数の型が静的にチェックされるという点です．Deep learningのように何日も掛かる処理で実行時の型エラーに悩まされたくないのです...．
 
 ** BLASライブラリの導入
 
@@ -314,9 +314,6 @@ struct UntypedVariable {
 * BackPropの実装とテスト (6日目, 5/12)
 
 この日は風邪が治ってきたので，実際に微分可能な変数と関数を実装して動かした．
-
-
-
 昨日の続きで，関数の型消去...ではなく，関数のbackward関数を型消去したdelegateと必要な引数を集めるBackProp構造体を作ります．
 
 ** BackProp の実装
@@ -373,15 +370,16 @@ struct BackProp {
 
 * 手書き文字認識MNISTの実行 (7日目, 5/13)
 
-ここまでできたらあとはSoftMaxCrossEntropy関数を実装して[[https://twitter.com/fchollet/status/807198327288791040][Deep LearningのUnit Testといわれる手書き文字認識MNIST]]を動かします．
+ここまでできたらあとはSoftMaxCrossEntropy関数などを実装して[[https://twitter.com/fchollet/status/807198327288791040][Deep LearningのUnit Testといわれる手書き文字認識MNIST]]を動かします．
+
+注：後日6/8に動くようになったようです． 1週間くらいでモチベーションが消えてきて，実際は1ヶ月かかってしまった．笑
+
+https://github.com/ShigekiKarita/grain/blob/5c5d6226e153ebcb6debd1d923783a2b7de53eaa/example/mnist.d
 
 * TODO 残った課題
 
-そんなに難しくないが，1月くらいかかりそう．これ以外にも新しいFunction実装したなどのPR募集してます．
-
 - カーネル引数の静的型チェック
-- UntypedVariableからVariableへの動的型チェック
 - GC配列をMirのstdcSliceへの置き換え
-- cuDNNとCNNのサポート https://github.com/henrygouk/DerelictCuDNN
-
-
+- 遅延評価による静的グラフの最適化
+- UntypedVariableからVariableへの動的型チェック (後日やりました)
+- cuDNNとCNNのサポート (後日やりました)

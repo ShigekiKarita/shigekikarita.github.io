@@ -27,6 +27,7 @@ Basically distributed under BSL-1.0
 
 *** D language
 
+- [[https://github.com/ShigekiKarita/grain][grain]]: chainer/pytorch like statically typed dynamic neural network library (support both CPU & GPU)
 - [[https://github.com/libmir/numir][libmir/numir]]: numpy-like wrapper of ndslice in libmir
 - [[https://github.com/ShigekiKarita/d-nv][d-nv]]:  CUDA wrapper with Driver, NVRTC, and compile time type check for kernel functions
 - [[https://github.com/ShigekiKarita/d-svm][d-svm]]: minimal implementation of support vector machines (SVM)
@@ -34,7 +35,6 @@ Basically distributed under BSL-1.0
 - [[https://github.com/ShigekiKarita/d-tree][d-tree]]: classification and regression tree (CART) implmentation for tree based statistical models (random forest, gradient boost).
 - [[https://github.com/ShigekiKarita/d-graphviz][d-graphviz]]: Graphviz wrapper with simple DSL supports visualization of module dependencies.
 - [[https://github.com/ShigekiKarita/d-ffmpeg-light][d-ffmpeg-light]]: ffmpeg wrapper using command line interface.
-
 
 *** OCaml
 
@@ -54,4 +54,5 @@ Basically distributed under BSL-1.0
 
 - [[file:notes/ocaml.html][OCaml (ja)]]
 - [[file:notes/d.org][D (ja)]]
-- [[file:notes/asr.org][音声認識システムを作る (ja)]]
+- [[file:notes/d-deep-learning.org][1週間で1から作るD言語のDeep Learningライブラリ]]
+# - [[file:notes/asr.org][音声認識システムを作る (ja)]]
