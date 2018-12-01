@@ -10,6 +10,8 @@
 
 * 実装
 
+https://github.com/ShigekiKarita/shigekikarita.github.io/tree/dev
+
 全体のスクリプトとしてはこんなことをやってます (.travis.yml)．注意点としてユーザ名.github.ioのリポジトリではmasterブランチしか公開されないので，devなど適当な別名ブランチからmasterにデプロイする方法をとっています．
 
 #+begin_src yaml
@@ -88,8 +90,7 @@ deploy:
 ;; スタイルシートなどヘッダーの設定
 (setq org-html-head
 "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/org.css\"/>
- <link href=\"/css/code.css\" rel=\"stylesheet\">
-"
+ <link href=\"/css/code.css\" rel=\"stylesheet\">"
 )
 #+end_src
 
@@ -98,7 +99,7 @@ deploy:
 #+begin_src bash
 #!/usr/bin/env bash
 
-for f in **/*.org; do
+for f in *.org **/*.org; do
     echo "=== building $f ==="
     emacs $f  -l `pwd`/export.el --batch -f org-html-export-to-html
 done
