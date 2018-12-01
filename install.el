@@ -16,6 +16,7 @@
     cuda-mode
     lua-mode
     yaml-mode
+    org-plus-contrib
 
     htmlize
     spacemacs-theme

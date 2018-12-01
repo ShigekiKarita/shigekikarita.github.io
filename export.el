@@ -2,14 +2,11 @@
 (require 'package)
 (package-initialize)
 
-
-
 ;;; バックアップファイルを作らない設定
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 
 ;; bibtex2html のインストールが必要
-(add-to-list 'load-path nil)
 (require 'ox-bibtex)
 (setq org-html-htmlize-output-type 'css)
 
