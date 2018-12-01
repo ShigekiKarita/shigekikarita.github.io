@@ -1,11 +1,14 @@
 language: bash
 
+dist: xenial
+
 cache: apt
 
 script:
   # install emacs
   - sudo add-apt-repository ppa:kelleyk/emacs --yes
   - sudo apt-get update -qq
+  - apt-cache search emacs
   - sudo apt-get install -qq emacs26
   - emacs --version
   # install bibtex2html
