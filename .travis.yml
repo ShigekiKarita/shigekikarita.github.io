@@ -3,11 +3,12 @@ dist: xenial
 addons:
   apt:
     packages:
-      - emacs26-nox
+      - emacs
 
 cache: apt
 
 script:
+  - emacs --version
   - wget http://www.lri.fr/~filliatr/ftp/bibtex2html/bibtex2html-1.99-linux.tar.gz
   - tar -xf bibtex2html-1.99-linux.tar.gz
   - export PATH=`pwd`/bibtex2html-1.99-linux:$PATH
