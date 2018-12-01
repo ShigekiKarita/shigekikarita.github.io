@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<!-- 2018-12-01 土 16:46 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>月刊：音声認識システムを作る</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Shigeki Karita" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="css/org.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script type="text/javascript"
+        src="MathJax/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">月刊：音声認識システムを作る</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orgf897381">1. 音声認識の概要</a>
+<ul>
+<li><a href="#orgd577d25">1.1. なぜ作るのか</a></li>
+<li><a href="#orgc8de0ed">1.2. 大まかなプラン</a></li>
+<li><a href="#orgaf089fc">1.3. 実装における情報源</a></li>
+</ul>
+</li>
+<li><a href="#org64e8281">2. Kaldiで学ぶ音声の階層構造と統計モデル</a></li>
+<li><a href="#org85d59c4">3. 音声特徴量</a></li>
+<li><a href="#org18ff358">4. 音響モデル</a></li>
+<li><a href="#orga9264b3">5. 発音辞書</a></li>
+<li><a href="#org07b9311">6. 言語モデル</a></li>
+<li><a href="#org70be9c6">7. 重み付き有限状態トランスデューサ</a></li>
+<li><a href="#org58f77d5">8. 認識デコーダ</a></li>
+<li><a href="#orgd2fbb1e">9. 系列学習</a></li>
+</ul>
+</div>
+</div>
+<div class="abstract">
+<div class="org-center">
+<p>
+D言語で作る大規模音声認識システム
+</p>
+</div>
+
+</div>
+
+
+<div id="outline-container-orgf897381" class="outline-2">
+<h2 id="orgf897381"><span class="section-number-2">1</span> 音声認識の概要</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+みなさんは音声認識のことを知ってますか？私は，例えば大学の授業といった場面でも，音声認識の全体像を把握することは難しいだろうと思っています．その理由は長年の地道な改良によって統計・数学的な背景が多岐に渡りすぎたせいだと思います．そんな中で2010年代辺りから音声認識に新たな派閥ができました．
+</p>
+
+<ul class="org-ul">
+<li>従来：重み付き有限状態トランスデューサ(WFST)[<a href="#Mohri2008">3</a>]を核とした階層的なモデルを複合した大規模なシステム[<a href="#Hori2013">1</a>] (<a href="https://github.com/kaldi-asr/kaldi">Kaldi</a>, <a href="http://htk.eng.cam.ac.uk/">HTK</a>など)</li>
+<li>最近：音声からテキストへの変換を直接モデル化した単純なシステム (<a href="https://github.com/espnet/espnet">ESPnet</a>など)</li>
+</ul>
+
+<p>
+この流れで言うと，「ああ，この人は最近の音声認識はシンプルだから，そっちの解説を始めるんだな」と思うでしょう．たしかに私は普段，後者の新しい方式を研究しており，紹介しやすいものですと様々な最先端技術を実装するOSSプロジェクト<a href="https://github.com/espnet/espnet">ESPnet</a>にも貢献しています．
+</p>
+
+<p>
+ところがどっこい，この解説記事では前者しか扱いません．無謀にも地道に古典的な音声認識システムをコツコツ作っていこうという話です．普通に作っても面白くないので，既存の音声認識ライブラリは使わず，純粋にD言語だけで一から作ろうと思います．
+</p>
+</div>
+
+<div id="outline-container-orgd577d25" class="outline-3">
+<h3 id="orgd577d25"><span class="section-number-3">1.1</span> なぜ作るのか</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+作る理由としては，いままで何冊も音声認識に関する本や論文を読みましたが，Kaldiの認識スクリプトの最初から最後まで実際は何が動いているかは私はわかりません．というのも歴史的に様々な先端技術(音響モデル，言語モデル，WFST)を複合しているため，全てを理解している人は少ないと思います．しっかりと全体を理解するには，一度全部作るのが速そうだと思ったわけです．
+</p>
+
+<p>
+D言語を採用した理由は実行速度やメモリ使用量の点で有利だからです．例えばPythonやHaskellで書くとリスト処理などパイプラインの実装は楽そうです．しかし経験的には実行速度が遅かったり，多くのメモリを消費します[<a href="#Shinozaki2012">4</a>]．結局WFSTの演算などコアな部分はC/C++で書くことになるでしょう．それならばC/C++と同レベルのバイナリを作れて，標準ライブラリなどでリスト処理などアルゴリズムが充実したD言語が適していると思いました．
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgc8de0ed" class="outline-3">
+<h3 id="orgc8de0ed"><span class="section-number-3">1.2</span> 大まかなプラン</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+これから作るものの大雑把なリストです．性能評価の実験では，無料で入手できる大規模な<a href="http://www-lium.univ-lemans.fr/en/content/ted-lium-corpus">TEDLIUMコーパス</a>(有名人のCreativeCommonsな講演TED talkの音声と字幕を元にしたデータセット)を使います．
+</p>
+
+<ol class="org-ol">
+<li>音声特徴量: まさに音声認識の秘伝のタレ．音声は巨大なので認識しやすくSTFTなどで変換します．最終的にMFCC特徴量を作ります．</li>
+<li>音響モデル: 音声特徴量をいきなりテキストへ変換するのは難しいので，音声特徴量から音素へ変換するモデルを作ります．最終的にオーソドックスな隠れマルコフモデル(HMM)と混合正規分布モデル(GMM)を作ります．</li>
+<li>発音辞書: 英語辞書とかに乗ってる，単語と音素列の対応を羅列したデータです．音韻学者を呼ばないとつくれないので，出来合いのデータに対してWFSTへの変換ツールを作ります．</li>
+<li>言語モデル: TEDLIUMコーパスについてくるARPA形式のデータを変換するか，データセットから学習します．</li>
+</ol>
+
+<p>
+個人の趣味プロジェクトかつ，大規模な方を選んでしまったので月1くらいのペースでランダムに更新できればなと思います．半年くらいで何か認識できるようになれば嬉しいくらいのペースです．
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orgaf089fc" class="outline-3">
+<h3 id="orgaf089fc"><span class="section-number-3">1.3</span> 実装における情報源</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li>The HTK Book [<a href="#Young2015">5</a>] - 歴史的な経緯などもまとまった随一のドキュメントだと思います．</li>
+<li>Kaldi <a href="http://kaldi-asr.org/doc/">http://kaldi-asr.org/doc/</a> - 2018年現在，最もアクティブな音声認識ツールキットでしょう．文章は読みにくいけど，コードにもコメントが多い印象．</li>
+<li>[<a href="#Mohri2008">3</a>] - OpenFSTの<a href="http://www.openfst.org/twiki/bin/view/FST/FstBackground">サイト</a>にも紹介されている音声認識におけるWFSTの基礎的なアルゴリズムの説明．</li>
+<li>[<a href="#Mohri2009">2</a>] - 同じくOpenFSTのサイトに紹介されているWFSTアルゴリズムのサーベイ論文</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org64e8281" class="outline-2">
+<h2 id="org64e8281"><span class="section-number-2">2</span> Kaldiで学ぶ音声の階層構造と統計モデル</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+まず実際に既存の音声認識ツールキット(Kaldi)が何をしているのか解説したいと思います．Ubuntuでは次のようにダウンロード・コンパイルします．とりあえずニューラルネット音響モデルはまだ使わないのでCUDAは必要ないです．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-zsh">sudo apt-get install subversion libopenblas-dev libgfortran-7-dev libblas-dev
+sudo apt-get liblapacke-dev checkinstall
+sudo ln -s /usr/lib/x86_64-linux-gnu/libopenblas.so /usr/local/lib/
+git clone https://github.com/kaldi-asr/kaldi.git
+git checkout 1a1e265ae8386910a3967010c845fbd29ddb25e4
+cd kaldi/tools
+make -j4
+cd ../src
+./configure --shared --use-cuda=no --openblas-root=/usr/local
+make -j4
+</pre>
+</div>
+
+<p>
+とりあえず我々がターゲットにしているTEDLIUMコーパスのレシピ(※実験のスクリプトのこと)を，動かしてみましょう．とりあえず本記事の対象であるtriphoneのGMM-HMM音響モデルの評価(stage 10)まで走ったら exit して大丈夫です．
+</p>
+
+<pre class="example">
+cd kaldi/egs/tedlium/s5_r2
+./run.sh |&amp; tee log
+</pre>
+
+<p>
+このスクリプト <a href="https://github.com/kaldi-asr/kaldi/blob/master/egs/tedlium/s5_r2/run.sh">run.sh</a> をひらくと，大まかな処理の段階わけがされています．
+</p>
+<div class="org-src-container">
+<pre class="src src-bash"><span class="org-keyword">if</span> [ $<span class="org-variable-name">stage</span> -le 0 ]; <span class="org-keyword">then</span>
+  local/download_data.sh
+<span class="org-keyword">fi</span>
+</pre>
+</div>
+<p>
+大まかに各ステージでやっていることを説明すると，こんな感じです．
+</p>
+
+<ul class="org-ul">
+<li>stage 0-1. TEDLIUMコーパスと言語モデルのダウンロードと整備 (私の環境では5時間かかりました)</li>
+<li>stage 2. 発音辞書の準備(WFST化)</li>
+<li>stage 3-5. 言語モデルの準備(未知語などの前処理，学習，WFST化)</li>
+<li>stage 6. MFCC特徴量の抽出，入力データの正規化</li>
+<li>stage 7. データセットの縮小(最も短い10000発話を選択)</li>
+<li>stage 8. 初期モデルとして音素単位のHMM音響モデルを縮小データで学習</li>
+<li>stage 9. 初期モデルで作ったアライメントを元に，3組音素HMM(tri1)を全データで学習</li>
+<li>stage 10. tri1をデコードして認識性能の評価</li>
+</ul>
+
+<p>
+音素HMMとは大雑把に言うと音素ごとに一つHMMを用意して，それぞれの音声の確率をモデル化しています．また，「アライメント」とは音声の各時刻がどの音素なのかという情報で，「3組音素」とは単純に現在の音声フレームに対する音素だけでなく前後の音素は何だったのかという情報も合わせた単位でHMMを作っています．
+</p>
+</div>
+</div>
+
+<div id="outline-container-org85d59c4" class="outline-2">
+<h2 id="org85d59c4"><span class="section-number-2">3</span> 音声特徴量</h2>
+</div>
+
+
+
+<div id="outline-container-org18ff358" class="outline-2">
+<h2 id="org18ff358"><span class="section-number-2">4</span> 音響モデル</h2>
+</div>
+
+<div id="outline-container-orga9264b3" class="outline-2">
+<h2 id="orga9264b3"><span class="section-number-2">5</span> 発音辞書</h2>
+</div>
+
+<div id="outline-container-org07b9311" class="outline-2">
+<h2 id="org07b9311"><span class="section-number-2">6</span> 言語モデル</h2>
+</div>
+
+<div id="outline-container-org70be9c6" class="outline-2">
+<h2 id="org70be9c6"><span class="section-number-2">7</span> 重み付き有限状態トランスデューサ</h2>
+</div>
+
+<div id="outline-container-org58f77d5" class="outline-2">
+<h2 id="org58f77d5"><span class="section-number-2">8</span> 認識デコーダ</h2>
+</div>
+
+<div id="outline-container-orgd2fbb1e" class="outline-2">
+<h2 id="orgd2fbb1e"><span class="section-number-2">9</span> 系列学習</h2>
+<div class="outline-text-2" id="text-9">
+<div id="bibliography">
+<h2>References</h2>
+
+<table>
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="Hori2013">1</a>]
+</td>
+<td class="bibtexitem">
+Takaaki Hori and Atsushi Nakamura.
+ Speech Recognition Algorithms Using Weighted Finite-State
+  Transducers.
+ <em>Synthesis Lectures on Speech and Audio Processing</em>, 9(1):1--162,
+  jan 2013.
+[&nbsp;<a href="asr_bib.html#Hori2013">bib</a>&nbsp;| 
+<a href="http://dx.doi.org/10.2200/S00462ED1V01Y201212SAP010">DOI</a>&nbsp;| 
+<a href="http://www.morganclaypool.com/doi/abs/10.2200/S00462ED1V01Y201212SAP010">http</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="Mohri2009">2</a>]
+</td>
+<td class="bibtexitem">
+Mehryar Mohri.
+ Weighted Automata Algorithms.
+ pages 213--254. 2009.
+[&nbsp;<a href="asr_bib.html#Mohri2009">bib</a>&nbsp;| 
+<a href="http://dx.doi.org/10.1007/978-3-642-01492-5_6">DOI</a>&nbsp;| 
+<a href="http://link.springer.com/10.1007/978-3-642-01492-5{\_}6">http</a>&nbsp;]
+<blockquote><font size="-1">
+Weighted automata and transducers are widely used in modern applications in bioinformatics and text, speech, and image processing. This chapter describes several fundamental weighted automata and shortest-distance algorithms including composition, determinization, minimization, and synchronization, as well as single-source and all-pairs shortest distance algorithms over general semirings. It presents the pseudocode of these algorithms, gives an analysis of their running time complexity, and illustrates their use in some simple cases. Many other complex weighted automata and transducer algorithms used in practice can be obtained by combining these core algorithms.
+</font></blockquote>
+<p>
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="Mohri2008">3</a>]
+</td>
+<td class="bibtexitem">
+Mehryar Mohri, Fernando Pereira, and Michael Riley.
+ Speech Recognition with Weighted Finite-State Transducers.
+ In <em>Springer Handbook of Speech Processing</em>, pages 559--584.
+  Springer Berlin Heidelberg, Berlin, Heidelberg, 2008.
+[&nbsp;<a href="asr_bib.html#Mohri2008">bib</a>&nbsp;| 
+<a href="http://dx.doi.org/10.1007/978-3-540-49127-9_28">DOI</a>&nbsp;| 
+<a href="http://link.springer.com/10.1007/978-3-540-49127-9_28">http</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="Shinozaki2012">4</a>]
+</td>
+<td class="bibtexitem">
+T.&nbsp;Shinozaki, S.&nbsp;Furui, Y.&nbsp;Horiuchi, and S.&nbsp;Kuroiwa.
+ Pipeline decomposition of speech decoders and their implementation
+  based on delayed evaluation.
+ In <em>Proceedings of The 2012 Asia Pacific Signal and Information
+  Processing Association Annual Summit and Conference</em>, pages 1--4, Dec 2012.
+[&nbsp;<a href="asr_bib.html#Shinozaki2012">bib</a>&nbsp;| 
+<a href="http://dx.doi.org/">DOI</a>&nbsp;]
+
+</td>
+</tr>
+
+
+<tr valign="top">
+<td align="right" class="bibtexnumber">
+[<a name="Young2015">5</a>]
+</td>
+<td class="bibtexitem">
+Steve Young, Mark Gales, Xunying&nbsp;Andrew Liu, and Phil Woodland.
+ The HTK Book.
+ 3.5(alpha1), 2015.
+[&nbsp;<a href="asr_bib.html#Young2015">bib</a>&nbsp;| 
+<a href="http://htk.eng.cam.ac.uk/ftp/software/htkbook-3.5.alpha-1.pdf">.pdf</a>&nbsp;]
+
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2018-12-01 土 16:46</p>
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.1 (<a href="https://orgmode.org">Org</a> mode 9.1.9)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
