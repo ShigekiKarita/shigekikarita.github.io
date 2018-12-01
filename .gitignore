@@ -10,3 +10,4 @@
 !img/*
 
 !.gitignore
+!.nojekyll
