@@ -3,6 +3,7 @@
 !*.org
 !*.sh
 !*.el
+!*.html
 
 !code/*
 !css/*
