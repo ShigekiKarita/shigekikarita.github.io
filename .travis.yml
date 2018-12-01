@@ -8,11 +8,9 @@ script:
   # install emacs
   - sudo add-apt-repository ppa:kelleyk/emacs --yes
   - sudo apt-get update -qq
-  - apt-cache search emacs
   - sudo apt-get install -qq emacs26-nox
   - sudo ln -sf /usr/bin/emacs26 /usr/bin/emacs
   - emacs --version
-  - wget https://raw.githubusercontent.com/yyr/org-mode/release_8.2.10/contrib/lisp/ox-bibtex.el
   # install bibtex2html
   - wget http://www.lri.fr/~filliatr/ftp/bibtex2html/bibtex2html-1.99-linux.tar.gz
   - tar -xf bibtex2html-1.99-linux.tar.gz
@@ -23,7 +21,8 @@ script:
 
 deploy:
   provider: pages
+  target-branch: master
   skip_cleanup: true
   github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
   on:
-    branch: master
+    branch: dev

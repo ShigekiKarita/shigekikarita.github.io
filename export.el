@@ -8,6 +8,7 @@
 
 ;; bibtex2html のインストールが必要
 (require 'ox-bibtex)
+
 (setq org-html-htmlize-output-type 'css)
 
 ;; スタイルシートなどヘッダーの設定

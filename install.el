@@ -17,9 +17,7 @@
     lua-mode
     yaml-mode
     org-plus-contrib
-
     htmlize
-    spacemacs-theme
     ))
 
 ;; my/favorite-packages
