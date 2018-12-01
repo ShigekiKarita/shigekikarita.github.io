@@ -110,7 +110,7 @@ Travisにおけるビルド時間は2分ほどです．Emacs26のインストー
 * 自動デプロイまでの道のりと情報源
 
 - emacs をスクリプトとして実行する方法が解説されています．Emacs上で泥臭くやってる作業を色々自動化できそう． https://www.emacswiki.org/emacs/BatchMode
-- いままでHTMLヘッダー(CSSスタイルやMathJaxとか，Google Analytics)を手動で挿入していたのですが， ~org-html-head~ を指定すると自動で全体のヘッダーを定義できることがわかりました．一箇所で変更しやすいです． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
+- いままでHTMLヘッダー(CSSスタイルやMathJaxとか，Google Analytics)を手動で挿入していたのですが， ~org-html-head~ を指定すると自動で全体のヘッダーを定義できることがわかりました．一箇所で変更しやすいです． https://orgmode.org/manual/HTML-Specific-export-settings.html
 - htmlizeがうまく色をつけてくれなくて困っていたのですが，自前のCSSを定義できることがわかりました． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
 - htmlizeのcss一例 https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/css/htmlize.css
 - 今回はspacemacsの設定に合わせてみた https://github.com/nashamri/spacemacs-theme/blob/c162ad13e4ae1965619012332d3b5f57c9172e98/spacemacs-common.el#L107
