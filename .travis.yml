@@ -18,6 +18,7 @@ script:
   # build HTML
   - emacs -l ./install.el --batch
   - ./export_all.sh
+  - echo '!*.html' >> .gitignore
 
 deploy:
   provider: pages
