@@ -14,8 +14,8 @@
 
 ;; スタイルシートなどヘッダーの設定
 (setq org-html-head
-"<link rel=\"stylesheet\" type=\"text/css\" href=\"css/org.css\"/>
- <link href=\"css/code.css\" rel=\"stylesheet\">
+"<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/org.css\"/>
+ <link href=\"/css/code.css\" rel=\"stylesheet\">
  <script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-123741131-1\"></script>
  <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-123741131-1'); </script>
 "
