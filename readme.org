@@ -58,4 +58,4 @@ Basically distributed under BSL-1.0
 - [[file:notes/travis-org-mode.org][Travis CIでEmacs org-modeのページを自動デプロイ]]
 # - [[file:notes/asr.org][音声認識システムを作る (ja)]]
 
-This page is deployed by Travis CI [[https://travis-ci.com/ShigekiKarita/shigekikarita.github.io][https://travis-ci.com/ShigekiKarita/shigekikarita.github.io.svg]]
+[[https://travis-ci.com/ShigekiKarita/shigekikarita.github.io][https://travis-ci.com/ShigekiKarita/shigekikarita.github.io.svg]]
