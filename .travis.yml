@@ -1,9 +1,13 @@
+dist: xenial
+
+addons:
+  apt:
+    packages:
+      - emacs26-nox
+
 cache: apt
 
 script:
-  - sudo add-apt-repository ppa:kelleyk/emacs
-  - sudo apt-get update
-  - sudo apt-get install emacs26-nox
   - wget http://www.lri.fr/~filliatr/ftp/bibtex2html/bibtex2html-1.99-linux.tar.gz
   - tar -xf bibtex2html-1.99-linux.tar.gz
   - export PATH=`pwd`/bibtex2html-1.99-linux:$PATH
