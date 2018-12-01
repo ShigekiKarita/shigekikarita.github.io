@@ -1,7 +1,9 @@
 addons:
   apt:
+    sources:
+      - sourceline: 'ppa:kelleyk/emacs'
     packages:
-      - emacs-nox
+      - emacs26-nox
       # - bibtex2html
 
 cache: apt

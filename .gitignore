@@ -3,6 +3,9 @@
 !*.org
 !*.sh
 !*.el
+
 !code/*
 !css/*
+!img/*
+
 !.gitignore
