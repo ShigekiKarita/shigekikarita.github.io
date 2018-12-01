@@ -4,14 +4,12 @@ dist: xenial
 
 cache: apt
 
-addons:
-  apt:
-    sources:
-    - kelleyk-emacs
-    packages:
-    - emacs26-nox
-
 script:
+  # install emacs
+  - sudo add-apt-repository ppa:kelleyk/emacs --yes
+  - sudo apt-get update -qq
+  - apt-cache search emacs
+  - sudo apt-get install -qq emacs26-nox
   - sudo ln -sf /usr/bin/emacs26 /usr/bin/emacs
   - emacs --version
   # install bibtex2html
