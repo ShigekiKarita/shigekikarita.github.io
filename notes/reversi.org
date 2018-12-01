@@ -1,0 +1,20 @@
+#+TITLE: Represent Reversi as Decision Tree
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: en
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+
+* binary decision tree representaiton
+
+* zero suppressed decision tree representaiton
+
+* Implementation
+
+
+- CUDA acceleration might be limited \cite{Avi2011}
+
+# requires https://raw.githubusercontent.com/yyr/org-mode/master/contrib/lisp/ox-bibtex.el
+#+BIBLIOGRAPHY: reversi plain

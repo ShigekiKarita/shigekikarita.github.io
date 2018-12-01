@@ -1,3 +1,8 @@
-_site
-.sass-cache
-_draft
+*
+!*/
+!*.org
+!*.sh
+!*.el
+!code/*
+!css/*
+!.gitignore

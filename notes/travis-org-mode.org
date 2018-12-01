@@ -1,0 +1,104 @@
+#+TITLE: Travis CIでEmacs org-modeのページを自動デプロイ
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+いままで，ローカルでorg-modeの記事を書いて一々手作業で ~C-x C-e h h~ とかコマンドうってHTML化して ~git push~ で公開してました．github上でpushされればTravis上のEmacsで自動的にHTML化してgithub pagesとして公開されれば，手元にEmacsがないときもGitHub上でorgファイルを編集すれば自動でウェブでHTMLが読めたら便利だなと思いました．例えばスマホとかでメモ代わりに使えます．
+
+全体のスクリプトとしてはこんなことをやってます (.travis.yml)
+
+#+begin_src yaml
+addons:
+  apt:
+    packages:
+      - emacs-nox
+      - bibtex2html
+
+cache: apt
+
+script:
+  - ./install.el
+  - ./export_all.sh
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master
+#+end_src
+
+~install.el~ は org-mode のHTML化に使う言語モードなどのパッケージなどをインストールするスクリプトです．よくある ~$HOME/.emacs.d/init.el~ に書くような感じです．ここで誤解しやすいのはスクリプトモードのemacsは ~.emacs/init.el~ を使ってくれないようです．しかしインストールされたパッケージはやはり ~$HOME/.emacs.d/elpa~ に配置されるため，CIでは一度だけ実行すれば良いです．
+
+#+begin_src emacs-lisp
+#!emacs --script
+
+(require 'package)
+
+;; MELPA
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Org
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+
+(package-initialize)
+(package-refresh-contents)
+
+(defvar my/favorite-packages
+  '(
+    d-mode
+    cuda-mode
+    lua-mode
+    yaml-mode
+    htmlize
+    spacemacs-theme
+    ))
+
+;; my/favorite-packages
+(dolist (package my/favorite-packages)
+  (unless (package-installed-p package)
+    (package-install package)))
+#+end_src
+
+~export.el~ にはHTML化のための設定を書いています．
+
+#+begin_src emacs-lisp
+;; install.el で入れたパッケージを有効にする
+(require 'package)
+(package-initialize)
+
+;;; バックアップファイルを作らない設定
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+
+;; bibtex2html のインストールが必要
+(require 'ox-bibtex)
+(setq org-html-htmlize-output-type 'css)
+
+;; スタイルシートなどヘッダーの設定
+(setq org-html-head
+"<link rel=\"stylesheet\" type=\"text/css\" href=\"css/org.css\"/>
+ <link href=\"css/code.css\" rel=\"stylesheet\">
+"
+)
+#+end_src
+
+~export_all.sh~ はシェルスクリプトで ~export.el~ を使って全orgファイルをHTML化するやつです．こういうのはシェルスクリプトが楽ですね．
+
+#+begin_src bash
+#!/usr/bin/env bash
+
+for f in **/*.org; do
+    echo "=== building $f ==="
+    emacs $f  -l `pwd`/export.el --batch -f org-html-export-to-html
+done
+#+end_src
+
+* 自動デプロイまでの道のりと情報源
+
+- emacs をスクリプトとして実行する方法が解説されています．Emacs上で泥臭くやってる作業を色々自動化できそう． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
+- いままでHTMLヘッダー(CSSスタイルやMathJaxとか，Google Analytics)を手動で挿入していたのですが， ~org-html-head~ を指定すると自動で全体のヘッダーを定義できることがわかりました．一箇所で変更しやすいです． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
+- htmlizeがうまく色をつけてくれなくて困っていたのですが，自前のCSSを定義できることがわかりました． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
+- htmlizeのcss一例 https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/css/htmlize.css
+- 今回はspacemacsの設定に合わせてみた https://github.com/nashamri/spacemacs-theme/blob/c162ad13e4ae1965619012332d3b5f57c9172e98/spacemacs-common.el#L107
+- Travisのデプロイ設定 https://docs.travis-ci.com/user/deployment/pages/
