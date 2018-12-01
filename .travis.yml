@@ -3,8 +3,7 @@ addons:
     sources:
       - sourceline: 'ppa:kelleyk/emacs'
     packages:
-      - emacs26-nox
-      # - bibtex2html
+      - emacs26
 
 cache: apt
 
