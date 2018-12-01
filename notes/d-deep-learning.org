@@ -1,9 +1,7 @@
 #+TITLE: 1ヶ月で1から作るD言語のDeep Learningライブラリ
 #+AUTHOR: Shigeki Karita
 #+LANGUAGE: ja
-
 #+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
 
 #+BEGIN_abstract
 いまD言語が熱い．D言語はC, C++やRustの代替となるべく，日々改良が重ねられテンプレートやモジュール，ガベージコレクション(GC)などのリッチな言語機能と，C/C++との互換性・同等の速さ・フットプリントの小ささを両立しています．最近ではCUDAライブラリのラッパーが充実し，LDCコンパイラではCUDA kernelが書けるようになりました．さらにnumpyのように多次元配列を自在に扱えるMirも登場しました．というわけでディープラーニング用のライブラリを書こうと思いました．

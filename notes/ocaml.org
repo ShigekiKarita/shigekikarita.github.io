@@ -1,10 +1,7 @@
 #+TITLE: KARITECH
 #+AUTHOR: Shigeki Karita
 #+LANGUAGE: ja
-
-# org.css
 #+OPTIONS: toc:t num:nil H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
 #+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
 
 

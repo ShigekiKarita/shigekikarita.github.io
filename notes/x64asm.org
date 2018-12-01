@@ -1,9 +1,8 @@
 #+TITLE: GCC8/x64ではじめるアセンブラ
 #+AUTHOR: Shigeki Karita
 #+LANGUAGE: ja
-
 #+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+
 
 #+BEGIN_abstract
 最近アセンブラをはじめたが，入門記事がどれも古くて，最新のGCC8では全然違う動作をするので困った．Hello worldを出力するプログラムを題材に，x64アセンブラを調査する．
