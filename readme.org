@@ -49,12 +49,12 @@ Basically distributed under BSL-1.0
 
 - [[https://github.com/espnet/espnet][ESPnet]]: fastest seq2seq based speech recognition toolkit (Apache2.0). contributing to pytorch backend.
 
-
 ** Technical notes
 
 - [[file:notes/ocaml.html][OCaml (ja)]]
 - [[file:notes/d.org][D (ja)]]
-- [[file:notes/d-deep-learning.org][1週間で1から作るD言語のDeep Learningライブラリ]]
+  - [[file:notes/d-compile-time-regex.org][D言語でコンパイル時に動く正規表現エンジンを作る]]
+  - [[file:notes/d-deep-learning.org][1週間で1から作るD言語のDeep Learningライブラリ]]
 - [[file:notes/travis-org-mode.org][Travis CIでEmacs org-modeのページを自動デプロイ]]
 # - [[file:notes/asr.org][音声認識システムを作る (ja)]]
 

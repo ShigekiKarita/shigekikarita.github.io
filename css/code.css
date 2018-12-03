@@ -9,7 +9,7 @@ pre span.org-preprocessor                {color:#ba2f59;}
 
 pre span.org-constant                    {color:#4e3163;}
 pre span.org-comment-delimiter           {color:#2aa1ae;}
-pre span.org-comment                     {color:#2aa1ae;font-style:italic;background-color:#ecf3ec}
+pre span.org-comment                     {color:#2aa1ae;background-color:#ecf3ec}
 pre span.org-outshine-level-1            {color:#8D8D84;font-style:italic}
 pre span.org-outshine-level-2            {color:#8D8D84;font-style:italic}
 pre span.org-outshine-level-3            {color:#8D8D84;font-style:italic}
