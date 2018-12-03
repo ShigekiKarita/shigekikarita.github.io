@@ -115,3 +115,7 @@ Travisにおけるビルド時間は2分ほどです．Emacs26のインストー
 - htmlizeのcss一例 https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/css/htmlize.css
 - 今回はspacemacsの設定に合わせてみた https://github.com/nashamri/spacemacs-theme/blob/c162ad13e4ae1965619012332d3b5f57c9172e98/spacemacs-common.el#L107
 - Travisのデプロイ設定 https://docs.travis-ci.com/user/deployment/pages/
+
+* 感想
+
+最初の思惑にあった携帯とかで編集してデプロイはまだやってないのですが，Travisで自動化したことで例えば今自分のEmacs環境が失われても，全く同じように環境を再現できるという安心感ができた気がします．少し調べたところ，別にシェルスクリプトを使わなくてもEmacs Lispだけでも十分色んなことができる気がしたので，来年はEmacs Lispを勉強してEmacs上で色んな作業を自動化したいです．
