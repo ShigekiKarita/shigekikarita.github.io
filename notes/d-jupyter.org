@@ -188,7 +188,7 @@ https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/grain_jupyterd.d
 
 jupyterとdubはお好きな方法でインストールしてください
 
-#+end_srcbash
+#+begin_src bash
 git clone https://github.com/ShigekiKarita/grain --recursive
 cd grain
 jupyter kernelspec install ./example/jupyterd --user
