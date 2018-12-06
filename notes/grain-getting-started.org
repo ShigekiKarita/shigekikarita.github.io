@@ -1,0 +1,75 @@
+#+TITLE: grain 入門: 簡単な微分計算からGPU上でニューラルネットワークを動かす所まで
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+
+* はじめに
+
+* grain のインストール
+
+grainは現在Linuxのみ対応しています(もしかするとOSXでも動くかもしれませんが)，基本的にはdubに登録してあるライブラリを使うか，gitリポジトリを直接使うと良いです．
+
+#+begin_src bash
+git clone https://github.com/ShigekiKarita/grain
+cd grain
+git checkout v0.1.0
+# CPUのみ
+make NO_CUDA=true
+# CUDAあり，ldcのみ対応
+make DC=ldc2
+#+end_src
+
+ビルドが始まり，unittestが正常に終了すればOKです．D言語のコンパイラは install.sh などを使ってインストールすると良いでしょう．
+
+https://blog.kotet.jp/2017/12/d-install-script/
+
+* 基礎：Slice と Variable
+
+それではコードをバリバリ書いていく前に，基礎的な2つの型について説明します．
+
+- mir.ndslice.slice.Slice
+
+- grain.autograd.Variable
+
+* 初級：二次関数を微分する
+
+* 中級：合成関数としてニューラルネットワークを微分する
+
+* 上級：動的にニューラルネットワークを更新する
+
+* 実装が予定される機能
+
+** より多くのexample
+
+現在，grainにはchainerやpytorchにあるような以下の例が実装されています．詳しくは example ディレクトリをみてください
+
+- 文字認識: example/mnist.d
+- 画像認識: example/cifar.d
+- 言語モデル: example/ptb.d, example/char_rnn.d
+- 強化学習： example/reinforce/main.d (今回の入門で作りました)
+
+実装中:
+- GAN
+- 音声認識
+- 確率的プログラミング
+
+こんなexampleがほしいという希望があれば，ぜひissueを立ててください．頑張って新機能を実装しようと思います．
+
+
+** マルチGPU・ホスト対応
+
+(高画質ゲームをするために)二本目の自宅GPUを購入したので，一ヶ月くらいマルチGPU対応をやる予定です．最近はMPIで遊んでいるので，いずれマルチホスト(distributed)学習などもサポートしたいと思いますが，シングルホスト用のデータSampler/Loader APIをまだ考えていないので，一年後くらいになるかと思います．
+
+** 計算グラフの保存
+ 
+D言語にはPythonのPickleのような便利フレームワークがない...ので学習済みモデルを利用するにはソースコードやコンパイル環境の再現が必要だった(実質PythonのPickleもそうだと思うけど)．しかしD言語はコンパイラによって静的ライブラリとして関数を保存できるので，mir.ndsliceなどを媒介してC/C++やPythonから簡単に呼び出せるようにする予定です．現時点でもある程度可能だと思いますが，Python並に簡単にexportしたいですよね．
+
+- 開発中のPython binding生成ライブラリ: https://github.com/ShigekiKarita/mir-pybind
+
+** 高階微分・微分演算子
+
+double backwardとか呼ばれるやつです．現在grainでもごく一部の関数は何回でも微分できたりしますが，これを使って微分演算子またはgrad関数を定義したいと思っています．基本的にgrainはexample駆動で新機能を開発しているので，高階微分を使った面白い例などあればぜひ教えてください．
+
+- 二階微分を使ったニュートン法の実装 https://github.com/ShigekiKarita/pytorch-double-backward

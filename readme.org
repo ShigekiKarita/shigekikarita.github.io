@@ -55,7 +55,10 @@ Basically distributed under BSL-1.0
 - [[file:notes/d.org][D (ja)]]
   - [[file:notes/d-compile-time-regex.org][D言語でコンパイル時に動く正規表現エンジンを作る]]
   - [[file:notes/d-deep-learning.org][1週間で1から作るD言語のDeep Learningライブラリ]]
+  - [[file:notes/d-jupyter.org][D言語用Jupyterを作る]]
 - [[file:notes/travis-org-mode.org][Travis CIでEmacs org-modeのページを自動デプロイ]]
 # - [[file:notes/asr.org][音声認識システムを作る (ja)]]
+
+** CI status
 
 [[https://travis-ci.com/ShigekiKarita/shigekikarita.github.io][https://travis-ci.com/ShigekiKarita/shigekikarita.github.io.svg]]

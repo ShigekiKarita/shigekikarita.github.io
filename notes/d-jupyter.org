@@ -1,0 +1,214 @@
+#+TITLE: DUBに対応したD言語のREPL/Jupyter
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+#+begin_abstract
+昨日アップロード予定だったgrainの入門記事が未完成なので，こちらを先にアップロードしました．もう少し待っててください．
+#+end_abstract
+
+* 背景
+
+D言語はリファレンス実装のDMDなどコンパイルがC++より大分速いので，前からREPL(read-eval-print loop)で対話的に書ける環境があれば良いなと思ってました．
+
+https://github.com/dlang-community/drepl
+
+有名なツールだと上記のdreplという実装があり，かなり快適に使えるのですが2つ要望がありました．
+
+- DUBパッケージを使いたい
+- Jupyterで使いたい
+
+DUBというのはPythonでいうpipみたいなやつで，サードパーティのライブラリを管理するパッケージマネージャです．つまりdreplはphobos標準ライブラリしか使えません．JupyterというのはPython/Julia/Rで有名なブラウザからREPLを使えて共有できる便利なツールです．本稿の内容はそれらの機能を雑に実装してみたという話です．まだ未完成なので更なる要望やPRなどお待ちしてます（そのために記事を書きました）．
+
+* dreplの仕組み
+
+drepl (src/console.d)(https://github.com/dlang-community/drepl/blob/v0.2.1/src/console.d) は以下のような仕組みで成り立っています．
+
+1. 入力テキスト（コード）を適切に前処理
+2. 前処理後のコードをモジュールとして動的ライブラリにコンパイル，過去にコンパイルした動的ライブラリと共にリンク
+3. ライブラリ内の一番新しいmain的な関数を実行
+4. 結果を表示する
+5. 1へループ
+
+以上の処理は大まかに2つの構造体で実装しています．
+
+1. Interpreter(https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/interpreter.d#L17): readとprintの部分を担当しています．ユーザの入力テキストを受けとり，宣言/式/文を判定してDMDEngineに渡し，InterpretResult型の実行結果を返します．
+2. DMDEngine(https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L47) evalの部分を担当しています．以下の3つの仕事をします．
+  - evalDecl/Expr/Stmt(https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L68): Interpreterから受け取った宣言/式/文をそれぞれモジュールとしてコンパイラに解釈できるよう前処理し，コンパイル・main的な関数を呼び出し，EngineResult型の結果を返す
+  - compileModule(https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L194): 前処理したモジュールを，過去のモジュールをインクルード/リンクして動的ライブラリとしてコンパイル
+  - loadFunc(https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L210): REPLとして実行するコードを格納したmain的な関数を呼び出す
+
+
+* DUBのパッケージを使えるようにする
+
+前節から，とりあえずDMDEngine.compileModule関数を拡張して，DUBを使って外部ライブラリを過去のモジュール同様にパスを通して，インクルード/リンクしてやれば良いということがわかります．残念ながらDMDEngineはクラスではなく構造体なので，継承とかはできず，コピペしました．
+
+#+begin_src d
+struct DUBEngine {
+    /// 他の部分はDMDEngineのコピペ
+    this(string[] packages, CompilerOpt compiler, string tmpDir) {
+        ...
+        packages.each!(p => this.registerPackage(p));
+    }
+
+    /// REPLをビルドする dub.json から package を抽出
+    void registerPackage(string _package) {
+        import std.file : exists;
+        import std.algorithm : map;
+        import std.json : parseJSON;
+        import std.range : chain;
+        import std.process : execute;
+
+        auto dubDescribe = execute(["dub", "describe", _package,
+                "--compiler=" ~ _compiler.compiler]);
+        if (dubDescribe.status != 0) {
+            throw new Exception("failed: $ dub describe " ~ _package ~ "\n"
+                    ~ dubDescribe.output ~ "\n\nsuggest: $ dub fetch " ~ _package);
+        }
+        auto dubInfo = parseJSON(dubDescribe.output);
+        auto target = dubInfo["targets"][0];
+        assert(target["rootPackage"].str == _package);
+        auto build = target["buildSettings"];
+        auto read(string key) {
+            return build[key].array.map!"a.str".array;
+        }
+
+        _dubFlags.insert(chain(read("importPaths").map!(a => "-I" ~ a),
+                               read("libs").map!(a => "-L-l" ~ a),
+                               read("versions").map!(a => _compiler.ver ~ "=" ~ a),
+                               read("linkerFiles")));
+
+        immutable targetFileName = build["targetPath"].str ~ "/lib" ~ build["targetName"]
+            .str ~ ".a";
+        if (targetFileName.exists) {
+            _dubFlags.insert(targetFileName);
+        }
+    }
+
+    string compileModule(string path) {
+        import std.process : execute;
+        import std.format : format;
+        import std.file : exists;
+        import std.regex : ctRegex, replaceAll;
+        import std.range : chain;
+
+        logger.trace("compile path: ", path);
+        // DUBのビルド設定を追記してモジュールを動的ライブラリにコンパイル
+        auto args = chain(_compiler.cmd,
+                          ["-I" ~ _tmpDir, "-of" ~ path ~ ".so", "-shared", path, "-L-l:libphobos2.so"],
+                          _dubFlags[]).array;
+
+        foreach (i; 0 .. _id)
+            args ~= "-L" ~ _tmpDir ~ format("/_mod%s.so", i);
+
+        logger.trace("compile with: ", args);
+        auto dmd = execute(args);
+        enum cleanErr = ctRegex!(`^.*Error: `, "m");
+        if (dmd.status != 0)
+            return dmd.output.replaceAll(cleanErr, "");
+        if (!exists(path ~ ".so"))
+            return path ~ ".so not found";
+        return "";
+    }
+}
+#+end_src
+
+やってることは以下の2つです．注意点として，importされるライブラリは予めreplのビルド設定dub.json/.sdlのdependenciesに記載する必要があります．
+
+1. 初期化時にregisterPackagesメソッドが，REPLのビルド設定(`dub describe` が出力する json)をパースして使う package 情報を抜き出して，`_dubFlags`としてビルド設定を保存
+2. compileModuleメソッドは `_dubFlags` を追加してモジュールをコンパイル
+
+最終的には以下のモジュールにmain関数を定義してループを回しています．
+
+https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/repl.d
+
+** One-Definiton Rule (ODR) 違反
+
+C++から離れて久しくD言語ばかり書いていたのでODR違反という問題に全くおもいつかなかったのですが，drepl本家の作者と議論したところ浮上しました．
+
+https://github.com/dlang-community/drepl/issues/4#issuecomment-414331125
+
+> You're appproach looks interesting, but it has a flaw. It statically links packages into every subsequent D module, i.e. you'll end up with dozens of copies of the package.
+That will break the One Definition Rule.
+You really need to compile packages as shared libraries to avoid this. Atm. dub's support to compile packages as shared libs is still not fully there, e.g. dependencies need to be shared libs as well to avoid ODR issues.
+
+解決策は2つあってどちらもそこそこ面倒です．
+
+- MartinNowak氏の案: DUBのパッケージを全て動的ライブラリとして扱えば，main的な関数の実行時までリンクされないのでODRは発生しない．ただしDUBの動的ライブラリ生成が弱いので限界がある
+- 私の案: DUBの個々のパッケージは静的ライブラリのまま，DUBパッケージのみを隔離して固めた `libdub_merged.so` のような動的ライブラリを作る．`libphobos.so` と同様にODR違反は発生しないが，サイズはでかいし，動的なリンクしたいパッケージ指定の実装が面倒になる．
+
+今の雑実装ではREPLをビルドする`dub.json`の`dependencies`に書かれてないpackageはimportできないし，D言語の静的ライブラリでそこまで巨大になることもないので(`libphobos.a`でも65 MB)，私は後者で良いと思っています．普通PythonのREPLでも動的にパッケージのインストールなどは想定してないと思うので...大抵は起動前にpip installしますよね
+
+- https://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one
+
+
+* Jupyter対応
+
+以前から筆者自身もコソコソとJupyterのドキュメントを読みながら，Jupyter用のサーバプログラムを書いていたのですが，先に凄いクオリティで作ってくれた人が居ました
+
+https://github.com/kaleidicassociates/jupyterd
+
+ここでは，Interpreterが改造されていて，zeromqなどを使ってjupyterのプロセスに対して，ユーザ入力や実行結果を通信しているようです．というわけで先程作ったDUB拡張のEngineをjupyterdのInterpreterで呼び出せば良いわけです．
+
+#+begin_src d
+import jupyterd.interpreter;
+final class DynamicDUBInterpreter : Interpreter
+{
+    LanguageInfo li = LanguageInfo("D", __VERSION__, ".d", "text/plain");
+    
+    private import drepl.engines;
+    InterpreterResult last; 
+    typeof(drepl.engines.Interpreter!DUBEngine) intp;
+
+    this(DUBEngine engine)
+    {
+        import std.algorithm : move;
+        intp = interpreter!DUBEngine(move(engine));
+    }
+
+    // ここ以外 jupyterd.interpreter.DInterpreterのコピペ
+    ...
+}
+
+
+int main(string[] args) {
+    Interpreter i = new DynamicDUBInterpreter(
+        DUBEngine(packages.split,
+                  CompilerOpt(compiler, build, flags))
+    );
+    ...
+}
+#+end_src
+
+全体の実装(汚い)
+https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/grain_jupyterd.d
+
+** インストール方法
+
+jupyterとdubはお好きな方法でインストールしてください
+
+#+end_srcbash
+git clone https://github.com/ShigekiKarita/grain --recursive
+cd grain
+jupyter kernelspec install ./example/jupyterd --user
+dub build --config=jupyterd --compiler=dmd
+export PATH=`pwd`:$PATH
+jupyter notebook
+#+end_src
+
+** Python版っぽく動かす
+
+最終的に動くnotebookの例です．きちんと式と文が区別されて，最後の式のみが出力されることが確認できます．
+https://github.com/ShigekiKarita/grain/blob/v0.0.10/tutorial.ipynb
+
+
+* 今後の方針
+
+- grain のリポジトリから分離してリファクタリング
+- 動的ライブラリを使ってODR問題を解決する
+- LDC/GDCなどDMD以外のコンパイラ対応
+- ggplot-dなどのグラフ描画や画像表示をサポートする
+- Google Colaboratoryで動かす
+
+以上の機能を1年くらいで作っていこうと思います
