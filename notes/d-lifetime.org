@@ -32,7 +32,7 @@ D言語は基本型と構造体はスタックに確保できたり，値セマ�
 # You would remember from the Name Scope chapter how variables become unavailable. In simple cases, exiting the scope where a variable was defined would render that variable unavailable.
 
 確認のために，以下の例を考えてみましょう．
-# Let's consider the following example as a reminder: 
+# Let's consider the following example as a reminder:
 #+begin_src d
 void speedTest() {
     int speed;               // 変数の定義
@@ -48,7 +48,7 @@ void speedTest() {
 # The lifetime of the ~speed~ variable in that code ends upon exiting the speedTest() function. There is a single variable in the code above, which takes ten different values from 100 to 109.
 
 変数のライフタイムという観点では，以下のコードは先程の例とはかなり異なります：
-# When it comes to variable lifetimes, the following code is very different compared to the previous one: 
+# When it comes to variable lifetimes, the following code is very different compared to the previous one:
 #+begin_src d
 void speedTest() {
     foreach (i; 0 .. 10) {
@@ -58,7 +58,7 @@ void speedTest() {
 }
 #+end_src
 このコードでは10個の別々の変数が，それぞれ1つずつ値をとります．ループ中の各イテレーションでは，新しい変数がライフタイムを開始して，順に各イテレーション終了と共にライフタイムを終えます．
-# There are ten separate variables in that code, each taking a single value. Upon every iteration of the loop, a new variable starts its life, which eventually ends at the end of each iteration. 
+# There are ten separate variables in that code, each taking a single value. Upon every iteration of the loop, a new variable starts its life, which eventually ends at the end of each iteration.
 
 ** 仮引数のライフタイム
 
@@ -113,7 +113,7 @@ int aCalculation() {
 ** 基本操作
 
 どんな型にも，変数のライフタイムを通じて3つの基本操作があります．
-# Regardless of its type, there are three fundamental operations throughout the lifetime of a variable: 
+# Regardless of its type, there are three fundamental operations throughout the lifetime of a variable:
 - 初期化: ライフタイムの開始
 - ファイナライズ: ライフタイムの終了
 - 代入: 値の変更の総称
@@ -121,7 +121,7 @@ int aCalculation() {
 # Finalization: The end of its life.
 # Assignment: Changing its value as a whole.
 オブジェクトを想定すると，まず始めに初期化されるはずです．特定の型にはファイナライズがあるかもしれません．変数の値はライフタイムを通じて変化するかもしれません．
-# To be considered an object, it must first be initialized. There may be final operations for some types. The value of a variable may change during its lifetime. 
+# To be considered an object, it must first be initialized. There may be final operations for some types. The value of a variable may change during its lifetime.
 
 *** 初期化
 
@@ -202,7 +202,7 @@ auto classVariable = otherClassVariable;
 int speed = someCalculation();
 #+end_src
 上の ~speed~ は ~someCalculation()~ の返り値によって構築されます．
-# speed above would be constructed by the return value of someCalculation(). 
+# speed above would be constructed by the return value of someCalculation().
 
 *** ファイナライズ
 #  Finalization
@@ -230,19 +230,19 @@ int speed = someCalculation();
 #    When the lifetime ends: Finalization happens at the end of the variable's life.
 #    Some time in the future: Finalization happens at an indeterminate time in the future by the garbage collector.
 この2種類のどちらによってファイナライズされるかは，変数の型によります．配列，連想配列，クラスは通常ガベージコレクタによって「将来のいつか」にデストラクトされます．
-# Which of the two ways a variable will be finalized depends primarily on its type. Some types like arrays, associative arrays and classes are normally destructed by the garbage collector some time in the future. 
+# Which of the two ways a variable will be finalized depends primarily on its type. Some types like arrays, associative arrays and classes are normally destructed by the garbage collector some time in the future.
 
 *** 代入
 他の基本操作として，ライフタイム中の変数に対する代入があります．
 # The other fundamental operation that a variable experiences during its lifetime is assignment.
-単純な基本型における代入は変数の値を変更するだけです．先に見たメモリ表現のように， ~int~ 変数が 123 の代わり 124 という値を持つといった操作です．しかしながら，より一般的には，代入は2つのステップからなります，それらは必ずしも次の順序では行われません: 
+単純な基本型における代入は変数の値を変更するだけです．先に見たメモリ表現のように， ~int~ 変数が 123 の代わり 124 という値を持つといった操作です．しかしながら，より一般的には，代入は2つのステップからなります，それらは必ずしも次の順序では行われません:
 # For simple fundamental types assignment is merely changing the value of the variable. As we have seen above on the memory representation, an int variable would start having the value 124 instead of 123. However, more generally, assignment consists of two steps, which are not necessarily executed in the following order:
 1. 古い値のデストラクト
 2. 新しい値の構築
 #    Destructing the old value
 #    Constructing the new value
 これらの2つのステップはデストラクトを必要としない単純な基本型においては重要ではありません．デストラクトが必要な型にとっては，代入がこれらの2ステップの組合せであることが重要なので覚えていてください．
-# These two steps are not important for simple fundamental types that don't need destruction. For types that need destruction, it is important to remember that assignment is a combination of the two steps above. 
+# These two steps are not important for simple fundamental types that don't need destruction. For types that need destruction, it is important to remember that assignment is a combination of the two steps above.
 
 
 * 最近のライフタイム機能
@@ -266,10 +266,10 @@ ref int gun(ref int y) {
   return y;
 }
 
-ref int fun() {                                                                             
+ref int fun() {
   int x;         // この x は fun() を抜けるとライフタイム終了して無効
                  // x は gun内部でも有効だが，コンパイラは gun も x の参照を返すとは調べない
-  return gun(x); // Error: returning `x` escapes a reference to local variable `x`     
+  return gun(x); // Error: returning `x` escapes a reference to local variable `x`
 }
 #+end_src
 
@@ -287,9 +287,9 @@ ref int gun(return ref int y) {
   return y;
 }
 
-ref int fun() {                                                                             
+ref int fun() {
   int x;
-  return gun(x); // Error: returning `gun(x)` escapes a reference to local variable `x`    
+  return gun(x); // Error: returning `gun(x)` escapes a reference to local variable `x`
 }
 #+end_src
 この機能は単に，自分より外側にスコープを抜けないようにしているわけではなく，きちんと参照のライフタイムを追います．
@@ -300,7 +300,7 @@ ref int gun(return ref int y) {
 
 void main() {
   int x; // x は fun の外側にいる
-  ref int fun() {                                                   
+  ref int fun() {
     return gun(x); // OK
   }
 }
@@ -337,31 +337,38 @@ https://wandbox.org/permlink/Oj6mwFqz3ZyNsRW3
 
 * DIP1000: Scoped Pointers
 
-ここからはD言語の新機能DIP1000関連の話を解説します．まずDIP1000で引用されている過去の提案を見てみます．
+ここからはD言語の新機能DIP1000関連の話を解説します．Scoped Pointersとはざっくり言うと， ~return ref~ 仮引数のときは参照に限定されていたエスケープ解析をポインタやクラス全体に一般化した提案です．使い方はポインタ仮引数には ~return score int* a~ のように ~return scope~ として修飾して，ローカル変数のクラスやポインタには ~scope int* i;~ や ~scope ClassType c;~ として定義することで，ライフタイム終了後にアクセスされるとコンパイルエラーで禁止できます．
 
-** DIP25: Sealed References (2.067で実装)
+https://github.com/dlang/DIPs/blob/master/DIPs/DIP1000.md
+
+** 背景
+
+DIP1000で引用されている過去の提案を見てみます．
+
+*** DIP25: Sealed References (2.067で実装)
 
 https://wiki.dlang.org/DIP25
 前章で解説したやつです．
 
-** DIP35: Sealed References Amendment (ドラフト)
+*** DIP35: Sealed References Amendment (ドラフト)
 
 https://wiki.dlang.org/DIP35
 ドラフトなのでとりあえず飛ばします．必要があれば後ほど解説．
 
-** DIP36: Rvalue References (否決)
+*** DIP36: Rvalue References (否決)
 
 https://wiki.dlang.org/DIP36
 否決されたので詳細は飛ばします．ちなみに2018年は左辺値参照しか扱えなかった ~ref T~ で，右辺値参照もできるようにしようという提案があり，議論の最終段階にあります．
 
 https://github.com/dlang/DIPs/blob/master/DIPs/DIP1016.md
 
-** DIP69: Implement scope for escape proof references (-> DIP90 -> DIP1000)
+*** DIP69: Implement scope for escape proof references (-> DIP90 -> DIP1000)
 
 この提案は一度消えてDIP1000として再提案されたようです．[[https://github.com/dlang/DIPs/blob/master/DIPs/DIP1000.md#abstract]["This is a reboot of DIP69."]]
 
+*TODO 2018/12/19: とりあえずDIP1000自体の解説に入る前に，今回はここで終わります．続きは正月に書きます．良いお年を．*
 
-TODO 2018/12/19: とりあえずDIP1000自体の解説に入る前で，今回はここで終わります．続きは正月に書きます．良いお年を．
+
 
 # * 最後に
 # DIP1000はDIP69から数えると提案されて4年経ち，未だ実現はおろかドキュメントの更新すらされていません．フォーラムでも幾つか議論([[https://forum.dlang.org/post/dsceeupaxahiwldladox@forum.dlang.org][Why isn't dip1000 fully implemented yet?]])があるのを見て，ちょっと残念な気持ちになりました．この記事もドキュメント化されていない最近の議論や実装については反映できていません．それでも記事を書いたのは，ぜひD言語が活発な日本のユーザにも関心を持ってもらって，DIP1000のような絶対便利な言語機能の実現をもっと活発化したいと思ったからです．この記事を読んで，何か意見を感じた方はぜひ，フォーラムやTwitterで発信して頂けるといいなと思います．
