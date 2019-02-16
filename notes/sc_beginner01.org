@@ -10,11 +10,55 @@
 
 https://supercollider.github.io/download
 
-ただしLinuxはソースからビルドする必要がある．Ubuntuの場合は下記のページの情報からaptでバイナリをインストール可能．
+ただしLinuxはソースからビルドする必要がある．下記のページが参考になるだろう．
+
+https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-from-source-on-Ubuntu
+
+またUbuntuの場合は下記のページの情報からaptで若干古いバージョンのバイナリをインストール可能．
 
 https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-on-Ubuntu-systems
 
 筆者の環境は下記のとおりである．できるだけ環境依存のないような解説を心掛けるが，上手く再現できない場合は参考にして欲しい．
 
-- OS: Ubuntu 16.04 LTS
-- SuperCollider: 3.6.6
+- OS: Ubuntu 18.04 LTS
+- SuperCollider: [[https://github.com/supercollider/supercollider/releases/tag/Version-3.10.2][3.10.2]]
+- Jack: 1.9.12
+- PC: ThinkPad X1
+- Audio IF: Roland QuadCapture
+
+筆者は次のようにインストールした．ビルドに5分くらいかかる．
+
+#+begin_src bash
+sudo apt-get install build-essential libsndfile1-dev libasound2-dev libavahi-client-dev libicu-dev libreadline6-dev libfftw3-dev libxt-dev libudev-dev pkg-config git cmake qt5-default qt5-qmake qttools5-dev qttools5-dev-tools qtdeclarative5-dev qtpositioning5-dev libqt5sensors5-dev libqt5opengl5-dev qtwebengine5-dev libqt5svg5-dev libqt5websockets5-dev
+
+sudo apt-get install libjack-jackd2-dev
+
+wget https://github.com/supercollider/supercollider/releases/download/Version-3.10.2/SuperCollider-3.10.2-Source-linux.tar.bz2
+tar -xvf SuperCollider-3.10.2-Source-linux.tar.bz2
+
+cd SuperCollider-Source
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DNATIVE=ON ..
+make -j4
+sudo make install
+#+end_src
+
+** 音を鳴らす
+
+~scide~ コマンドでSuperCollider IDEを起動する．次に ~Ctr-B~ でJackなど音を出すためのサーバを起動する．ここで起動しない場合は，別のオーディオIFを試すとかサンプルレートの変更などを試す必要がある．
+
+https://supercollider.github.io/tutorials/server-failed-to-start
+
+例えば
+
+
+
+ここでいきなりサーバという概念がでてきて困惑すると思うが，SCにはネットワーク越しに音を鳴らしたりする変態的な機能がある．
+
+#+begin_src supercollider
+// 暗黙の定義 s = Server.local;
+s.boot;
+#+end_src
+
+これでデフォルトで変数 ~s~ に割り当てられているローカルのサーバを起動する．
