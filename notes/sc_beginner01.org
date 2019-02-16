@@ -59,11 +59,14 @@ https://supercollider.github.io/tutorials/server-failed-to-start
 
 - https://supercollider.github.io/ 公式ページ
 - https://supercollider.github.io/tutorials/user-faq 公式のよくある質問
-- 
+- https://sccode.org/ SCのコードが集まるフォーラム
 
 * 音を鳴らす
 
-SCをインストールしたら SuperCollider IDE (scide) を起動する．今回はこの作品を動かしてみる． https://sccode.org/1-4UF#c860
+SCをインストールしたら SuperCollider IDE (scide) を起動する．今回はsccodeで最近投稿されていた作品を動かしてみる． 
+
+https://sccode.org/1-4UF#c860
+
 GUIまで実装された，かなりの大作である．
 
 #+begin_src supercollider
