@@ -63,7 +63,7 @@ https://supercollider.github.io/tutorials/server-failed-to-start
 
 * 音を鳴らす
 
-SCをインストールしたら SuperCollider IDE (scide) を起動する．今回はsccodeで最近投稿されていた作品を動かしてみる． 
+SCをインストールしたら SuperCollider IDE (scide) を起動する．今回はsccodeに投稿されていた作品を動かしてみる． 
 
 https://sccode.org/1-4UF#c860
 
@@ -380,9 +380,9 @@ s.waitForBoot({
 }); // end of block
 #+end_src
 
-[[file:/img/scide.png]]
+動かし方は scide でサーバを起動(Ctrl-Bなど)して，下の写真でいう左側の画面に貼り付けて，全選択(Ctrl-A)したあと実行(Ctrl-Enter)すると次のようなGUIがでてくる．
 
-動かし方は scide でサーバを起動(Ctrl-Bなど)して，上の写真でいう左側の画面に貼り付けて，全選択(Ctrl-A)したあと実行(Ctrl-Enter)すると次のようなGUIがでてくる．
+[[file:/img/scide.png]]
 
 [[file:/img/sc_granular_sampling.png]]
 
