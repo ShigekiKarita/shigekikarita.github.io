@@ -6,11 +6,14 @@
 
 * はじめに
 
-何らかのプログラミング言語を触ったことがある人向け．環境構築については下記のページからバイナリをDLするのが良い．
+SuperColliderは割と珍しいテキストベースの音響プログラミング環境である．似たような環境としてはグラフィカルな環境としてMax/MSPやPureDataがあり，テキストベースの環境としてはTidalなどがある．本稿は何らかのプログラミング言語を触ったことがある人向け．今回は主に環境構築と情報源について記す，とりあえず下記のページからバイナリをDLするのが良い．
 
 https://supercollider.github.io/download
 
-ただしLinuxはソースからビルドする必要がある．下記のページが参考になるだろう．
+
+** 補足 Linux 環境
+
+Linuxは無料のOSが多いので，誰にでもオススメしたい．ただしLinuxはソースからビルドする必要がある．下記のページが参考になるだろう．
 
 https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-from-source-on-Ubuntu
 
@@ -44,21 +47,16 @@ make -j4
 sudo make install
 #+end_src
 
-** 音を鳴らす
-
-~scide~ コマンドでSuperCollider IDEを起動する．次に ~Ctr-B~ でJackなど音を出すためのサーバを起動する．ここで起動しない場合は，別のオーディオIFを試すとかサンプルレートの変更などを試す必要がある．
+Linux環境ではターミナルから ~scide~ コマンドでSuperCollider IDEを起動する．次に ~Ctr-B~ でJackなど音を出すためのサーバを起動する．ここで起動しなかったり思っていたのと違うデバイスの場合は，別のオーディオIFを試すとかサンプルレートの変更などを試す必要がある．
 
 https://supercollider.github.io/tutorials/server-failed-to-start
 
-例えば
+例えば ~qjackctl~ でJackの設定を変更する．私の場合はデフォルトでPC内蔵のサウンド出力が選ばれていたので，　外部IFのQuadCaptureを選択した．ここでサンプルレートも選べる．選択後にStartボタンを押す．
+
+[[file:/img/jack.png]]
+
+* 情報源
 
 
 
-ここでいきなりサーバという概念がでてきて困惑すると思うが，SCにはネットワーク越しに音を鳴らしたりする変態的な機能がある．
 
-#+begin_src supercollider
-// 暗黙の定義 s = Server.local;
-s.boot;
-#+end_src
-
-これでデフォルトで変数 ~s~ に割り当てられているローカルのサーバを起動する．
