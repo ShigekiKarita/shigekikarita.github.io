@@ -1,0 +1,20 @@
+#+TITLE: SuperCollider ビギナーズガイド1
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+* はじめに
+
+何らかのプログラミング言語を触ったことがある人向け．環境構築については下記のページからバイナリをDLするのが良い．
+
+https://supercollider.github.io/download
+
+ただしLinuxはソースからビルドする必要がある．Ubuntuの場合は下記のページの情報からaptでバイナリをインストール可能．
+
+https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-on-Ubuntu-systems
+
+筆者の環境は下記のとおりである．できるだけ環境依存のないような解説を心掛けるが，上手く再現できない場合は参考にして欲しい．
+
+- OS: Ubuntu 16.04 LTS
+- SuperCollider: 3.6.6
