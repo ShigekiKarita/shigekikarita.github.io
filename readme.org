@@ -19,7 +19,8 @@
 - [[https://github.com/ShigekiKarita][GitHub]]
 - [[https://twitter.com/kari_tech][Twitter]]
 - [[https://scholar.google.com/citations?hl=ja&user=enV4FrIAAAAJ&view_op=list_works&sortby=pubdate#][Google Scholar]]
-- [[file:journal.org][Log (ja 日本語)]]
+- [[https://shigekikarita.github.io/log][Log (new)]]
+- [[file:journal.org][Log (old)]]
 
 ** Software
 
