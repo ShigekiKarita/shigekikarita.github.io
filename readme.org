@@ -14,6 +14,13 @@
 #+END_center
 #+END_abstract
 
+** About me
+
+- Name: Shigeki Karita (EN), 苅田 成樹 (JP)
+- Home: Osaka, Japan
+- Job: full-time worker at NTT Communication Science Laboratories (2016 - now)
+- Degree: M. Eng., Osaka Univ.
+
 ** Link
 
 - [[https://github.com/ShigekiKarita][GitHub]]
