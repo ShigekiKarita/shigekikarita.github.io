@@ -1,0 +1,175 @@
+#+TITLE: D言語のTips
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+
+#+BEGIN_abstract
+#+BEGIN_center
+忘れやすい簡単なイディオム集
+#+END_center
+#+END_abstract
+
+* 型全般
+
+** 関数の中で自身の戻り値型を取得する
+
+~typeof(return)~ を使う．
+例えばmixin先の関数の中で戻り値型が欲しいことがある．
+
+#+begin_src d
+import std.stdio;
+
+mixin template isVoid(string fname = __FUNCTION__) {
+    alias Ret = typeof(return);
+    enum isVoid = is(Ret == void);
+    
+    void f() {
+        if (isVoid) {
+            writeln(fname ~ " returns void");
+        } else {
+            writeln(fname ~ " does not return void");
+        }
+    }
+}
+
+int foo() {
+    mixin isVoid;
+    f();
+    return 1;
+}
+
+void main() {
+    foo();
+    
+    mixin isVoid;
+    f();
+
+/* 実行結果 https://wandbox.org/permlink/r9uG53ygmStEagBS
+prog.foo does not return void
+prog.main returns void
+*/
+}
+#+end_src
+
+** 特定のコードが動作するか検査する型制約を書く
+
+別にどう書いても良いが，C++のConcept (requires-expression) と同じパターンがある．
+
+- C++ Concepts（P0734R0） http://d.hatena.ne.jp/yohhoy/20170904/p1
+
+#+begin_src d
+import std.stdio;
+
+enum bool isAddable(T) = is(typeof((T a, T b){
+    // T が Addable ならコンパイルできるはずなコードを書く
+    auto c = a + b;
+    ++a;
+}));
+
+
+void main() {
+    static assert(isAddable!int);
+    static assert(!ocaml.isAddable!string);
+}
+#+end_src
+
+仕組みはこちらの解説がわかりやすい http://www.codelogy.org/entry/2012/08/12/120835
+
+
+* モジュール
+
+** モジュール内の関数・変数を調べる
+
+
+例えばPhobosで最近追加された関数が使えるか，バージョンを調べるのが面倒・ハードコードしたくないときに使う．
+~std.traits.hasMember~ はモジュールを引数に取れないので注意・
+
+#+begin_src d
+import std.stdio;
+import std.algorithm;
+
+static if(!__traits(hasMember, std.algorithm, "minIndex")) {
+    // 2.069 とかではこちらが使われる
+    auto minIndex(R)(R x) {
+        return 0;
+    }
+}
+
+void main() {
+    [100,1,2,3].minIndex.writeln;
+}
+#+end_src
+
+* コンパイラ
+
+** LDCでbetterCモード
+
+DMDのbetterCというのはDの標準ライブラリPhobosやRuntimeをリンクしないバイナリを作るオプションである．LDCでは
+
+- コードに ~version(LDC) pragma(LDC_no_moduleinfo);~ と書く
+- コンパイラに ~-relocation-model=static~ フラグを付ける
+
+これで他のCコードとリンクするときに使っていないライブラリやRuntimeがないと怒られなくなる．
+ちなみにDMDは2.076.0までのバージョンではきちんと依存を外してくれないので注意． https://dlang.org/blog/2017/08/23/d-as-a-better-c/
+
+** コンパイル時ファイル読み込み
+
+コンパイラオプションで，-J でファイルのパスを指定し， ~import("ファイル名")~ で読み込める．
+例えば簡単にQuineを書きたいとか（反則），コンパイル時にCヘッダーをパースしてD言語に変換したいときに使う．
+
+#+begin_src d
+import std.stdio;
+
+void main() {
+    auto f = import("prog.d");
+    f.writeln; // このコードが出力される．
+}
+#+end_src
+
+https://wandbox.org/permlink/VvR7h4AIReRVpXBe
+
+- コンパイル時にCヘッダーをパースしてenumをmixinするコード https://github.com/ShigekiKarita/d-nv/blob/7946c12c5657d0a9e73167792d1565f2f1474e86/source/dnv/error.d#L28
+
+
+* 関数仮引数における修飾子
+
+C++ の修飾子 (qualifier) といえば， const, volatile くらいでした．Effective C++などで推奨されているスタイルとしては
+
+1. とりあえずconst修飾できるならする
+1. コピーコストが大きい型は参照(&)かポインタ(*)に修飾
+1. 右辺値参照も左辺値参照も共通の関数でオーバーロードしたいならユニバーサル参照 (T&&) に修飾
+
+くらいの気持ちで良かったと思いますが，D言語には修飾子がたくさんあります．
+
+- 本家 https://dlang.org/spec/function.html#parameters
+- 昔の日本語訳 http://www.kmonos.net/alang/d/function.html
+
+#+caption: 仮引数の記憶域クラス
+| 記憶域クラス | 説明                                                                                                      |
+|--------------+-----------------------------------------------------------------------------------------------------------|
+| 修飾なし     | 仮引数は実引数の書き換え可能なコピーとなる (*)                                                            |
+| in           | 規格上はconst scope と同じとして定義されるが， *現在の実装ではconstと同じなので，const scopeを使うべき．* |
+| out          | 仮引数は関数に入る際に、 その型のデフォルト値で初期化される                                               |
+| ref          | 引数は参照渡しされる                                                                                      |
+| scope        | 仮引数への参照は関数スコープの外に出すこと (グローバル変数への代入など) はできない                        |
+| lazy         | 実引数は呼び出し側ではなく、呼ばれた関数の中で使った時に評価される                                        |
+| const        | 実引数が暗黙にconst型に変換される                                                                         |
+| immutable    | 実引数が暗黙にimmutable型に変換される                                                                     |
+| shared       | 実引数が暗黙にshared型に変換される                                                                        |
+| inout        | 実引数が暗黙にinout型に変換される                                                                         |
+
+(*) 動的配列と(クラス型の)オブジェクトは参照として渡され，in/out/ref修飾は参照に適用され，中身の値には適用されない．
+
+** 右辺値の扱い
+
+ここで，気になるのがC++でいう右辺値のようなコピー禁止な値をどうやって受けるかということです (ref refみたいな型は無い)．
+
+
+1. とりあえず immutable または const 修飾できるならする
+1. とりあえずコピーコストが大きい型は参照 (ref) にして， scope 修飾できるならする
+1. mutable, const, immutable な値も共通の関数でオーバーロードしたいならinoutに修飾
+1. 必要なら out をつける
+1. マルチスレッド間で共有が必要なら shared をつける
+1. 必要なら lazy をつける (例えば logging みたいな，場合によって評価しないコードなど)
+
+ついでに関数の属性・アノテーションも pure, nothrow, @nogc, @safe (または@trusted) をつけまくるべきです．

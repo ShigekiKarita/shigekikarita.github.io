@@ -1,0 +1,339 @@
+#+TITLE: D言語でコンパイル時に動く正規表現エンジンを作る
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+
+* はじめに
+
+tl;dr 実装見てください https://github.com/ShigekiKarita/d-fsa/tree/v0.0.1
+
+皆さんは正規表現つかってますか?正直に言うと私はgrepとかsedコマンドでときどき使うくらいで，まともに勉強したことはありませんでした．そもそもD言語で正規表現を使ったことがない人も多いかもしれません．もし興味があれば，この機会にD言語向けの解説を見てみてはいかがでしょうか，かなり面白いです．
+
+- 2016年のAC (@kubo39さん) [[https://qiita.com/kubo39/items/0cd4b0bc05c0a7b27450][std.regexについて少し書いた]]
+- 公式ページの解説 (英語) [[https://dlang.org/articles/regular-expression.html][Regular Expressions]]
+
+ただし今回こういった前提知識は必要ありません．私が実装した正規表現エンジンは高速でもなければ，機能もマッチしてるか判定するだけなので実用性はないです．ただ，コンパイル時にマッチするか判定できるだけです．この記事を読んで得られるのは，ちょっとした正規表現エンジンの仕組みと，D言語で複雑なコードをコンパイル時に動かすtipsくらいです．
+
+* 動機：ctRegexがコンパイル時にマッチできない
+
+そもそもD言語にはstd.regex.ctRegexというコンパイル時正規表現エンジンがあるのですが，パターンのコンパイルはできてもマッチなどの操作はコンパイル時は動きません．
+
+#+begin_src d
+import std.regex;
+
+void main() {
+    // 公式ドキュメントの例をauto -> static constに
+    // Error: cannot convert `&immutable(Regex!char)` to `Regex!char*` at compile time ...
+    static const ctr = ctRegex!(`^.*/([^/]+)/?$`);
+    static const c2 = matchFirst("foo/bar", ctr);   // First match found here, if any
+    static assert(!c2.empty);   // Be sure to check if there is a match before examining contents!
+    static assert(c2[1] == "bar");   // Captures is a range of submatches: 0 = full match.
+}
+
+#+end_src
+
+https://wandbox.org/permlink/akVd9OiDJbBJwIN5
+
+動かすとコンパイラのバグなのでレポートしてねと出てきます(してない...)．
+
+https://github.com/dlang/phobos/tree/v2.083.0/std/regex/internal
+
+ちなみにDの標準ライブラリにある正規表現にはBackTracking(またはvirtual machineともいう)と，Thompson NFAアルゴリズムを使った２つの実装があります．私の理解が正しければ，ctRegexの方は[[https://github.com/dlang/phobos/blob/262d59f5b534c0ffe39adbfeed69e42c169fe2b6/std/regex/package.d#L439][BackTrackingによる実装]]になっているはずです．同じように作っても面白くないし，コンパイル時実行が難しいかもしれないので，今回はNFAベースの実装をやっていきます．
+
+
+** コンパイル時実行(CTFE)とは
+
+ところでコンパイル時の値（定数のみ）は次の方法で作れます．
+
+#+begin_src d
+// 実行時は参照できない定数値 (manifest constant)，右辺値になる
+// https://dlang.org/spec/enum.html#manifest_constants
+enum e = 1;
+// 実行時も参照できる定数値，左辺値，アドレスもとれる．コンパイル時に初期化される
+static const c = 1;
+#+end_src
+
+- 補足：簡単なCTFE入門 https://tour.dlang.org/tour/ja/gems/compile-time-function-evaluation-ctfe
+
+コンパイル時に動く最も重要な条件の一つは純粋な操作しかできないということです．副作用があるとstatic const/immutableな値にできないので，できる限り純粋(pure)な実装を心がけます．もし可変な状態を持つ操作が必要なときは使い捨てのオブジェクト(例えばrangeオブジェクトみたいな)にして分離すると，D言語では定数回の可変な操作は純粋に行えるので，コンパイル時に動きやすいかと思います(C++14のconstexprと同じ)．
+
+この考え方を一般化するとmutableな操作をラムダ式内部で閉じて行うパターンに行き着きます．余談ですが私はこれを"precomputedパターン"と勝手に読んでます．下記のようなパターンはD言語のコードで非常によくでてきます．
+#+begin_src d
+// 副作用のある関数
+void mutate(ref int i) { ++i; }
+
+void main() {
+    // コンパイル時に決定的に動けば副作用も使える
+    enum a = { int x = 0; mutate(x); return x; }();
+    static assert(a == 1);
+}
+#+end_src
+
+解説 https://p0nce.github.io/d-idioms/#Precomputed-tables-at-compile-time-through-CTFE
+
+CTFEのための第二の条件としては，結局はD言語コンパイラの実装による部分が多い感じもします．ただDMDで動けばLDCやGDCも同じフロントエンドを使っているので多くの場合困らないです．そういうわけで実際には少しずつコンパイル時に動くテストを書いた部品を組み合わせて，大きなコンパイル時に動く正規表現エンジンを作っていくのが重要です．
+
+* 実装
+
+「正規表現エンジンを作ろう」　https://codezine.jp/article/corner/237
+
+このサイトの実装解説がとてもわかりやすかったので，とくに事前知識がなくても只管Pythonコードをコンパイル時に動くD言語のコードに変換していくことで実装しました．私の理解ではエンジンの内部処理は大まかには以下の3ステージで実装できます．これらを全部コンパイル時にできれば良いというわけです．
+
+- パターン文字列(e.g., "(abc|ABC)*")から構文木への変換 (パーサ/レキサー)
+- 構文木からNFAへの変換
+- NFAからDFAへの変換
+
+とくに二番目のNFAへの変換が難しいのですが，色々なアルゴリズムが提案されているので，調べてみると面白いです．今回は[[https://swtch.com/~rsc/regexp/regexp1.html][Thompson NFA]]の派生らしいです．
+
+ところで最後に，わざわざNFAからDFAに変換するステップがあるのは，DFAの構築には「正規表現の長さm」に対して指数時間O(2^m)かかるのですが，「入力文字列の長さn」の線形時間O(n)でマッチできるため高速だからという理由らしいです．一方NFAを直接使う場合はO(mn)かかります．マッチは何度も実行しますが，構築は一度しかしないのでトータルでNFAよりもDFAの方が効率的だろうというのがポイントだと思います．ここで重要な前提として正規表現を変換した等価なNFAやDFAによって受理されるかというのが，正規表現がマッチしたかどうかという判定と等価になるという考え方です．もし，よくわからなくても次の節をみてください．
+
+** コンパイル時NFA
+
+元ネタ通りに，とりあえずNFAから作りました．簡単にNFAとは以下の3つの要素からなるオートマトンです
+
+- 状態と入力を受け取り，遷移できる状態の集合を返す遷移表（または遷移関数）map
+- 初期状態: start
+- 受理状態の集合: accepts
+
+このときはPythonのコードをもとにしたので何が入力や状態の型なのかわかってなかったので，とりあえずtemplateにしました．D言語のtemplateはスクリプト言語みたいなところがあるので，後から具体的な仕様は決めることができて楽です．
+
+#+begin_src d
+import std.typecons : Tuple, tuple;
+
+struct NFA(State, Input) {
+    alias Arc = Tuple!(State, Input);
+    State start;
+    Set!State accept;
+    Set!State[Arc] map; // 遷移表
+
+    // 状態と入力に応じた次に遷移できる状態の集合を返す，なければ空集合を返す
+    pure Set!State transition(const State s, const Input i) const {
+        return this.map.get(Arc(s, i), set!State());
+    }
+}
+
+unittest {
+    /**
+       NFA example
+        -> (0) --- a --> (1)
+           ^  \           |
+           |  |           b
+          eps |           |
+           |  |           v
+           |  \--- a --> [2]
+           \-------------/
+    */
+    alias set = Set!int;
+    enum NFA!(int, string) n = {
+        start: 0,
+        accept: set(2),
+        map: [tuple(0, "a"): set(1, 2),
+              tuple(1, "b"): set(2),
+              tuple(2, ""):  set(0)]
+    };
+    static assert(n.transition(0, "a") == set(1, 2));
+}
+#+end_src
+この例にあるNFAは文字列abまたはaに対してマッチする(=受理状態[2]に到達する)NFAです．繰り返しはでてきませんが，マッチする複数の文字列をNFAのグラフとして扱うイメージができるかと思います．
+
+ところで，ここで集合を表すSet型の実装に悩むことになりました．
+
+** コンパイル時Set
+
+D言語のstd.containerでSet(集合)として使えるのは赤黒木RedBlackTreeクラスだけだと思うのですが，コンパイル時に動きませんでした...．
+
+#+begin_src d
+import std.container;
+import std.algorithm;
+
+void main() {
+    static const rbt = redBlackTree(3, 1, 4, 2, 5);
+    static assert(equal(rbt[], [1, 2, 3, 4, 5])); // Error: cannot cast ...  at compile time
+}
+#+end_src
+https://wandbox.org/permlink/sy9FhfQd5Wwd2jpt
+
+よく考えたら，赤黒木よりもC++のstd::unordered_setのように，ハッシュテーブルを使って実装したほうがシンプルで良いかも...という思いもあり，D言語の組み込み連想配列(assoc)はコンパイル時に動くし，ハッシュテーブル実装なので，ラップして使いました．
+
+#+begin_src d
+struct Set(T) {
+    struct Value {}
+    Value[T] base;
+    alias base this;
+    
+    this(T[] xs) {
+        foreach (x; xs) this.base[x] = Value();
+    }
+}
+
+void main() {
+    enum s = Set!int([1, 2, 3]);
+    static assert((1 in s) != null);
+    static assert((0 in s) == null);
+}
+#+end_src
+
+実装も楽だし，たぶん速いし，コンパイル時に動くし，良いことばかりですね．
+
+** コンパイル時DFA
+
+DFAはNFAよりも複雑な遷移をしたくなるので，連想配列による遷移表mapではなく関数transで表すことにしました．注意点として NFA の遷移関数は ~Set!State transition(State s, Input i)~ でしたが，DFAは決定的なので ~State transition(State s, Input i)~ といった具合に戻り値が必ず一つの状態になることです．D言語はちゃんとした静的型付き言語なのに，私はスクリプト言語に型が勝手につく位の使い方をしてるので，読みづらくて申し訳ないです．
+
+#+begin_src d
+struct DFA(State, Input, alias trans, Accepts = Set!State) {
+    State start;
+    Accepts accepts;
+    alias transition = trans;
+}
+
+unittest {
+    /**
+       DFA example
+       -> (1) -- a --> (2) -- b --> [3]
+    */
+    enum map = [
+        tuple(1, "a"): 2,
+        tuple(2, "b"): 3,
+        ];
+
+    int t(int state, string c) {
+        return map.get(tuple(state, c), 0);
+    }
+    enum DFA!(int, string, t) d = { start: 1, accepts: Set!int([3]) };
+    // 遷移してみる
+    static assert(d.transition(1, "a") == 2);
+    static assert((d.transition(2, "b") in dfa.accepts) != null);
+}
+#+end_src
+
+NFAと同様に，最終的に正規表現がマッチしているかの判定は遷移後の状態がaccepts集合に入っているかどうかまで簡単化されるので，このくらいの実装ならコンパイル時にマッチできることがわかります．
+
+** 残りの部分を書く
+
+実際のところ，これ以外の部分はもうやるだけです，とくにコンパイル時に動かないということはありませんでした．アドバイスとしてはプログラムが大きくなると何をやっているのか理解できなくなる＋コンパイル時に動かなくなることが多いので，モジュールをどんどん分割して簡単な変換例をunittestとして書き続けるのが良いと思います．意外にも組み合わせるとコンパイル時に動かなくなるということはほぼなく，どこかしらが局所的にコンパイルできないことが多いです．
+
+以下ざっくりとした実装上のポイント解説です．
+
+*** 字句解析
+
+https://github.com/ShigekiKarita/d-fsa/blob/v0.0.1/source/dfsa/lexer.d
+
+ここでは元ネタの正規表現エンジンに従って下記の数学的に使われる文法のみをサポートしました．
+実用的な正規表現にでてくる + ? {} [] などは今回サポートしていませんが，それぞれ数学的な正規表現に変換できるので後回しにしてます．
+
+#+CAPTION: 数学的な正規表現の文法
+#+NAME: fig:regexp-syntax
+|           | 受理する文字列           | Token列挙型     | ASTクラス名 |
+|-----------+--------------------------+-----------------+-------------|
+| A         | 文字                     | character       | Char        |
+| A \vert B | AまたはBの集合           | opUnion         | Union       |
+| AB        | AとBの連結               | なし            | Concat      |
+| A*        | Aの繰り返し              | opStar          | Star        |
+| (A)       | カッコ内を優先してマッチ | left/rightParen | なし        |
+
+文字列からToken列への変換はよくあるswitch文を使ったものです．
+
+*** 構文解析
+
+https://github.com/ShigekiKarita/d-fsa/blob/v0.0.1/source/dfsa/parser.d
+
+構文解析では字句解析されたToken列をASTに割り当てていきます．よくあるBNFのような生成規則を思い浮かべて再帰的にASTを作ります．
+#+begin_src ocaml
+expression := subexpr EOF
+subexpr    := seq '|' subexpr | seq
+seq        := subseq | ''
+subseq     := star subseq | star
+star       := factor '*' | factor
+factor     := '(' subexpr ')' | CHARACTER
+#+end_src
+
+*** 抽象構文木(AST)
+
+https://github.com/ShigekiKarita/d-fsa/blob/v0.0.1/source/dfsa/ast.d
+
+構文解析時に上記の字句を図の右に示したASTクラスとして表現しています．ここでは主に表[[fig:regexp-syntax]]に示した受理を行うNFAへの変換を行います．
+#+begin_src d
+interface AST {
+    /// 合成用のNFA型
+    alias Fragment = NFAFragment!(int, dchar);
+    /// 受理する文字列に対応したNFAに変換するメソッド
+    Fragment assemble(scope ref Context ctx) const;
+    /// 等価な字句か判定するメソッド
+    bool opEquals(Object that) const;
+    /// デバッグ用プリントに文字列化するメソッド
+    string toString() const;
+}
+#+end_src
+
+*** NFAからDFAへの変換
+
+https://github.com/ShigekiKarita/d-fsa/blob/v0.0.1/source/dfsa/automata.d#L150
+
+この辺でだんだんとモチベーションが下がって二ヶ月くらい放置してました(90%終わってきたので...)．
+やってることは元ネタと全く同じで部分集合構成法を使っています．ひとつだけ未だにコンパイル時に動かなくてハマっている部分があります．遷移関数の部分でコンパイル時に参照できないと怒られてしまうので，力技でコンパイル時版をコピペで書きました，ここだけはちゃんと書き直したいです．
+
+#+begin_src d
+/// 本当は nfa を関数の引数にしたかったが，怒られるのでテンプレート引数にして"とりあえず"動かした
+auto nfa2dfa(State = int, Input = dchar, NFA!(int, dchar) nfa)() {
+    import dfsa.set : DisjointSet;
+    alias Arc = ArcT!(Set!State, Input);
+
+    auto trans(const Set!State[Arc] map, Set!State state, Input c) {
+        Set!State ret;
+        foreach (elem; state) {
+            ret = ret ~ nfa.transition(elem, c);
+        }
+        return nfa.epsExpand(ret);
+    }
+
+    alias D = DFA!(Set!State, Input, trans, DisjointSet!State);
+
+    D dfa = {
+        start: nfa.epsExpand(set(nfa.start)),
+        accepts: DisjointSet!State(nfa.accept)
+    };
+    return dfa;
+}
+#+end_src
+
+*** 正規表現のマッチ：受理判定
+
+冒頭に説明したように正規表現を等価なDFAに変換した後は，ひたすら入力文字列に従って遷移して，最終的に受理状態に到達したか調べるだけなので何も難しいことはありません．
+
+https://github.com/ShigekiKarita/d-fsa/blob/v0.0.1/source/dfsa/automata.d#L85
+
+** 動作検証
+
+それでは，冒頭に示したコンパイル時に動かない例が動くようになったか検証してみます．
+
+#+begin_src d
+import dfsa.regexp;
+
+enum nfa = parseNFA("(ABC*|abc*)*");
+// alias NFA = typeof(parseNFA(string.init));
+enum dfa = nfa2dfa!(int, dchar, nfa)();
+alias match = (dstring s) => dfa.runtime.accept(s);
+static assert(match("ABC"));
+static assert(!match("ABBC"));
+static assert(match("abcccABABC"));
+static assert(!match("abABAb"));
+static assert(match(""));
+#+end_src
+
+ちゃんとstatic assertが通っているのでコンパイル時に検証できました．
+
+* まとめと課題
+
+今回の収穫としては，コンパイル時に動くSet(集合)が手に入ったのが大きいのではないでしょうか．私はこれまでコンパイル時Setさえあれば...という経験が10回くらいあります．あとコンパイル時に動かすprecomputedパターンや，関数がCTFEで動かないときに無理やりテンプレート引数に突っ込んでコンパイラによろしくやってもらうパターン(?)も個人的には有用だったと思います．
+
+正規表現エンジンとしては，とりあえず動いた．というレベルなので本格的に使い物になるようなライブラリにするには次のような課題があります．
+
+- 冒頭に述べた実用的な正規表現の文法や ^ $ などのポピュラーな文法をサポートする
+- CTFE用の ~nfa2dfa~ をかっこよくする
+- ひたすら機能拡張を続けて [[https://github.com/hanickadot/compile-time-regular-expressions][C++のctre]] 並(つまりPCRE並)に高機能にする
+- http://lh3lh3.users.sourceforge.net/reb.shtml などを参考にベンチマークをとって高速化する
+
+始めは汎用な有限状態オートマトンの勉強がてらライブラリを作っていたのですが，正規表現の世界だけでも十分一生掛かりそうな技法があり面白いです．今回はふれなかったBackTrackingによる実装など，のんびりと趣味で続けていこうと思います．
+

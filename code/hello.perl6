@@ -1,0 +1,6 @@
+for (1 ... 10) -> $var {
+    if $var == 1|2|3 {
+        say "The variable=$var is 1 or 2 or 3"
+    }
+}
+

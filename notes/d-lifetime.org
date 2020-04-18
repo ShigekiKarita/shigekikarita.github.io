@@ -1,0 +1,374 @@
+#+TITLE: D言語におけるライフタイム
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: en
+
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+D言語は基本型と構造体はスタックに確保できたり，値セマンティクスだったりで，参照を扱うと何かとハマることがあります．そんなとき，日本語の解説記事があれば役に立つかもと思い筆をとりました．本稿の1章はD言語の基礎が学べる名著「Programming in D」から「ライフタイムと基本操作」の章を和訳させてもらいました．残りの2-3章ではD言語のとりあえずONにすると便利な機能(-dip25 -dip1000)を紹介します．
+
+* ライフタイムと基本操作 (Programming in D翻訳)
+
+原作: "Programming in D: Lifetimes and Fundamental Operations," http://ddili.org/ders/d.en/lifetimes.html
+
+#+begin_quote
+本章はAli Çehreli氏の著作物を[[http://ddili.org/copyright.html][コピーレフトライセンス]]([[https://creativecommons.org/licenses/by-nc-sa/3.0/deed.ja][CC BY-NC-SA3.0]])に基づいて翻案しています．本翻案のライセンスも継承元のライセンスに従いCC BY-NC-SA3.0とします．This page is built upon Ali Çehreli's material. This page is also distributed under CC BY-NC-SA3.0 as same as the base material.
+#+end_quote
+
+(訳注：冒頭は原作の章構成の話なので本稿にはあまり関係ないです)
+
+我々はこの後すぐ構造体 ~struct~ を学びます．構造体とはアプリケーションのため独自にプログラマが定義できる型です．構造体は基本型や他の構造体を組み合わせて，プログラムに必要な特化した高レベルな型を定義するために使います．構造体の後は，クラス ~class~ について学びます，クラスとはD言語におけるオブジェクト指向プログラミングの基礎となる機能です．
+
+構造体やクラスに入る前に，いくつかの重要な概念について先に話しましょう．その概念とは構造体やクラス，およびそれらの違いを理解するのに役立つものです．
+
+我々はあらゆるデータを「変数」と呼ぶプログラム上の概念として表現します．幾つかの箇所で，我々は構造体やクラスの変数を「オブジェクト」とも呼びました．この章では，どちらの概念も「変数」と呼ぶことにします．この章では基本型，スライス，および連想配列しか扱いませんが，その概念はユーザ定義型にも同様にあてはまります．
+
+** 変数のライフタイム
+
+変数の /ライフタイム/ とは，変数が定義されてから /ファイナライズ/ されるまでの期間です．多くのケースで， /無効/ になるタイミングと /ファイナライズ/ されるタイミングは必ずしも同時ではありません．
+# The time between when a variable is defined and when it is finalized is the lifetime of that variable. Although it is the case for many types, becoming unavailable and being finalized need not be at the same time.
+
+変数がどのように無効になるかは，[[http://ddili.org/ders/d.en/name_space.html][名前スコープの章]](訳注:未翻訳)から思い出してください．簡単なケースとして，変数が定義されたスコープを抜けるときにその変数は無効になります．
+# You would remember from the Name Scope chapter how variables become unavailable. In simple cases, exiting the scope where a variable was defined would render that variable unavailable.
+
+確認のために，以下の例を考えてみましょう．
+# Let's consider the following example as a reminder:
+#+begin_src d
+void speedTest() {
+    int speed;               // 変数の定義
+
+    foreach (i; 0 .. 10) {
+        speed = 100 + i;     // ... 10回の異なる値をとる
+        // ...
+    }
+} // ← 'speed' はここから無効になる
+#+end_src
+
+このコードにおける変数 ~speed~ のライフタイムは ~speedTest()~ 関数を抜けるときです．ここで変数は100から109までの異なる値をとっています．
+# The lifetime of the ~speed~ variable in that code ends upon exiting the speedTest() function. There is a single variable in the code above, which takes ten different values from 100 to 109.
+
+変数のライフタイムという観点では，以下のコードは先程の例とはかなり異なります：
+# When it comes to variable lifetimes, the following code is very different compared to the previous one:
+#+begin_src d
+void speedTest() {
+    foreach (i; 0 .. 10) {
+        int speed = 100 + i; // 10個の別々の変数
+        // ...
+    } // ← 個々の変数のライフタイムはここで終わる
+}
+#+end_src
+このコードでは10個の別々の変数が，それぞれ1つずつ値をとります．ループ中の各イテレーションでは，新しい変数がライフタイムを開始して，順に各イテレーション終了と共にライフタイムを終えます．
+# There are ten separate variables in that code, each taking a single value. Upon every iteration of the loop, a new variable starts its life, which eventually ends at the end of each iteration.
+
+** 仮引数のライフタイム
+
+仮引数のライフタイムは，修飾子によって決まります．
+# The lifetime of a parameter depends on its qualifiers:
+
+- ~ref~: 仮引数は単なる関数呼び出し時に指定された実引数へのエイリアスです． ~ref~ 仮引数は実引数のライフタイムに何の影響も及ぼしません．
+# ref: The parameter is just an alias of the actual variable that is specified when calling the function. ref parameters do not affect the lifetimes of actual variables.
+- ~in~: /値型/ の仮引数は，関数に入ったときにライフタイムが始まり，抜けるときに終わります． /参照型/ なら，ライフタイムは ~ref~ のときと同じです．
+# in: For value types, the lifetime of the parameter starts upon entering the function and ends upon exiting it. For reference types, the lifetime of the parameter is the same as with ref.
+- ~out~: ~ref~ と同じく仮引数は，関数呼び出し時に指定された実引数への単なるエイリアスです．唯一の違いとして，関数に入ったときに変数は ~.init~ 値に自動的にセットされます．
+# out: Same with ref, the parameter is just an alias of the actual variable that is specified when calling the function. The only difference is that the variable is set to its .init value automatically upon entering the function.
+- ~lazy~: 仮引数のライフタイムは，仮引数が実際に使われるときに始まり，その直後に終わります．
+# lazy: The life of the parameter starts when the parameter is actually used and ends right then.
+
+以下の例はここまでの4つの型を使った仮引数を使い，それらのライフタイムをコメントで説明しています．
+# The following example uses these four types of parameters and explains their lifetimes in program comments
+#+begin_src d
+void main() {
+    int main_in;      /* main_in の値は仮引数にコピーされます */
+
+    int main_ref;     /* main_ref は自身が関数に渡されます． */
+
+    int main_out;     /* main_out は自身が関数に渡されます．
+                         int.init の値が関数に入ったときにセットされます */
+
+    foo(main_in, main_ref, main_out, aCalculation());
+}
+
+void foo(
+    in int p_in,       /* p_in のライフタイムは関数に入ると始まり
+                        * 関数を抜けるときに終わります． */
+
+    ref int p_ref,     /* p_ref は main_ref のエイリアスです. */
+
+    out int p_out,     /* p_out は of main_out のエイリアスです．
+                        * 関数に入る際，値が int.init にセットされます．*/
+
+    lazy int p_lazy) { /* p_lazy のライフタイムは利用した時に始まり
+                        * 利用した後に終わります．p_lazy を関数内で使うとき
+                        * 値は aCalculation() を毎回呼んで計算されます． */
+    // ...
+}
+
+int aCalculation() {
+    int result;
+    // ...
+    return result;
+}
+#+end_src
+
+** 基本操作
+
+どんな型にも，変数のライフタイムを通じて3つの基本操作があります．
+# Regardless of its type, there are three fundamental operations throughout the lifetime of a variable:
+- 初期化: ライフタイムの開始
+- ファイナライズ: ライフタイムの終了
+- 代入: 値の変更の総称
+# Initialization: The start of its life.
+# Finalization: The end of its life.
+# Assignment: Changing its value as a whole.
+オブジェクトを想定すると，まず始めに初期化されるはずです．特定の型にはファイナライズがあるかもしれません．変数の値はライフタイムを通じて変化するかもしれません．
+# To be considered an object, it must first be initialized. There may be final operations for some types. The value of a variable may change during its lifetime.
+
+*** 初期化
+
+全ての変数は利用前に初期化されるはずです．初期化は2つのステップがあります:
+# Every variable must be initialized before being used. Initialization involves two steps:
+1. 領域の確保: ここで領域とは変数の値をメモリ上に格納するための場所です．
+2. 構築: 領域上に初期値(または構造体やクラスのメンバの初期値)の設定．
+# 1. Reserving space for the variable: This space is where the value of the variable is stored in memory.
+# 2. Construction: Setting the first value of the variable on that space (or the first values of the members of structs and classes).
+
+全ての変数はメモリ上の場所を確保して生存しています．コンパイラーが生成するコードのうち幾つかは各変数に領域を確保するためのものです．
+# Every variable lives in a place in memory that is reserved for it. Some of the code that the compiler generates is about reserving space for each variable.
+
+以下のような変数を考えてみましょう．
+# Let's consider the following variable:
+#+begin_src d
+int speed = 123;
+#+end_src
+これまで[[http://ddili.org/ders/d.en/value_vs_reference.html][値型と参照型の章]](訳注：未翻訳)で見てきたように，我々はこの変数がメモリ上のどこかで生存していることをイメージできます.
+# As we have seen in the Value Types and Reference Types chapter, we can imagine this variable living on some part of the memory:
+#+begin_src
+   ──┬─────┬─────┬─────┬──
+     │     │ 123 │     │
+   ──┴─────┴─────┴─────┴──
+#+end_src
+変数が格納されるメモリ上の位置をアドレスと呼びます．つまり，変数はアドレス上で生存しています．変数の値が変更されたとき，新たな値が同じ場所に格納されます．
+# The memory location that a variable is placed at is called its address. In a sense, the variable lives at that address. When the value of a variable is changed, the new value is stored at the same place:
+#+begin_src d
+++speed;
+#+end_src
+新たな値は昔の値と同じ場所にいるはずです．
+# The new value would be at the same place where the old value has been:
+#+begin_src
+   ──┬─────┬─────┬─────┬──
+     │     │ 124 │     │
+   ──┴─────┴─────┴─────┴──
+#+end_src
+構築は値を利用するために不可欠です．構築前の変数は使うことができないので，コンパイラは自動的に構築を実行します．
+# Construction is necessary to prepare variables for use. Since a variable cannot be used reliably before being constructed, it is performed by the compiler automatically.
+変数は3つの方法で構築できます:
+# Variables can be constructed in three ways:
+1. デフォルト値: プログラマが値を明示的に指定しないとき
+2. コピー: 同じ型の他の変数のコピーとして変数が構築されたとき
+3. 指定された値: プログラマが明示的に値を指定したとき
+#    By their default value: when the programmer does not specify a value explicitly
+#    By copying: when the variable is constructed as a copy of another variable of the same type
+#    By a specific value: when the programmer specifies a value explicitly
+値が指定されないとき，変数の値はデフォルト値になります，つまり型の ~.init~ 値です．
+# When a value is not specified, the value of the variable would be the default value of its type, i.e. its .init value.
+#+begin_src d
+int speed;
+#+end_src
+この例の ~speed~ の値は ~int.init~ で， ~0~ になります．当然，変数はデフォルト値またはその他の値をライフタイム中にとります (~immutable~ でない限り)．
+# The value of speed above is int.init, which happens to be zero. Naturally, a variable that is constructed by its default value may have other values during its lifetime (unless it is immutable).
+#+begin_src d
+File file;
+#+end_src
+上の定義では，変数 ~file~ は ~File~ オブジェクトで，実際のファイルシステム上のファイルにはまだ紐付いていません．実際のファイルと紐付けるよう変更されるまで，使ってはいけません．
+# With the definition above, the variable file is a File object that is not yet associated with an actual file on the file system. It is not usable until it is modified to be associated with a file.
+変数はときに，他の値をコピーすることで構築されます．
+# Variables are sometimes constructed as a copy of another variable:
+#+begin_src d
+int speed = otherSpeed;
+#+end_src
+上の ~speed~ は ~otherSpeed~ の値を使って構築されました．
+# speed above is constructed by the value of otherSpeed.
+
+後の章で見るように，この操作はクラス型の変数では異なる意味を持ちます．
+# As we will see in later chapters, this operation has a different meaning for class variables:
+#+begin_src d
+auto classVariable = otherClassVariable;
+#+end_src
+~classVariable~ は ~otherClassVariable~ のコピーとして生存を開始したのですが，クラスには根本的に違う動作をします: ~speed~ と ~otherSpeed~ は別個の値ですが， ~classValue~ と ~otherClassValue~ は両方とも同じ値へのアクセスを提供します．これが値型と参照型の根本的な違いです．
+# Although classVariable starts its life as a copy of otherClassVariable, there is a fundamental difference with classes: Although speed and otherSpeed are distinct values, classVariable and otherClassVariable both provide access to the same value. This is the fundamental difference between value types and reference types.
+最後に，変数は互換型(compatible type)の式によって構築できます．
+# Finally, variables can be constructed by the value of an expression of a compatible type:
+#+begin_src d
+int speed = someCalculation();
+#+end_src
+上の ~speed~ は ~someCalculation()~ の返り値によって構築されます．
+# speed above would be constructed by the return value of someCalculation().
+
+*** ファイナライズ
+#  Finalization
+ファイナライズとは変数に為される終了処理，およびメモリを回収する処理です:
+# Finalizing is the final operations that are executed for a variable and reclaiming its memory:
+1. デストラクト: 変数に為されるべき，終了処理です．
+2. 変数のメモリ回収: 変数が生存していたメモリを回収します．
+# 1. Destruction: The final operations that must be executed for the variable.
+# 2.  Reclaiming the variable's memory: Reclaiming the piece of memory that the variable has been living on.
+単純な基本型の場合，終了処理はありません．例えば， ~int~ 型変数の値は0に戻されたりはしません．このような変数は単にメモリを回収するだけで，他の変数で後ほど再利用されます．
+# For simple fundamental types, there are no final operations to execute. For example, the value of a variable of type int is not set back to zero. For such variables there is only reclaiming their memory, so that it will be used for other variables later.
+一方で，特定の型はファイナライズ中に特殊な操作を必要とします．例えば， ~File~ オブジェクトは出力バッファにためられた文字をディスクに書き込み，ファイルシステムに利用終了を通知する必要があります．これらの処理が ~File~ オブジェクトのデストラクトです．
+# On the other hand, some types of variables require special operations during finalization. For example, a File object would need to write the characters that are still in its output buffer to disk and notify the file system that it no longer uses the file. These operations are the destruction of a File object.
+配列の終了処理は，やや高レベルです: 配列のファイナライズ前に，まず各要素がデストラクトされます．もし要素が ~int~ のような単純な基本型の場合，特定の終了処理はありません．もし要素型が構造体やクラスのときは，ファイナライズが必要なので，各要素に対して実行されます．
+# Final operations of arrays are at a little higher-level: Before finalizing the array, first its elements are destructed. If the elements are of a simple fundamental type like int, then there are no special final operations for them. If the elements are of a struct or a class type that needs finalization, then those operations are executed for each element.
+連想配列も配列と同様です．追加で，キー型がファイナライズを必要とするとき，キーもファイナライズされます．
+# Associative arrays are similar to arrays. Additionally, the keys may also be finalized if they are of a type that needs destruction.
+*ガベージコレクタ*: D言語はガベージコレクタのある言語です．このような言語ではオブジェクトのファイナライズはプログラマによって明示的に行う必要はありません．変数のライフタイムが終了した際，ファイナライズは自動的にガベージコレクタによって管理されます．我々はガベージコレクタと特殊なメモリ管理について[[http://ddili.org/ders/d.en/memory.html][後の章]]でカバーします．
+# The garbage collector: D is a garbage-collected language. In such languages finalizing an object need not be initiated explicitly by the programmer. When a variable's lifetime ends, its finalization is automatically handled by the garbage collector. We will cover the garbage collector and special memory management in a later chapter.
+
+変数には次の2種類のファイナライズがあります．
+# Variables can be finalized in two ways:
+1. ライフタイムを終えるとき: ファイナライズは変数の生存が終了するとき発生します．
+2. 将来のいつか：ファイナライズは未来の決定不能な時刻にガベージコレクタによって発生します．
+#    When the lifetime ends: Finalization happens at the end of the variable's life.
+#    Some time in the future: Finalization happens at an indeterminate time in the future by the garbage collector.
+この2種類のどちらによってファイナライズされるかは，変数の型によります．配列，連想配列，クラスは通常ガベージコレクタによって「将来のいつか」にデストラクトされます．
+# Which of the two ways a variable will be finalized depends primarily on its type. Some types like arrays, associative arrays and classes are normally destructed by the garbage collector some time in the future.
+
+*** 代入
+他の基本操作として，ライフタイム中の変数に対する代入があります．
+# The other fundamental operation that a variable experiences during its lifetime is assignment.
+単純な基本型における代入は変数の値を変更するだけです．先に見たメモリ表現のように， ~int~ 変数が 123 の代わり 124 という値を持つといった操作です．しかしながら，より一般的には，代入は2つのステップからなります，それらは必ずしも次の順序では行われません:
+# For simple fundamental types assignment is merely changing the value of the variable. As we have seen above on the memory representation, an int variable would start having the value 124 instead of 123. However, more generally, assignment consists of two steps, which are not necessarily executed in the following order:
+1. 古い値のデストラクト
+2. 新しい値の構築
+#    Destructing the old value
+#    Constructing the new value
+これらの2つのステップはデストラクトを必要としない単純な基本型においては重要ではありません．デストラクトが必要な型にとっては，代入がこれらの2ステップの組合せであることが重要なので覚えていてください．
+# These two steps are not important for simple fundamental types that don't need destruction. For types that need destruction, it is important to remember that assignment is a combination of the two steps above.
+
+
+* 最近のライフタイム機能
+
+前章では2017年ごろまでのD言語の基本的なライフタイムの考え方に関する解説を引用しました．ところで前章の触れなかったトピックとして，ライフタイムが終了した後の変数にアクセスする方法(未定義動作を引き起こします)と，それを防ぐ方法について，本章は解説します．
+
+** escaping reference
+
+変数のライフタイムが終了するのは変数が定義したスコープを抜けるタイミングでした．例えば関数スコープのローカル変数を ~ref~ でうっかり返すだけで簡単にライフタイムが終了した変数にアクセスできそうです...．
+#+begin_src d
+ref int fun() {
+  int x;    // この x は fun() を抜けるとライフタイム終了して無効．絶対に参照を返してはいけない．
+  return x; // Error: returning `x` escapes a reference to local variable `x`
+}
+#+end_src
+しかし，最近のコンパイラは[[https://ja.wikipedia.org/wiki/%E3%82%A8%E3%82%B9%E3%82%B1%E3%83%BC%E3%83%97%E8%A7%A3%E6%9E%90][エスケープ解析]]が優秀なのでコンパイル時に検出してエラーにしてくれます(最近はC++(gcc)なども ~-Wreturn-local-addr~ でwarningを出してくれますね)．
+
+*ところが，* コンパイラをだます方法はあります．参照を受け渡すだけの関数 ~gun~ を挟むことで，エスケープ解析を打ち切ってしまいます(C++も同様だと思います)．
+#+begin_src d
+ref int gun(ref int y) {
+  return y;
+}
+
+ref int fun() {
+  int x;         // この x は fun() を抜けるとライフタイム終了して無効
+                 // x は gun内部でも有効だが，コンパイラは gun も x の参照を返すとは調べない
+  return gun(x); // Error: returning `x` escapes a reference to local variable `x`
+}
+#+end_src
+
+** return ref 仮引数
+
+そこで[[https://wiki.dlang.org/DIP25][DIP25]]で提案されたのが， ~return ref~ 属性です．
+
+https://dlang.org/spec/function.html#return-ref-parameters
+
+規格にはチェックを有効にするには ~-dip25~ スイッチをコンパイラにつける必要があると書いてありますが， *このreturn ref自体は2.067からはデフォルトで有効になっています．* 後述する ~@safe~ との連携にはスイッチが必要です．
+
+先程の例では次のように ~return ref~ と修飾するだけで参照した実引数が生存できるスコープを超える場合はエラーにできます．
+#+begin_src d
+ref int gun(return ref int y) {
+  return y;
+}
+
+ref int fun() {
+  int x;
+  return gun(x); // Error: returning `gun(x)` escapes a reference to local variable `x`
+}
+#+end_src
+この機能は単に，自分より外側にスコープを抜けないようにしているわけではなく，きちんと参照のライフタイムを追います．
+#+begin_src d
+ref int gun(return ref int y) {
+  return y;
+}
+
+void main() {
+  int x; // x は fun の外側にいる
+  ref int fun() {
+    return gun(x); // OK
+  }
+}
+#+end_src
+
+なお， ~inout ref~ 仮引数や，テンプレート関数 ~ref T foo(T)(ref T x)~ の仮引数などは，暗黙のうちに ~return ref~ として推論されます．あと特別な例としてローカル関数も ref 仮引数に対してエスケープ解析が打ち切られることはないようです(規格には書いてない?)．
+
+さらに，よくやってしまうメンバの参照返しで発生するライフタイム終了後の参照も ~return~ 属性でエラーにできます．これは ~this~ に対する ~return~ 修飾子(~auto foo() const~ などと同じ)だと考えるとわかりやすいでしょう．
+#+begin_src d
+struct S {
+    private int x; // この x は S オブジェクトのライフタイム中のみ生存
+    ref int get() return // ← ここ
+    { return x; }
+}
+
+ref int escape() {
+    S s;
+    return s.get(); // Error: escaping reference to local variable s
+}
+#+end_src
+
+** ~@safe~ と ~-dip25~ を使う
+
+注意点として，何処かで ~return ref~ 仮引数になっていれば安心というわけでは全くなくて，何処かで ~return~ 無しの ~ref~ 仮引数を使ってしまうとエスケープ解析が打ち切られてしまいます．そんな悲劇をさけるために， ~@safe:~ を全ソースコードに書き， *~-dip25~ スイッチをコンパイラに渡します．*
+#+begin_src d
+// $ dmd prog.d -ofprog.exe -dip25
+@safe:
+ref int hun(ref int a) { return a; } // Error: returning `a` escapes a reference to parameter `a`, perhaps annotate with `return`
+ref int gun(return ref int a) { return a; } // FINE
+#+end_src
+https://wandbox.org/permlink/Oj6mwFqz3ZyNsRW3
+
+~return~ のない ~ref~ 仮引数は使えなくなっていることがわかります．個人的には ~@safe~ がデフォルトであってほしいというか...， ~@unsafe~ を作ってそれを明示してほしいですね．
+
+* DIP1000: Scoped Pointers
+
+ここからはD言語の新機能DIP1000関連の話を解説します．Scoped Pointersとはざっくり言うと， ~return ref~ 仮引数のときは参照に限定されていたエスケープ解析をポインタやクラス全体に一般化した提案です．使い方はポインタ仮引数には ~return score int* a~ のように ~return scope~ として修飾して，ローカル変数のクラスやポインタには ~scope int* i;~ や ~scope ClassType c;~ として定義することで，ライフタイム終了後にアクセスされるとコンパイルエラーで禁止できます．
+
+https://github.com/dlang/DIPs/blob/master/DIPs/DIP1000.md
+
+** 背景
+
+DIP1000で引用されている過去の提案を見てみます．
+
+*** DIP25: Sealed References (2.067で実装)
+
+https://wiki.dlang.org/DIP25
+前章で解説したやつです．
+
+*** DIP35: Sealed References Amendment (ドラフト)
+
+https://wiki.dlang.org/DIP35
+ドラフトなのでとりあえず飛ばします．必要があれば後ほど解説．
+
+*** DIP36: Rvalue References (否決)
+
+https://wiki.dlang.org/DIP36
+否決されたので詳細は飛ばします．ちなみに2018年は左辺値参照しか扱えなかった ~ref T~ で，右辺値参照もできるようにしようという提案があり，議論の最終段階にあります．
+
+https://github.com/dlang/DIPs/blob/master/DIPs/DIP1016.md
+
+*** DIP69: Implement scope for escape proof references (-> DIP90 -> DIP1000)
+
+この提案は一度消えてDIP1000として再提案されたようです．[[https://github.com/dlang/DIPs/blob/master/DIPs/DIP1000.md#abstract]["This is a reboot of DIP69."]]
+
+*TODO 2018/12/19: とりあえずDIP1000自体の解説に入る前に，今回はここで終わります．続きは正月に書きます．良いお年を．*
+
+
+
+# * 最後に
+# DIP1000はDIP69から数えると提案されて4年経ち，未だ実現はおろかドキュメントの更新すらされていません．フォーラムでも幾つか議論([[https://forum.dlang.org/post/dsceeupaxahiwldladox@forum.dlang.org][Why isn't dip1000 fully implemented yet?]])があるのを見て，ちょっと残念な気持ちになりました．この記事もドキュメント化されていない最近の議論や実装については反映できていません．それでも記事を書いたのは，ぜひD言語が活発な日本のユーザにも関心を持ってもらって，DIP1000のような絶対便利な言語機能の実現をもっと活発化したいと思ったからです．この記事を読んで，何か意見を感じた方はぜひ，フォーラムやTwitterで発信して頂けるといいなと思います．

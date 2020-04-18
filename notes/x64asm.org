@@ -1,0 +1,95 @@
+#+TITLE: GCC8/x64ではじめるアセンブラ
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+
+
+#+BEGIN_abstract
+最近アセンブラをはじめたが，入門記事がどれも古くて，最新のGCC8では全然違う動作をするので困った．Hello worldを出力するプログラムを題材に，x64アセンブラを調査する．
+#+END_abstract
+
+
+* はじめに
+
+x64アセンブラを書こうと思う．とりあえずどうやってプログラムができているか知りたい．全体的な流れは [[https://ja.wikibooks.org/wiki/X86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%A9/GAS%E3%81%A7%E3%81%AE%E6%96%87%E6%B3%95][X86アセンブラ/GASでの文法]] を手本に沿っていく．個人的にIntel記法も読めるようになろうと思ったことと，最近の環境であるGCC8やx64を対象にしているところが異なる．
+
+** 事前知識
+
+- 環境: ubuntu18.4 gcc8.0.1 ~sudo apt-get install gcc-8~
+- [[https://www.imada.sdu.dk/~kslarsen/Courses/dm18-2007-spring/Litteratur/IntelnATT.htm][Intel and AT&T Syntax]]
+- [[https://ja.wikibooks.org/wiki/X86%E3%82%A2%E3%82%BB%E3%83%B3%E3%83%96%E3%83%A9/GAS%E3%81%A7%E3%81%AE%E6%96%87%E6%B3%95][X86アセンブラ/GASでの文法]]
+- [[https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf][Intel 64 and IA-32 Architectures Software Developer's Manual]]
+- [[https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf][Linux Programmer's Manual MMAP]]
+
+* C言語
+
+まず手始めに次のプログラム (test.c) のIntel文法アセンブラ出力 ~gcc-8 -S -masm=intel ./test.c~ の test.s を眺めてみる
+
+#+begin_src c
+#include <stdio.h>
+
+int main() {
+    printf("Hello, world!\n");
+}
+#+end_src
+
+出力は
+
+#+begin_src asm
+	.file	"test.c"
+	.intel_syntax noprefix
+	.text
+	.section	.rodata
+.LC0:
+	.string	"Hello, world!"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+.LFB0:
+	.cfi_startproc
+	push	rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	mov	rbp, rsp
+	.cfi_def_cfa_register 6
+	lea	rdi, .LC0[rip]
+	call	puts@PLT
+	mov	eax, 0
+	pop	rbp
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE0:
+	.size	main, .-main
+	.ident	"GCC: (Ubuntu 8-20180414-1ubuntu2) 8.0.1 20180414 (experimental) [trunk revision 259383]"
+	.section	.note.GNU-stack,"",@progbits
+#+end_src
+
+随分と手本のサイトと様子が違う．まず頻出する ~.cfi_xxx~  という行はcfiディレクティブというやつらしい．
+- https://stackoverflow.com/questions/2529185/what-are-cfi-directives-in-gnu-assembler-gas-used-for
+
+ちなみに ~gcc-8 -S -masm=intel -fno-asynchronous-unwind-tables ./test.c~ といったオプションを加えるとなくなる．
+
+#+begin_src asm
+	.file	"test.c"
+	.intel_syntax noprefix
+	.text
+	.section	.rodata
+.LC0:
+	.string	"Hello, world!"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+	push	rbp
+	mov	rbp, rsp
+	lea	rdi, .LC0[rip]
+	call	puts@PLT
+	mov	eax, 0
+	pop	rbp
+	ret
+	.size	main, .-main
+	.ident	"GCC: (Ubuntu 8-20180414-1ubuntu2) 8.0.1 20180414 (experimental) [trunk revision 259383]"
+	.section	.note.GNU-stack,"",@progbits
+#+end_src

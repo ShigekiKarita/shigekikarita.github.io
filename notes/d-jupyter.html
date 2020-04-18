@@ -1,0 +1,577 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<!-- 2020-04-18 Sat 20:09 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DUBに対応したD言語のREPL/Jupyter</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Shigeki Karita" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="/css/org.css"/>
+ <link href="/css/code.css" rel="stylesheet">
+ <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123741131-1"></script>
+ <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-123741131-1'); </script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">DUBに対応したD言語のREPL/Jupyter</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org26720ed">1. 背景</a></li>
+<li><a href="#orgf3886a8">2. dreplの仕組み</a></li>
+<li><a href="#org55c921f">3. DUBのパッケージを使えるようにする</a>
+<ul>
+<li><a href="#orge634662">3.1. One-Definiton Rule (ODR) 違反</a></li>
+</ul>
+</li>
+<li><a href="#org5a0e503">4. Jupyter対応</a>
+<ul>
+<li><a href="#org4cadf07">4.1. インストール方法</a></li>
+<li><a href="#orgf0535e8">4.2. Python版っぽく動かす</a></li>
+</ul>
+</li>
+<li><a href="#org6c42db0">5. 今後の方針</a></li>
+</ul>
+</div>
+</div>
+<div class="abstract">
+<p>
+昨日アップロード予定だったgrainの入門記事が未完成なので，こちらを先にアップロードしました．もう少し待っててください．
+</p>
+
+</div>
+
+<div id="outline-container-org26720ed" class="outline-2">
+<h2 id="org26720ed"><span class="section-number-2">1</span> 背景</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+D言語はリファレンス実装のDMDなどコンパイルがC++より大分速いので，前からREPL(read-eval-print loop)で対話的に書ける環境があれば良いなと思ってました．
+</p>
+
+<p>
+<a href="https://github.com/dlang-community/drepl">https://github.com/dlang-community/drepl</a>
+</p>
+
+<p>
+有名なツールだと上記のdreplという実装があり，かなり快適に使えるのですが2つ要望がありました．
+</p>
+
+<ul class="org-ul">
+<li>DUBパッケージを使いたい</li>
+<li>Jupyterで使いたい</li>
+</ul>
+
+<p>
+DUBというのはPythonでいうpipみたいなやつで，サードパーティのライブラリを管理するパッケージマネージャです．つまりdreplはphobos標準ライブラリしか使えません．JupyterというのはPython/Julia/Rで有名なブラウザからREPLを使えて共有できる便利なツールです．本稿の内容はそれらの機能を雑に実装してみたという話です．まだ未完成なので更なる要望やPRなどお待ちしてます（そのために記事を書きました）．
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf3886a8" class="outline-2">
+<h2 id="orgf3886a8"><span class="section-number-2">2</span> dreplの仕組み</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+drepl (src/console.d)(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/console.d">https://github.com/dlang-community/drepl/blob/v0.2.1/src/console.d</a>) は以下のような仕組みで成り立っています．
+</p>
+
+<ol class="org-ol">
+<li>入力テキスト（コード）を適切に前処理</li>
+<li>前処理後のコードをモジュールとして動的ライブラリにコンパイル，過去にコンパイルした動的ライブラリと共にリンク</li>
+<li>ライブラリ内の一番新しいmain的な関数を実行</li>
+<li>結果を表示する</li>
+<li>1へループ</li>
+</ol>
+
+<p>
+以上の処理は大まかに2つの構造体で実装しています．
+</p>
+
+<ol class="org-ol">
+<li>Interpreter(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/interpreter.d#L17">https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/interpreter.d#L17</a>): readとprintの部分を担当しています．ユーザの入力テキストを受けとり，宣言/式/文を判定してDMDEngineに渡し，InterpretResult型の実行結果を返します．</li>
+<li>DMDEngine(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L47">https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L47</a>) evalの部分を担当しています．以下の3つの仕事をします．
+<ul class="org-ul">
+<li>evalDecl/Expr/Stmt(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L68">https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L68</a>): Interpreterから受け取った宣言/式/文をそれぞれモジュールとしてコンパイラに解釈できるよう前処理し，コンパイル・main的な関数を呼び出し，EngineResult型の結果を返す</li>
+<li>compileModule(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L194">https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L194</a>): 前処理したモジュールを，過去のモジュールをインクルード/リンクして動的ライブラリとしてコンパイル</li>
+<li>loadFunc(<a href="https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L210">https://github.com/dlang-community/drepl/blob/v0.2.1/src/drepl/engines/dmd.d#L210</a>): REPLとして実行するコードを格納したmain的な関数を呼び出す</li>
+</ul></li>
+</ol>
+</div>
+</div>
+
+
+<div id="outline-container-org55c921f" class="outline-2">
+<h2 id="org55c921f"><span class="section-number-2">3</span> DUBのパッケージを使えるようにする</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+前節から，とりあえずDMDEngine.compileModule関数を拡張して，DUBを使って外部ライブラリを過去のモジュール同様にパスを通して，インクルード/リンクしてやれば良いということがわかります．残念ながらDMDEngineはクラスではなく構造体なので，継承とかはできず，コピペしました．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span class="org-keyword">struct</span> <span class="org-type">DUBEngine</span> {
+    <span class="org-comment-delimiter">/// </span><span class="org-comment">&#20182;&#12398;&#37096;&#20998;&#12399;DMDEngine&#12398;&#12467;&#12500;&#12506;</span>
+    <span class="org-keyword">this</span>(<span class="org-type">string</span>[] <span class="org-variable-name">packages</span>, <span class="org-type">CompilerOpt</span> <span class="org-variable-name">compiler</span>, <span class="org-type">string</span> <span class="org-variable-name">tmpDir</span>) {
+        ...
+        packages.each<span class="org-negation-char">!</span>(p =&gt; <span class="org-keyword">this</span>.registerPackage(p));
+    }
+
+    <span class="org-comment-delimiter">/// </span><span class="org-comment">REPL&#12434;&#12499;&#12523;&#12489;&#12377;&#12427; dub.json &#12363;&#12425; package &#12434;&#25277;&#20986;</span>
+    <span class="org-type">void</span> <span class="org-function-name">registerPackage</span>(<span class="org-type">string</span> <span class="org-variable-name">_package</span>) {
+        <span class="org-keyword">import</span> std.<span class="org-type">file</span> : exists;
+        <span class="org-keyword">import</span> std.<span class="org-type">algorithm</span> : map;
+        <span class="org-keyword">import</span> std.<span class="org-type">json</span> : parseJSON;
+        <span class="org-keyword">import</span> std.<span class="org-type">range</span> : chain;
+        <span class="org-keyword">import</span> std.<span class="org-type">process</span> : execute;
+
+        <span class="org-keyword">auto</span> <span class="org-variable-name">dubDescribe</span> = execute([<span class="org-string">"dub"</span>, <span class="org-string">"describe"</span>, _package,
+                <span class="org-string">"--compiler="</span> ~ _compiler.compiler]);
+        <span class="org-keyword">if</span> (dubDescribe.status != 0) {
+            <span class="org-keyword">throw</span> <span class="org-keyword">new</span> Exception(<span class="org-string">"failed: $ dub describe "</span> ~ _package ~ <span class="org-string">"\n"</span>
+                    ~ dubDescribe.output ~ <span class="org-string">"\n\nsuggest: $ dub fetch "</span> ~ _package);
+        }
+        <span class="org-keyword">auto</span> <span class="org-variable-name">dubInfo</span> = parseJSON(dubDescribe.output);
+        <span class="org-keyword">auto</span> <span class="org-variable-name">target</span> = dubInfo[<span class="org-string">"targets"</span>][0];
+        <span class="org-keyword">assert</span>(<span class="org-type">target</span>[<span class="org-string">"rootPackage"</span>].<span class="org-variable-name">str</span> == _package);
+        <span class="org-keyword">auto</span> <span class="org-variable-name">build</span> = target[<span class="org-string">"buildSettings"</span>];
+        <span class="org-keyword">auto</span> <span class="org-function-name">read</span>(<span class="org-type">string</span> <span class="org-variable-name">key</span>) {
+            <span class="org-keyword">return</span> build[key].array.map<span class="org-negation-char">!</span><span class="org-string">"a.str"</span>.array;
+        }
+
+        _dubFlags.insert(chain(read(<span class="org-string">"importPaths"</span>).map<span class="org-negation-char">!</span>(a =&gt; <span class="org-string">"-I"</span> ~ a),
+                               read(<span class="org-string">"libs"</span>).map<span class="org-negation-char">!</span>(a =&gt; <span class="org-string">"-L-l"</span> ~ a),
+                               read(<span class="org-string">"versions"</span>).map<span class="org-negation-char">!</span>(a =&gt; _compiler.ver ~ <span class="org-string">"="</span> ~ a),
+                               read(<span class="org-string">"linkerFiles"</span>)));
+
+        <span class="org-keyword">immutable</span> <span class="org-variable-name">targetFileName</span> = build[<span class="org-string">"targetPath"</span>].str ~ <span class="org-string">"/lib"</span> ~ build[<span class="org-string">"targetName"</span>]
+            .str ~ <span class="org-string">".a"</span>;
+        <span class="org-keyword">if</span> (targetFileName.exists) {
+            _dubFlags.insert(targetFileName);
+        }
+    }
+
+    <span class="org-type">string</span> <span class="org-function-name">compileModule</span>(<span class="org-type">string</span> <span class="org-variable-name">path</span>) {
+        <span class="org-keyword">import</span> std.<span class="org-type">process</span> : execute;
+        <span class="org-keyword">import</span> std.<span class="org-type">format</span> : format;
+        <span class="org-keyword">import</span> std.<span class="org-type">file</span> : exists;
+        <span class="org-keyword">import</span> std.<span class="org-type">regex</span> : ctRegex, replaceAll;
+        <span class="org-keyword">import</span> std.<span class="org-type">range</span> : chain;
+
+        logger.trace(<span class="org-string">"compile path: "</span>, path);
+        <span class="org-comment-delimiter">// </span><span class="org-comment">DUB&#12398;&#12499;&#12523;&#12489;&#35373;&#23450;&#12434;&#36861;&#35352;&#12375;&#12390;&#12514;&#12472;&#12517;&#12540;&#12523;&#12434;&#21205;&#30340;&#12521;&#12452;&#12502;&#12521;&#12522;&#12395;&#12467;&#12531;&#12497;&#12452;&#12523;</span>
+        <span class="org-keyword">auto</span> <span class="org-variable-name">args</span> = chain(_compiler.cmd,
+                          [<span class="org-string">"-I"</span> ~ _tmpDir, <span class="org-string">"-of"</span> ~ path ~ <span class="org-string">".so"</span>, <span class="org-string">"-shared"</span>, path, <span class="org-string">"-L-l:libphobos2.so"</span>],
+                          _dubFlags[]).array;
+
+        <span class="org-keyword">foreach</span> (i; 0 .. _id)
+            args ~= <span class="org-string">"-L"</span> ~ _tmpDir ~ format(<span class="org-string">"/_mod%s.so"</span>, i);
+
+        logger.trace(<span class="org-string">"compile with: "</span>, args);
+        <span class="org-keyword">auto</span> <span class="org-variable-name">dmd</span> = execute(args);
+        <span class="org-keyword">enum</span> <span class="org-type">cleanErr</span> = ctRegex<span class="org-negation-char">!</span>(<span class="org-string">`^.*Error: `</span>, <span class="org-string">"m"</span>);
+        <span class="org-keyword">if</span> (dmd.status != 0)
+            <span class="org-keyword">return</span> dmd.output.replaceAll(cleanErr, <span class="org-string">""</span>);
+        <span class="org-keyword">if</span> (<span class="org-negation-char">!</span>exists(path ~ <span class="org-string">".so"</span>))
+            <span class="org-keyword">return</span> path ~ <span class="org-string">".so not found"</span>;
+        <span class="org-keyword">return</span> <span class="org-string">""</span>;
+    }
+}
+</pre>
+</div>
+
+<p>
+やってることは以下の2つです．注意点として，importされるライブラリは予めreplのビルド設定dub.json/.sdlのdependenciesに記載する必要があります．
+</p>
+
+<ol class="org-ol">
+<li>初期化時にregisterPackagesメソッドが，REPLのビルド設定(`dub describe` が出力する json)をパースして使う package 情報を抜き出して，`_dubFlags`としてビルド設定を保存</li>
+<li>compileModuleメソッドは `_dubFlags` を追加してモジュールをコンパイル</li>
+</ol>
+
+<p>
+最終的には以下のモジュールにmain関数を定義してループを回しています．
+</p>
+
+<p>
+<a href="https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/repl.d">https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/repl.d</a>
+</p>
+</div>
+
+<div id="outline-container-orge634662" class="outline-3">
+<h3 id="orge634662"><span class="section-number-3">3.1</span> One-Definiton Rule (ODR) 違反</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+C++から離れて久しくD言語ばかり書いていたのでODR違反という問題に全くおもいつかなかったのですが，drepl本家の作者と議論したところ浮上しました．
+</p>
+
+<p>
+<a href="https://github.com/dlang-community/drepl/issues/4#issuecomment-414331125">https://github.com/dlang-community/drepl/issues/4#issuecomment-414331125</a>
+</p>
+
+<p>
+&gt; You're appproach looks interesting, but it has a flaw. It statically links packages into every subsequent D module, i.e. you'll end up with dozens of copies of the package.
+That will break the One Definition Rule.
+You really need to compile packages as shared libraries to avoid this. Atm. dub's support to compile packages as shared libs is still not fully there, e.g. dependencies need to be shared libs as well to avoid ODR issues.
+</p>
+
+<p>
+解決策は2つあってどちらもそこそこ面倒です．
+</p>
+
+<ul class="org-ul">
+<li>MartinNowak氏の案: DUBのパッケージを全て動的ライブラリとして扱えば，main的な関数の実行時までリンクされないのでODRは発生しない．ただしDUBの動的ライブラリ生成が弱いので限界がある</li>
+<li>私の案: DUBの個々のパッケージは静的ライブラリのまま，DUBパッケージのみを隔離して固めた `libdub_merged.so` のような動的ライブラリを作る．`libphobos.so` と同様にODR違反は発生しないが，サイズはでかいし，動的なリンクしたいパッケージ指定の実装が面倒になる．</li>
+</ul>
+
+<p>
+今の雑実装ではREPLをビルドする`dub.json`の`dependencies`に書かれてないpackageはimportできないし，D言語の静的ライブラリでそこまで巨大になることもないので(`libphobos.a`でも65 MB)，私は後者で良いと思っています．普通PythonのREPLでも動的にパッケージのインストールなどは想定してないと思うので&#x2026;大抵は起動前にpip installしますよね
+</p>
+
+<ul class="org-ul">
+<li><a href="https://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one">https://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org5a0e503" class="outline-2">
+<h2 id="org5a0e503"><span class="section-number-2">4</span> Jupyter対応</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+以前から筆者自身もコソコソとJupyterのドキュメントを読みながら，Jupyter用のサーバプログラムを書いていたのですが，先に凄いクオリティで作ってくれた人が居ました
+</p>
+
+<p>
+<a href="https://github.com/kaleidicassociates/jupyterd">https://github.com/kaleidicassociates/jupyterd</a>
+</p>
+
+<p>
+ここでは，Interpreterが改造されていて，zeromqなどを使ってjupyterのプロセスに対して，ユーザ入力や実行結果を通信しているようです．というわけで先程作ったDUB拡張のEngineをjupyterdのInterpreterで呼び出せば良いわけです．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-d"><span class="org-keyword">import</span> jupyterd.<span class="org-type">interpreter</span>;
+<span class="org-keyword">final</span> <span class="org-keyword">class</span> <span class="org-type">DynamicDUBInterpreter</span> : <span class="org-type">Interpreter</span>
+{
+    <span class="org-type">LanguageInfo</span> <span class="org-variable-name">li</span> = LanguageInfo(<span class="org-string">"D"</span>, __VERSION__, <span class="org-string">".d"</span>, <span class="org-string">"text/plain"</span>);
+
+    <span class="org-keyword">private</span> <span class="org-keyword">import</span> drepl.<span class="org-type">engines</span>;
+    <span class="org-type">InterpreterResult</span> <span class="org-variable-name">last</span>; 
+    <span class="org-keyword">typeof</span>(<span class="org-constant">drepl</span>.<span class="org-constant">engines</span>.Interpreter<span class="org-negation-char">!</span>DUBEngine) intp;
+
+    <span class="org-keyword">this</span>(<span class="org-type">DUBEngine</span> <span class="org-variable-name">engine</span>)
+    {
+        <span class="org-keyword">import</span> std.<span class="org-type">algorithm</span> : move;
+        intp = interpreter<span class="org-negation-char">!</span>DUBEngine(move(engine));
+    }
+
+    <span class="org-comment-delimiter">// </span><span class="org-comment">&#12371;&#12371;&#20197;&#22806; jupyterd.interpreter.DInterpreter&#12398;&#12467;&#12500;&#12506;</span>
+    ...
+}
+
+
+<span class="org-type">int</span> <span class="org-function-name">main</span>(<span class="org-type">string</span>[] <span class="org-variable-name">args</span>) {
+    <span class="org-type">Interpreter</span> <span class="org-variable-name">i</span> = <span class="org-keyword">new</span> DynamicDUBInterpreter(
+        DUBEngine(packages.split,
+                  CompilerOpt(compiler, build, flags))
+    );
+    ...
+}
+</pre>
+</div>
+
+<p>
+全体の実装(汚い)
+<a href="https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/grain_jupyterd.d">https://github.com/ShigekiKarita/grain/blob/v0.0.10/example/grain_jupyterd.d</a>
+</p>
+</div>
+
+<div id="outline-container-org4cadf07" class="outline-3">
+<h3 id="org4cadf07"><span class="section-number-3">4.1</span> インストール方法</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+jupyterとdubはお好きな方法でインストールしてください
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">git clone https://github.com/ShigekiKarita/grain --recursive
+<span class="org-builtin">cd</span> grain
+jupyter kernelspec install ./example/jupyterd --user
+dub build --config=jupyterd --compiler=dmd
+<span class="org-builtin">export</span> <span class="org-variable-name">PATH</span>=<span class="org-sh-quoted-exec">`pwd`</span>:$<span class="org-variable-name">PATH</span>
+jupyter notebook
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgf0535e8" class="outline-3">
+<h3 id="orgf0535e8"><span class="section-number-3">4.2</span> Python版っぽく動かす</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+最終的に動くnotebookの例です．きちんと式と文が区別されて，最後の式のみが出力されることが確認できます．
+<a href="https://github.com/ShigekiKarita/grain/blob/v0.0.10/tutorial.ipynb">https://github.com/ShigekiKarita/grain/blob/v0.0.10/tutorial.ipynb</a>
+</p>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-org6c42db0" class="outline-2">
+<h2 id="org6c42db0"><span class="section-number-2">5</span> 今後の方針</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>grain のリポジトリから分離してリファクタリング</li>
+<li>動的ライブラリを使ってODR問題を解決する</li>
+<li>LDC/GDCなどDMD以外のコンパイラ対応</li>
+<li>ggplot-dなどのグラフ描画や画像表示をサポートする</li>
+<li>Google Colaboratoryで動かす</li>
+</ul>
+
+<p>
+以上の機能を1年くらいで作っていこうと思います
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2020-04-18 Sat 20:09</p>
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 26.3 (<a href="https://orgmode.org">Org</a> mode 9.1.9)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

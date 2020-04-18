@@ -1,0 +1,121 @@
+#+TITLE: Travis CIでEmacs org-modeのページを自動デプロイ
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: ja
+#+OPTIONS: toc:t num:t H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_MATHJAX:  path:"MathJax/MathJax.js?config=TeX-AMS_HTML"
+
+* 動機
+
+いままで，ローカルでorg-modeの記事を書いて一々手作業で ~C-x C-e h h~ とかコマンドうってHTML化して ~git push~ で公開してました．github上でpushされればTravis上のEmacsで自動的にHTML化してgithub pagesとして公開されれば，手元にEmacsがないときもGitHub上でorgファイルを編集すれば自動でウェブでHTMLが読めたら便利だなと思いました．例えば外出先でもスマホとかで更新できるように使いたいです．
+
+* 実装
+
+https://github.com/ShigekiKarita/shigekikarita.github.io/tree/dev
+
+全体のスクリプトとしてはこんなことをやってます (.travis.yml)．注意点としてユーザ名.github.ioのリポジトリではmasterブランチしか公開されないので，devなど適当な別名ブランチからmasterにデプロイする方法をとっています．
+
+#+begin_src yaml
+language: bash
+
+dist: xenial
+
+cache: apt
+
+script:
+  # install deps
+  - sudo add-apt-repository ppa:kelleyk/emacs --yes
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq emacs26-nox bibtex2html
+  - sudo ln -sf /usr/bin/emacs26 /usr/bin/emacs
+  - emacs --version
+  # build HTML
+  - emacs -l ./install.el --batch
+  - ./export_all.sh
+
+deploy:
+  provider: pages
+  target-branch: master
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: dev
+#+end_src
+
+~install.el~ は org-mode のHTML化に使う言語モードなどのパッケージなどをインストールするスクリプトです．よくある ~$HOME/.emacs.d/init.el~ に書くような感じです．ここで誤解しやすいのはスクリプトモードのemacsは ~.emacs/init.el~ を使ってくれないようです．しかしインストールされたパッケージはやはり ~$HOME/.emacs.d/elpa~ に配置されるため，CIでは一度だけ実行すれば良いです．
+
+#+begin_src emacs-lisp
+(require 'package)
+
+;; MELPA
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Org
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+
+(package-initialize)
+(package-refresh-contents)
+
+(defvar my/favorite-packages
+  '(
+    d-mode
+    cuda-mode
+    lua-mode
+    yaml-mode
+    htmlize
+    org-plus-contrib ;; (任意) ox-bibtex を使いたい人
+    ))
+
+;; my/favorite-packages
+(dolist (package my/favorite-packages)
+  (unless (package-installed-p package)
+    (package-install package)))
+#+end_src
+
+~export.el~ にはHTML化のための設定を書いています．とくに注意すべきことはないと思います．
+
+#+begin_src emacs-lisp
+;; install.el で入れたパッケージを有効にする
+(require 'package)
+(package-initialize)
+
+;;; バックアップファイルを作らない設定
+(setq make-backup-files nil)
+(setq auto-save-default nil)
+
+;; (任意) bibtex2html のインストールが必要
+(require 'ox-bibtex)
+
+;; css を埋め込まない
+(setq org-html-htmlize-output-type 'css)
+
+;; スタイルシートなどヘッダーの設定
+(setq org-html-head
+"<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/org.css\"/>
+ <link href=\"/css/code.css\" rel=\"stylesheet\">"
+)
+#+end_src
+
+~export_all.sh~ はシェルスクリプトで ~export.el~ を使って全orgファイルをHTML化するやつです．こういうのはシェルスクリプトが楽ですね．Travisに上げる前に手元でこのスクリプトを叩いて，ブラウザで確認しています．
+
+#+begin_src bash
+#!/usr/bin/env bash
+
+for f in *.org **/*.org; do
+    echo "=== building $f ==="
+    emacs $f  -l `pwd`/export.el --batch -f org-html-export-to-html
+done
+#+end_src
+
+Travisにおけるビルド時間は2分ほどです．Emacs26のインストールに時間がかかってしまうので，Travisじゃなくて新しいEmacsを最初から入ってるCIがあれば移行したいですね．
+
+* 自動デプロイまでの道のりと情報源
+
+- emacs をスクリプトとして実行する方法が解説されています．Emacs上で泥臭くやってる作業を色々自動化できそう． https://www.emacswiki.org/emacs/BatchMode
+- いままでHTMLヘッダー(CSSスタイルやMathJaxとか，Google Analytics)を手動で挿入していたのですが， ~org-html-head~ を指定すると自動で全体のヘッダーを定義できることがわかりました．一箇所で変更しやすいです． https://orgmode.org/manual/HTML-Specific-export-settings.html
+- htmlizeがうまく色をつけてくれなくて困っていたのですが，自前のCSSを定義できることがわかりました． https://emacs.stackexchange.com/questions/7629/the-syntax-highlight-and-indentation-of-source-code-block-in-exported-html-file
+- htmlizeのcss一例 https://github.com/fniessen/org-html-themes/blob/master/styles/readtheorg/css/htmlize.css
+- 今回はspacemacsの設定に合わせてみた https://github.com/nashamri/spacemacs-theme/blob/c162ad13e4ae1965619012332d3b5f57c9172e98/spacemacs-common.el#L107
+- Travisのデプロイ設定 https://docs.travis-ci.com/user/deployment/pages/
+
+* 感想
+
+最初の思惑にあった携帯とかで編集してデプロイはまだやってないのですが，Travisで自動化したことで例えば今自分のEmacs環境が失われても，全く同じように環境を再現できるという安心感ができた気がします．少し調べたところ，別にシェルスクリプトを使わなくてもEmacs Lispだけでも十分色んなことができる気がしたので，来年はEmacs Lispを勉強してEmacs上で色んな作業を自動化したいです．
