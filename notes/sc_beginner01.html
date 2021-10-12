@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<!-- 2021-10-12 Tue 15:32 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SuperCollider ビギナーズガイド1</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Shigeki Karita" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="/css/org.css"/>
+ <link href="/css/code.css" rel="stylesheet">
+ <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123741131-1"></script>
+ <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-123741131-1'); </script>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">SuperCollider ビギナーズガイド1</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge8bbef4">1. はじめに</a>
+<ul>
+<li><a href="#org40a692f">1.1. 補足 Linux 環境</a></li>
+</ul>
+</li>
+<li><a href="#orgea4930f">2. 情報源</a></li>
+<li><a href="#org89f7aba">3. 音を鳴らす</a></li>
+<li><a href="#orgb7e80d8">4. 次回</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge8bbef4" class="outline-2">
+<h2 id="orge8bbef4"><span class="section-number-2">1.</span> はじめに</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+SuperColliderは割と珍しいテキストベースの音響プログラミング環境である．似たような環境としてはグラフィカルな環境としてMax/MSPやPureDataがあり，テキストベースの環境としてはTidalなどがある．本稿は何らかのプログラミング言語を触ったことがある人向け．今回は主に環境構築と情報源について記す，とりあえず下記のページからバイナリをDLするのが良い．
+</p>
+
+<p>
+<a href="https://supercollider.github.io/download">https://supercollider.github.io/download</a>
+</p>
+</div>
+
+
+<div id="outline-container-org40a692f" class="outline-3">
+<h3 id="org40a692f"><span class="section-number-3">1.1.</span> 補足 Linux 環境</h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+Linuxは無料のOSが多いので，誰にでもオススメしたい．ただしLinuxで最新版のSCを使うにはソースからビルドする必要がある．下記のページが参考になるだろう．
+</p>
+
+<p>
+<a href="https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-from-source-on-Ubuntu">https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-from-source-on-Ubuntu</a>
+</p>
+
+<p>
+またUbuntuの場合は下記のページの情報からaptで若干古いバージョンのバイナリをインストール可能．
+</p>
+
+<p>
+<a href="https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-on-Ubuntu-systems">https://github.com/supercollider/supercollider/wiki/Installing-SuperCollider-on-Ubuntu-systems</a>
+</p>
+
+<p>
+筆者の環境は下記のとおりである．できるだけ環境依存のないような解説を心掛けるが，上手く再現できない場合は参考にして欲しい．
+</p>
+
+<ul class="org-ul">
+<li>OS: Ubuntu 18.04 LTS</li>
+<li>SuperCollider: <a href="https://github.com/supercollider/supercollider/releases/tag/Version-3.10.2">3.10.2</a></li>
+<li>Jack: 1.9.12</li>
+<li>PC: ThinkPad X1</li>
+<li>Audio IF: Roland QuadCapture</li>
+</ul>
+
+<p>
+筆者は次のようにインストールした．ビルドに5分くらいかかる．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">sudo apt-get install build-essential libsndfile1-dev libasound2-dev libavahi-client-dev libicu-dev libreadline6-dev libfftw3-dev libxt-dev libudev-dev pkg-config git cmake qt5-default qt5-qmake qttools5-dev qttools5-dev-tools qtdeclarative5-dev qtpositioning5-dev libqt5sensors5-dev libqt5opengl5-dev qtwebengine5-dev libqt5svg5-dev libqt5websockets5-dev
+
+sudo apt-get install libjack-jackd2-dev
+
+wget https://github.com/supercollider/supercollider/releases/download/Version-3.10.2/SuperCollider-3.10.2-Source-linux.tar.bz2
+tar -xvf SuperCollider-3.10.2-Source-linux.tar.bz2
+
+<span class="org-builtin">cd</span> SuperCollider-Source
+mkdir build
+<span class="org-builtin">cd</span> build
+cmake -DCMAKE_BUILD_TYPE=Release -DNATIVE=ON ..
+make -j4
+sudo make install
+</pre>
+</div>
+
+<p>
+Linux環境ではターミナルから <code>scide</code> コマンドでSuperCollider IDEを起動する．次に <code>Ctr-B</code> でJackなど音を出すためのサーバを起動する．ここで起動しなかったり思っていたのと違うデバイスの場合は，別のオーディオIFを試すとかサンプルレートの変更などを試す必要がある．
+</p>
+
+<p>
+<a href="https://supercollider.github.io/tutorials/server-failed-to-start">https://supercollider.github.io/tutorials/server-failed-to-start</a>
+</p>
+
+<p>
+例えば <code>qjackctl</code> でJackの設定を変更する．私の場合はデフォルトでPC内蔵のサウンド出力が選ばれていたので，　外部IFのQuadCaptureを選択した．ここでサンプルレートも選べる．選択後にStartボタンを押す．
+</p>
+
+
+<div id="orgaa1f8b4" class="figure">
+<p><img src="file:///img/jack.png" alt="jack.png" />
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgea4930f" class="outline-2">
+<h2 id="orgea4930f"><span class="section-number-2">2.</span> 情報源</h2>
+<div class="outline-text-2" id="text-2">
+<ul class="org-ul">
+<li><a href="https://supercollider.github.io/">https://supercollider.github.io/</a> 公式ページ</li>
+<li><a href="https://supercollider.github.io/tutorials/user-faq">https://supercollider.github.io/tutorials/user-faq</a> 公式のよくある質問</li>
+<li><a href="https://sccode.org/">https://sccode.org/</a> SCのコードが集まるフォーラム</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org89f7aba" class="outline-2">
+<h2 id="org89f7aba"><span class="section-number-2">3.</span> 音を鳴らす</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+SCをインストールしたら SuperCollider IDE (scide) を起動する．今回はsccodeに投稿されていた作品を動かしてみる． 
+</p>
+
+<p>
+<a href="https://sccode.org/1-4UF#c860">https://sccode.org/1-4UF#c860</a>
+</p>
+
+<p>
+GUIまで実装された，かなりの大作である．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-supercollider">// ************************************
+// Granular Synthesis Demo (GUI)
+// Patch 1 - Granular Sampling
+// Bruno Ruviaro, 2013-08-20
+// ************************************
+
+/*
+
+Use the "Open New File" button to load a WAVE or AIFF file.
+This granulator needs a mono file. If you open a stereo file,
+only the left channel will be actually used (though you will
+see both channels displayed on the Sound File View).
+
+Trigger: number of grains being triggered per second.
+Transp: rate of transposition in semitones.
+grainDur: duration of individual grains.
+Pan: distribution of grains in the stereo field (left / right).
+grainAmp: amplitude of individual grains.
+Reverse: probability of a grain to be played backwards (0-100%).
+
+Grains will be chosen randomly from anywhere within
+the selected portion of the sound file. You can select
+portions of the sound file in two different ways:
+a) directly on the waveform (click and drag);
+b) using the Selection Slider just below the waveform display.
+
+You can also zoom in and out the waveform
+with Shift + Right Click + Mouse Up/Down
+(Note: the selection slider will not follow the zoom.
+The slider always reflects the position of current
+selection in regard to the total duration of the file)
+
+How to start: select all (ctrl + A), then evaluate (ctrl + enter).
+(on a Mac, use the command key instead of control)
+
+If you want to have several windows open to granulate different sounds,
+comment out the lines Window.closeAll and Buffer.freeAll
+
+*/
+
+s.waitForBoot({
+	var win, soundFile, soundFileView, subwin, centerPosSlider, centerPosInSeconds, triggerSlider, transpSlider, transpToRate, durSlider, panSlider, ampSlider, reverseSlider, buffer, synth, startButton, openButton, selectionSpec;
+
+
+	// FUNCTIONS
+
+	// Convert transpSlider values (in semitones)
+	// to rate values for TGrains (1 = no transp):
+	transpToRate = {arg transp; transp.linexp(-24, 24, 0.25, 4)};
+
+	// Convert from centerPosSlider values (0-1)
+	// to actual sound file position in seconds:
+	centerPosInSeconds = {
+		[
+			centerPosSlider.lo.linlin(0, 1, 0, soundFile.duration),
+			centerPosSlider.hi.linlin(0, 1, 0, soundFile.duration)
+		] // returns an array [lo, hi]
+	};
+
+	Window.closeAll;
+	Buffer.freeAll;
+
+	// Main window
+	win = Window.new("Granular Sampling", Rect(50, 50, 600, 580), false).front;
+	win.background = Color.grey(0.1, 0.9);
+	win.onClose = {s.freeAll};
+
+	// Sound File View
+	soundFileView = SoundFileView.new(win, Rect(30, 20, 540, 200))
+	// .soundfile_(soundFile)
+	// .read(0, soundFile.numFrames)
+	.gridColor_(Color.gray(0.3));
+
+	// What to do when user selects portion of sound file directly
+	// (i.e., on waveform, not using slider)
+	soundFileView.mouseUpAction = {arg view;
+		var loFrames, hiFrames, loSlider, hiSlider;
+		loFrames = view.selection(0)[0];
+		hiFrames = view.selection(0)[1] + loFrames;
+		loSlider = selectionSpec.unmap(loFrames);
+		hiSlider = selectionSpec.unmap(hiFrames);
+		2.do{centerPosSlider.setSpanActive(loSlider, hiSlider)}; // 2.do = hack...
+	};
+
+	// Open Button
+	openButton = Button.new(win, Rect(460, 20, 110, 30))
+	.states_([["open new file", Color.black, Color.gray]])
+	.action_({
+
+		"HELLO".postln;
+		// Stop whatever is playing
+		s.freeAll;
+
+		startButton.value = 0;
+
+		Dialog.openPanel(
+			okFunc: { |path|
+				soundFile = SoundFile.new;
+				soundFile.openRead(path);
+				// Load sound into buffer
+				buffer = Buffer.readChannel(s, path, channels: [0]);
+				// Display sound on View
+				soundFileView.soundfile_(soundFile);
+				soundFileView.read(0, soundFile.numFrames);
+				// ControlSpec (slider 0-1 &lt;=&gt; numFrames)
+				selectionSpec = ControlSpec(0, soundFile.numFrames);
+				// selectionSpec.postln;
+				// Set initial selection on View
+				soundFileView.setSelection(0, selectionSpec.map([0.1, 0.2]));
+				// Update slider
+				soundFileView.mouseUpAction.value(soundFileView);
+			},
+			cancelFunc: {"cancelled"}
+		);
+
+
+
+	});
+
+
+	// Sub view to group all sliders
+	subwin = CompositeView.new(win, Rect(20, 225, 560, 360))
+	// .background_(Color.red(0.4))
+	;
+	subwin.decorator = FlowLayout(subwin.bounds, margin: 0@0, gap: 5@10);
+
+	centerPosSlider = RangeSlider(subwin, 560@50)
+	.lo_(0.1)
+	.hi_(0.3)
+	.action_({ |v|
+		var lo, hi, size;
+		lo = selectionSpec.map(v.lo);
+		hi = selectionSpec.map(v.hi);
+		size = hi - lo;
+		soundFileView.setSelection(0, [lo, size]);
+		if(startButton.value==1, {synth.set(
+			\centerPosLo, centerPosInSeconds.value[0],
+			\centerPosHi, centerPosInSeconds.value[1])});
+		// ["uau", v.lo, v.hi, lo, hi].postln;
+	});
+
+	triggerSlider = EZRanger(
+		parent: subwin,
+		bounds: 560@30,
+		label: "Trigger  ",
+		controlSpec: ControlSpec(
+			minval:	0.5,
+			maxval: 50,
+			warp: 'exp',
+			step: 0.1,
+			units: " t/s"),
+		action: {|v|
+			if(startButton.value==1, {synth.set(\triggerLo, v.lo, \triggerHi, v.hi)})},
+		initVal: [1, 2],
+		labelWidth: 60,
+		unitWidth: 30)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	transpSlider = EZRanger(
+		parent: subwin,
+		bounds: 560@30,
+		label: "Transp  ",
+		controlSpec: ControlSpec(
+			minval:	-24, // two octaves below
+			maxval: 24, // two octaves above
+			warp: 'lin',
+			step: 1, // step by semitones
+			units: " ST"),
+		action: {|v|
+			if(startButton.value==1, {
+				synth.set(
+					\rateLo, transpToRate.value(v.lo),
+					\rateHi, transpToRate.value(v.hi))})},
+		initVal: [0, 0],
+		labelWidth: 60,
+		unitWidth: 30)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	durSlider = EZRanger(
+		parent: subwin,
+		bounds: 560@30,
+		label: "grainDur  ",
+		controlSpec: ControlSpec(
+			minval:	0.1,
+			maxval: 2,
+			warp: 'lin',
+			step: 0.1,
+			units: "sec"),
+		action: {|v|
+			if(startButton.value==1, {synth.set(\durLo, v.lo, \durHi, v.hi)})},
+		initVal: [0, 0],
+		labelWidth: 70,
+		unitWidth: 30)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	panSlider = EZRanger(
+		parent: subwin,
+		bounds: 560@30,
+		label: "Pan     ",
+		controlSpec: ControlSpec(
+			minval:	-1,
+			maxval: 1,
+			warp: 'lin',
+			step: 0.1,
+			units: "L/R"),
+		action: {|v|
+			if(startButton.value==1, {synth.set(\panLo, v.lo, \panHi, v.hi)})},
+		initVal: [0, 0],
+		labelWidth: 60,
+		unitWidth: 30)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	ampSlider = EZRanger(
+		parent: subwin,
+		bounds: 560@30,
+		label: "grainAmp ",
+		controlSpec: ControlSpec(
+			minval:	0.0,
+			maxval: 1,
+			warp: 'lin',
+			step: 0.01,
+			units: "amp"),
+		action: {|v|
+			if(startButton.value==1, {synth.set(\ampLo, v.lo, \ampHi, v.hi)})},
+		initVal: [0.2, 0.4],
+		labelWidth: 73,
+		unitWidth: 35)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	reverseSlider = EZSlider(
+		parent: subwin,
+		bounds: 560@30,
+		label: "Reverse  ",
+		controlSpec: ControlSpec(
+			minval:	0,
+			maxval: 100,
+			warp: 'lin',
+			step: 1,
+			units: "%"),
+		action: {|v|
+			if(startButton.value==1, {synth.set(\reverseProb, v.value/100)});
+		},
+		initVal: 0.0,
+		labelWidth: 63,
+		unitWidth: 35)
+	.setColors(Color.grey,Color.white, Color.grey(0.7),Color.grey, Color.white, Color.yellow);
+
+	startButton = Button.new(subwin, 560@40)
+	.states_([["START"], ["STOP", Color.black, Color.gray]])
+	.action_({arg button;
+		if(button.value==1,
+			{
+				synth = Synth("granular-sampling", [
+					\triggerLo, triggerSlider.lo,
+					\triggerHi, triggerSlider.hi,
+					\rateLo, transpToRate.value(transpSlider.lo),
+					\rateHi, transpToRate.value(transpSlider.hi),
+					\centerPosLo, centerPosInSeconds.value[0],
+					\centerPosHi, centerPosInSeconds.value[1],
+					\durLo, durSlider.lo,
+					\durHi, durSlider.hi,
+					\panLo, panSlider.lo,
+					\panHi, panSlider.hi,
+					\ampLo, ampSlider.lo,
+					\ampHi, ampSlider.hi,
+					\reverseProb, reverseSlider.value,
+					\bufnum, buffer.bufnum]);
+			},
+			{synth.free});
+	});
+
+
+	// SynthDef
+	SynthDef("granular-sampling", {
+		arg triggerLo, triggerHi, rateLo, rateHi, centerPosLo, centerPosHi, durLo, durHi, panLo, panHi, ampLo, ampHi, reverseProb, bufnum;
+
+		var trig, trigFreqMess, rate, centerPos, dur, pan, amp, coin, reverse, snd;
+		// var bufdur = BufDur.kr(buffer);
+
+		trigFreqMess = LFNoise2.kr(12).range(0.5, 1);
+		trig = Impulse.kr(LFNoise0.kr(trigFreqMess).range(triggerLo, triggerHi));
+
+		rate = Dwhite(rateLo, rateHi);
+		centerPos = Dwhite(centerPosLo, centerPosHi);
+		dur = Dwhite(durLo, durHi);
+		pan = Dwhite(panLo, panHi);
+		amp = Dwhite(ampLo, ampHi);
+		coin = CoinGate.kr(reverseProb, trig);
+		reverse = Select.kr(coin, [1, -1]);
+		// reverse.poll(trig);
+
+		Demand.kr(trig, 0, [rate, centerPos, dur, pan, amp]);
+
+		snd = TGrains.ar(
+			numChannels: 2,
+			trigger: trig,
+			bufnum: bufnum,
+			rate: rate * reverse,
+			centerPos: centerPos,
+			dur: dur,
+			pan: pan,
+			amp: amp);
+
+		Out.ar(0, snd);
+
+	}).add;
+
+}); // end of block
+</pre>
+</div>
+
+<p>
+動かし方は scide でサーバを起動(Ctrl-Bなど)して，下の写真でいう左側の画面に貼り付けて，全選択(Ctrl-A)したあと実行(Ctrl-Enter)すると次のようなGUIがでてくる．
+</p>
+
+
+<div id="orgf4ba9bf" class="figure">
+<p><img src="file:///img/scide.png" alt="scide.png" />
+</p>
+</div>
+
+
+<div id="orge427fad" class="figure">
+<p><img src="file:///img/sc_granular_sampling.png" alt="sc_granular_sampling.png" />
+</p>
+</div>
+
+<p>
+音声を読み込むようなので，とりあえず以前，このサイトのブログにアップロードした，回路を改造したギターの録音を取り込んで遊んでみた．グラニュラー的な奇妙な音になった．
+</p>
+
+<p>
+<a href="https://soundcloud.com/kari_tech/sc-190216-162023">https://soundcloud.com/kari_tech/sc-190216-162023</a>
+</p>
+<iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/576250611&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+
+<p>
+ちなみにSC上のなっている音を録音するには scide のメニュー Server から <code>Start recoding</code> を選択．すると Post window (右下のウィンドウ) に保存先などが表示されるので，良い感じの音を出した後，もう一度おなじメニューを選択すると録音が止まる．
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb7e80d8" class="outline-2">
+<h2 id="orgb7e80d8"><span class="section-number-2">4.</span> 次回</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+次はドキュメントを読んで，自分でコードを書いて音を出してみようと思う．
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2021-10-12 Tue 15:32</p>
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 27.2 (<a href="https://orgmode.org">Org</a> mode 9.4.4)</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">
+<head>
+<!-- 2021-10-12 Tue 15:32 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>grain 入門: 簡単な微分計算からGPU上でニューラルネットワークを動かす所まで</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="Shigeki Karita" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="css/org.css"/>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">grain 入門: 簡単な微分計算からGPU上でニューラルネットワークを動かす所まで</h1>
+<div id="table-of-contents">
+<h2>&#30446;&#27425;</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5c86877">1. はじめに</a></li>
+<li><a href="#org29a4a3c">2. grain のインストール</a></li>
+<li><a href="#org7f8827b">3. 基礎：Slice と Variable</a></li>
+<li><a href="#orgd230e70">4. 初級：二次関数を微分する</a></li>
+<li><a href="#orgf569884">5. 中級：合成関数としてニューラルネットワークを微分する</a></li>
+<li><a href="#org055fbc3">6. 上級：動的にニューラルネットワークを更新する</a></li>
+<li><a href="#org78d340b">7. 実装が予定される機能</a>
+<ul>
+<li><a href="#org3b59626">7.1. より多くのexample</a></li>
+<li><a href="#org7d30755">7.2. マルチGPU・ホスト対応</a></li>
+<li><a href="#orgf652382">7.3. 計算グラフの保存</a></li>
+<li><a href="#org43e4a86">7.4. 高階微分・微分演算子</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5c86877" class="outline-2">
+<h2 id="org5c86877"><span class="section-number-2">1.</span> はじめに</h2>
+</div>
+
+<div id="outline-container-org29a4a3c" class="outline-2">
+<h2 id="org29a4a3c"><span class="section-number-2">2.</span> grain のインストール</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+grainは現在Linuxのみ対応しています(もしかするとOSXでも動くかもしれませんが)，基本的にはdubに登録してあるライブラリを使うか，gitリポジトリを直接使うと良いです．
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">git clone https://github.com/ShigekiKarita/grain
+<span class="org-builtin">cd</span> grain
+git checkout v0.1.0
+<span class="org-comment-delimiter"># </span><span class="org-comment">CPU&#12398;&#12415;</span>
+make <span class="org-variable-name">NO_CUDA</span>=true
+<span class="org-comment-delimiter"># </span><span class="org-comment">CUDA&#12354;&#12426;&#65292;ldc&#12398;&#12415;&#23550;&#24540;</span>
+make <span class="org-variable-name">DC</span>=ldc2
+</pre>
+</div>
+
+<p>
+ビルドが始まり，unittestが正常に終了すればOKです．D言語のコンパイラは install.sh などを使ってインストールすると良いでしょう．
+</p>
+
+<p>
+<a href="https://blog.kotet.jp/2017/12/d-install-script/">https://blog.kotet.jp/2017/12/d-install-script/</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7f8827b" class="outline-2">
+<h2 id="org7f8827b"><span class="section-number-2">3.</span> 基礎：Slice と Variable</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+それではコードをバリバリ書いていく前に，基礎的な2つの型について説明します．
+</p>
+
+<ul class="org-ul">
+<li>mir.ndslice.slice.Slice</li>
+
+<li>grain.autograd.Variable</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgd230e70" class="outline-2">
+<h2 id="orgd230e70"><span class="section-number-2">4.</span> 初級：二次関数を微分する</h2>
+</div>
+
+<div id="outline-container-orgf569884" class="outline-2">
+<h2 id="orgf569884"><span class="section-number-2">5.</span> 中級：合成関数としてニューラルネットワークを微分する</h2>
+</div>
+
+<div id="outline-container-org055fbc3" class="outline-2">
+<h2 id="org055fbc3"><span class="section-number-2">6.</span> 上級：動的にニューラルネットワークを更新する</h2>
+</div>
+
+<div id="outline-container-org78d340b" class="outline-2">
+<h2 id="org78d340b"><span class="section-number-2">7.</span> 実装が予定される機能</h2>
+<div class="outline-text-2" id="text-7">
+</div>
+<div id="outline-container-org3b59626" class="outline-3">
+<h3 id="org3b59626"><span class="section-number-3">7.1.</span> より多くのexample</h3>
+<div class="outline-text-3" id="text-7-1">
+<p>
+現在，grainにはchainerやpytorchにあるような以下の例が実装されています．詳しくは example ディレクトリをみてください
+</p>
+
+<ul class="org-ul">
+<li>文字認識: example/mnist.d</li>
+<li>画像認識: example/cifar.d</li>
+<li>言語モデル: example/ptb.d, example/char_rnn.d</li>
+<li>強化学習： example/reinforce/main.d (今回の入門で作りました)</li>
+</ul>
+
+<p>
+実装中:
+</p>
+<ul class="org-ul">
+<li>GAN</li>
+<li>音声認識</li>
+<li>確率的プログラミング</li>
+</ul>
+
+<p>
+こんなexampleがほしいという希望があれば，ぜひissueを立ててください．頑張って新機能を実装しようと思います．
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org7d30755" class="outline-3">
+<h3 id="org7d30755"><span class="section-number-3">7.2.</span> マルチGPU・ホスト対応</h3>
+<div class="outline-text-3" id="text-7-2">
+<p>
+(高画質ゲームをするために)二本目の自宅GPUを購入したので，一ヶ月くらいマルチGPU対応をやる予定です．最近はMPIで遊んでいるので，いずれマルチホスト(distributed)学習などもサポートしたいと思いますが，シングルホスト用のデータSampler/Loader APIをまだ考えていないので，一年後くらいになるかと思います．
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf652382" class="outline-3">
+<h3 id="orgf652382"><span class="section-number-3">7.3.</span> 計算グラフの保存</h3>
+<div class="outline-text-3" id="text-7-3">
+<p>
+D言語にはPythonのPickleのような便利フレームワークがない&#x2026;ので学習済みモデルを利用するにはソースコードやコンパイル環境の再現が必要だった(実質PythonのPickleもそうだと思うけど)．しかしD言語はコンパイラによって静的ライブラリとして関数を保存できるので，mir.ndsliceなどを媒介してC/C++やPythonから簡単に呼び出せるようにする予定です．現時点でもある程度可能だと思いますが，Python並に簡単にexportしたいですよね．
+</p>
+
+<ul class="org-ul">
+<li>開発中のPython binding生成ライブラリ: <a href="https://github.com/ShigekiKarita/mir-pybind">https://github.com/ShigekiKarita/mir-pybind</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org43e4a86" class="outline-3">
+<h3 id="org43e4a86"><span class="section-number-3">7.4.</span> 高階微分・微分演算子</h3>
+<div class="outline-text-3" id="text-7-4">
+<p>
+double backwardとか呼ばれるやつです．現在grainでもごく一部の関数は何回でも微分できたりしますが，これを使って微分演算子またはgrad関数を定義したいと思っています．基本的にgrainはexample駆動で新機能を開発しているので，高階微分を使った面白い例などあればぜひ教えてください．
+</p>
+
+<ul class="org-ul">
+<li>二階微分を使ったニュートン法の実装 <a href="https://github.com/ShigekiKarita/pytorch-double-backward">https://github.com/ShigekiKarita/pytorch-double-backward</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">&#33879;&#32773;: Shigeki Karita</p>
+<p class="date">Created: 2021-10-12 Tue 15:32</p>
+<p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 27.2 (<a href="https://orgmode.org">Org</a> mode 9.4.4)</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
