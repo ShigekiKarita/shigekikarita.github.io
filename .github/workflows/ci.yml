@@ -31,6 +31,7 @@ jobs:
           sudo apt-get install -qq emacs-nox bibtex2html
       
       - name: Build HTML
+        continue-on-error: true
         run: |
           emacs --version
           emacs -l ./install.el --batch
