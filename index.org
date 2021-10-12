@@ -1,1 +1,59 @@
-readme.org
+#+TITLE: karita.xyz
+#+AUTHOR: Shigeki Karita
+#+LANGUAGE: en
+
+#+OPTIONS: toc:nil num:nil H:4 ^:nil pri:t author:t creator:t timestamp:t email:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/org.css"/>
+#+HTML_HEAD: <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123741131-1"></script>
+#+HTML_HEAD: <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-123741131-1'); </script>
+
+
+#+BEGIN_abstract
+#+BEGIN_center
+
+#+END_center
+#+END_abstract
+
+** About me
+
+- Shigeki Karita (EN), 苅田 成樹 (JP)
+- Tokyo, Japan
+
+** Link
+
+- [[https://shigekikarita.github.io/cv.pdf][Curriculum Vitae (CV)]]
+- [[https://github.com/ShigekiKarita][GitHub]]
+- [[https://twitter.com/kari_tech][Twitter]]
+- [[https://scholar.google.com/citations?hl=ja&user=enV4FrIAAAAJ&view_op=list_works&sortby=pubdate#][Google Scholar]]
+- [[https://shigekikarita.github.io/log][Hugo]]
+
+** Software
+
+Basically distributed under BSL-1.0
+
+*** D language
+
+- [[https://github.com/ShigekiKarita/grain][grain]]: chainer/pytorch like statically typed dynamic neural network library (support both CPU & GPU)
+- [[https://github.com/libmir/numir][libmir/numir]]: numpy-like wrapper of ndslice in libmir
+- [[https://github.com/ShigekiKarita/d-nv][d-nv]]:  CUDA wrapper with Driver, NVRTC, and compile time type check for kernel functions
+- [[https://github.com/ShigekiKarita/d-svm][d-svm]]: minimal implementation of support vector machines (SVM)
+- [[https://github.com/ShigekiKarita/d-ssvm][d-ssvm]]: structural SVM implementation (WIP). born to be faster than PyStruct and LIBSVM
+- [[https://github.com/ShigekiKarita/d-tree][d-tree]]: classification and regression tree (CART) implmentation for tree based statistical models (random forest, gradient boost).
+- [[https://github.com/ShigekiKarita/d-graphviz][d-graphviz]]: Graphviz wrapper with simple DSL supports visualization of module dependencies.
+- [[https://github.com/ShigekiKarita/d-ffmpeg-light][d-ffmpeg-light]]: ffmpeg wrapper using command line interface.
+
+*** OCaml
+
+- [[https://github.com/ShigekiKarita/ocaml-kaleido-llvm5][ocaml-kaleido-llvm5]]: Kaleidoscope tutorial re-implementation with OCaml bindings of LLVM5.0 and menhir.
+
+*** C++
+
+- [[https://github.com/ShigekiKarita/cxx14_thread_pool][cxx14_thread_pool]]: generic thread pool implementation with priority queue for C++14.
+- [[https://github.com/ShigekiKarita/CMakeExampleCUDA][CMakeExampleCUDA]]: example CMake project for CUDA/C++ integration.
+
+*** Python
+
+- [[https://github.com/espnet/espnet][ESPnet]]: fastest seq2seq based speech recognition toolkit (Apache2.0). contributing to pytorch backend.
+
+
+[[https://travis-ci.com/ShigekiKarita/shigekikarita.github.io][https://travis-ci.com/ShigekiKarita/shigekikarita.github.io.svg]]
