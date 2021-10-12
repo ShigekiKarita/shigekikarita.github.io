@@ -3,6 +3,8 @@
 !*.org
 !*.sh
 !*.el
+!*.html
+!*.pdf
 
 !code/*
 !css/*
@@ -11,4 +13,3 @@
 !.gitignore
 !.nojekyll
 !CNAME
-!.html
